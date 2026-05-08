@@ -1,85 +1,180 @@
+<div align="center">
 
-# RETRIVA - Intelligent Campus Lost & Found System
+<br/>
 
-> **Team 4SCRIPT** presents a Next-Generation Recovery Platform powered by Multimodal AI.
+```
+██████╗ ███████╗████████╗██████╗ ██╗██╗   ██╗ █████╗
+██╔══██╗██╔════╝╚══██╔══╝██╔══██╗██║██║   ██║██╔══██╗
+██████╔╝█████╗     ██║   ██████╔╝██║██║   ██║███████║
+██╔══██╗██╔══╝     ██║   ██╔══██╗██║╚██╗ ██╔╝██╔══██║
+██║  ██║███████╗   ██║   ██║  ██║██║ ╚████╔╝ ██║  ██║
+╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═══╝  ╚═╝  ╚═╝
+```
 
-## 📋 Overview
+**Intelligent Campus Lost & Found System**
 
-**RETRIVA** is a smart campus lost and found application designed to streamline the recovery of personal items. By replacing disorganized social media feeds and physical lost-and-found boxes with an intelligent, centralized platform, RETRIVA ensures that lost items are returned to their owners efficiently and securely.
+*Stop scrolling through WhatsApp groups. Start finding what matters.*
 
-The system leverages **Google Gemini 3.0** to perform semantic matching, meaning it understands that a "MacBook" reported lost is the same object as an "Apple Laptop" reported found. It handles the categorization, validation, and matching process autonomously, reducing administrative overhead and increasing recovery rates.
+<br/>
 
-## ✨ Key Features
+🏆 **Top 10 — TechSprint AI Hack '25 | GDG on Campus PCE (National Level)**
 
-### 🤖 Multimodal AI Intelligence
-- **Auto-Description:** Upload an image, and the system automatically extracts attributes (Brand, Color, Type, Condition) to populate the report.
-- **Semantic Search:** Innovative vector-based matching finds items based on meaning, not just exact keywords.
-- **Match Comparator:** A side-by-side comparison tool that uses AI to analyze two items and calculate a "Match Confidence Score" to help users verify ownership.
+<br/>
 
-### 🛡️ Guardian AI Privacy & Safety
-- **PII Redaction:** Automatically detects and blurs faces, student ID cards, and credit cards in uploaded images before they are published to protect student privacy.
-- **Content Moderation:** Filters out spam, pranks, and inappropriate uploads instantly using visual analysis.
+[![React](https://img.shields.io/badge/React_19-TypeScript-61DAFB?style=flat-square&logo=react)](https://react.dev)
+[![Firebase](https://img.shields.io/badge/Firebase-Firestore-FFCA28?style=flat-square&logo=firebase)](https://firebase.google.com)
+[![Gemini](https://img.shields.io/badge/Gemini_3.0-Flash_&_Pro-4285F4?style=flat-square&logo=google)](https://ai.google.dev)
+[![Vite](https://img.shields.io/badge/Vite-Build_Tool-646CFF?style=flat-square&logo=vite)](https://vitejs.dev)
+[![License](https://img.shields.io/badge/License-Educational-green?style=flat-square)](#-license)
 
-### ⚡ Real-Time Infrastructure
-- **Instant Alerts:** Push-style notifications when a potential match is found.
-- **Secure Messaging:** Built-in chat allows students to coordinate retrieval without sharing personal phone numbers.
-- **Live Updates:** Status tracking (Open/Resolved) for all reports ensures the database remains current.
+<br/>
 
-## 🛠️ Technology Stack
+---
 
-RETRIVA is built on a modern, scalable architecture:
+</div>
 
-*   **Frontend Framework:** React 19 (TypeScript)
-*   **Styling:** Tailwind CSS + Lucide React Icons
-*   **Artificial Intelligence:** Google Gemini API (Gemini 3.0 Flash & Pro)
-*   **Backend & Database:** Google Firebase (Firestore, Authentication)
-*   **Media Management:** Cloudinary API
-*   **Build Tool:** Vite
+## 🎥 Demo
 
-## 🚀 Getting Started
+> Watch our live presentation from **TechSprint AI Hack '25**
 
-To set up the project locally, follow these steps:
+[![Watch Demo](https://img.shields.io/badge/▶_Watch_on_YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/7m27rmMBnP0)
+
+<br/>
+
+## The Problem
+
+Campus lost and found is broken. Items sit unclaimed in cardboard boxes. Recovery attempts drown in chaotic WhatsApp threads. A "MacBook" report never connects with the "Apple laptop" that was turned in — because no one's reading every message.
+
+**RETRIVA fixes this.** A centralized, AI-powered platform that understands what you mean — not just what you type.
+
+<br/>
+
+## What Makes RETRIVA Different
+
+### 🧠 Multimodal AI at the Core
+
+| Feature | What it does |
+|---|---|
+| **Auto-Description** | Snap a photo → AI extracts brand, color, type, and condition. No manual typing. |
+| **Semantic Matching** | Vector search understands that *"MacBook"* = *"Apple laptop"*. Keyword matching can't do this. |
+| **Match Comparator** | Side-by-side AI analysis of two items produces a **Match Confidence Score** — so users verify ownership with evidence, not gut feeling. |
+
+### 🛡️ Guardian AI — Privacy by Default
+
+Privacy isn't an afterthought. Before any image goes live:
+
+- **Face Detection** — Uploads containing faces are automatically rejected outright.
+- **Document Redaction** — Student IDs, credit cards, and sensitive text are detected and masked.
+- **Content Moderation** — Spam, pranks, and inappropriate uploads are banned and rejected before they ever appear.
+
+### ⚡ Real-Time Everything
+
+- **Instant Match Alerts** — Get notified the moment a potential match is found.
+- **Secure In-App Messaging** — Coordinate retrieval without sharing your phone number.
+- **Live Status Tracking** — Every report is `Open` or `Resolved`. The database stays clean automatically.
+
+<br/>
+
+## Tech Stack
+
+```
+┌─────────────────────────────────────────────────────┐
+│                     RETRIVA                         │
+├─────────────────┬───────────────────────────────────┤
+│  Frontend       │  React 19 + TypeScript + Vite     │
+│  Styling        │  Tailwind CSS + Lucide Icons       │
+│  AI Layer       │  Google Gemini 3.0 (Flash & Pro)  │
+│  Backend        │  Firebase (Firestore + Auth)       │
+│  Media          │  Cloudinary API                   │
+└─────────────────┴───────────────────────────────────┘
+```
+
+<br/>
+
+## Getting Started
 
 ### Prerequisites
-*   Node.js (v18 or higher)
-*   A Firebase Project
-*   A Google Cloud Project with Gemini API enabled
-*   A Cloudinary Account
 
-### Installation
+- Node.js `v18+`
+- A [Firebase project](https://console.firebase.google.com/)
+- [Gemini API key](https://aistudio.google.com/) (Google AI Studio)
+- A [Cloudinary account](https://cloudinary.com/)
 
-1.  **Clone the repository**
-    ```bash
-    git clone https://github.com/your-username/retriva.git
-    cd retriva
-    ```
+### Setup
 
-2.  **Install dependencies**
-    ```bash
-    npm install
-    ```
+**1. Clone the repo**
+```bash
+git clone https://github.com/your-username/retriva.git
+cd retriva
+```
 
-3.  **Environment Configuration**
-    Create a `.env` file in the root directory and add your API keys:
-    ```env
-    VITE_API_KEY=your_gemini_api_key
-    ```
-    *Note: Firebase and Cloudinary configurations are currently handled in `src/services/firebase.ts` and `src/services/cloudinary.ts` respectively.*
+**2. Install dependencies**
+```bash
+npm install
+```
 
-4.  **Run the application**
-    ```bash
-    npm start
-    ```
+**3. Configure environment variables**
 
-## 👥 The Team (4SCRIPT)
+Create a `.env` file in the project root:
+```env
+VITE_API_KEY=your_gemini_api_key
+```
 
-This project was developed by First Year Engineering students from **Pillai College of Engineering**:
+> Firebase and Cloudinary configs live in `src/services/firebase.ts` and `src/services/cloudinary.ts`.
 
-*   **Durvesh Thorat** - Information Technology
-*   **Kaustubh Bhoir** - Computer Engineering
-*   **Nipun Tamore** - Information Technology
-*   **Srushtee Gawande** - Information Technology
+**4. Start the dev server**
+```bash
+npm start
+```
 
-## 📄 License
+<br/>
 
-This project is created for educational purposes. All rights reserved by Team 4SCRIPT.
+## Project Structure
+
+```
+retriva/
+├── src/
+│   ├── components/       # UI components
+│   ├── services/
+│   │   ├── firebase.ts   # Firestore & Auth config
+│   │   ├── cloudinary.ts # Media upload config
+│   │   └── gemini.ts     # AI service layer
+│   ├── pages/            # Route-level views
+│   └── types/            # TypeScript interfaces
+├── .env                  # API keys (not committed)
+└── vite.config.ts
+```
+
+<br/>
+
+## The Team — 4SCRIPT
+
+Built by first-year engineering students at **Pillai College of Engineering, New Panvel**.
+
+| Name | Branch | LinkedIn |
+|---|---|---|
+| Durvesh Thorat | Information Technology | [![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/durvesh-thorat/) |
+| Kaustubh Bhoir | Computer Engineering | [![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/kaustubh-bhoir-ce/) |
+| Nipun Tamore | Information Technology | [![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/nipun-tamore-21ba5b308/) |
+| Srushtee Gawande | Information Technology | — |
+
+<br/>
+
+## Contributing
+
+This is an educational project. Issues and suggestions are welcome — open a GitHub Issue or reach out to any team member.
+
+<br/>
+
+## License
+
+© 2025 Team 4SCRIPT — Pillai College of Engineering.  
+Created for educational purposes. All rights reserved.
+
+<br/>
+
+<div align="center">
+
+*Lost something? Found something? Let RETRIVA handle the rest.*
+
+</div>
