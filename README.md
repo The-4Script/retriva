@@ -1,7 +1,5 @@
 <div align="center">
 
-<br/>
-
 <pre>
 ██████╗ ███████╗████████╗██████╗ ██╗██╗   ██╗ █████╗
 ██╔══██╗██╔════╝╚══██╔══╝██╔══██╗██║██║   ██║██╔══██╗
@@ -13,14 +11,9 @@
 
 <b>Intelligent Campus Lost & Found System</b>
 
-<br/>
-
 <i>Stop scrolling through WhatsApp groups. Start finding what matters.</i>
 
-<br/>
-
-</div>
-🏆 **Top 10 — TechSprint AI Hack '25 | GDG on Campus PCE (National Level)**
+🏆 <b>Top 10 — TechSprint AI Hack '25 | GDG on Campus PCE (National Level)</b>
 
 <br/>
 
@@ -30,11 +23,10 @@
 [![Vite](https://img.shields.io/badge/Vite-Build_Tool-646CFF?style=flat-square&logo=vite)](https://vitejs.dev)
 [![License](https://img.shields.io/badge/License-Educational-green?style=flat-square)](#-license)
 
-<br/>
+</div>
 
 ---
 
-</div>
 
 ## 🎥 Demo
 
