@@ -1,6 +1,64 @@
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', sans-serif;
+  --color-brand-violet: #5E5CE6;
+  --color-off-white: #FDFBF7;
+
+  --animate-fade-in: fadeIn 0.5s ease-out;
+  --animate-slide-up: slideUp 0.5s ease-out;
+  --animate-pulse-soft: pulseSoft 3s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.5s infinite;
+  --animate-gradient-slow: gradientMove 15s ease infinite;
+  --animate-signal: signal 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+  --animate-neon-pulse: neonPulse 2s ease-in-out infinite alternate;
+  --animate-shimmer-fast: shimmerFast 2.5s linear infinite;
+  --animate-scale-pulse: scalePulse 3s ease-in-out infinite;
+  --animate-draw-loop: drawLoop 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes slideUp {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes signal {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+@keyframes neonPulse {
+  0% { filter: drop-shadow(0 0 2px rgba(66, 133, 244, 0.4)); }
+  100% { filter: drop-shadow(0 0 8px rgba(66, 133, 244, 0.8)); }
+}
+@keyframes shimmerFast {
+  0% { transform: translateX(-150%) skewX(-15deg); }
+  100% { transform: translateX(250%) skewX(-15deg); }
+}
+@keyframes scalePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+@keyframes drawLoop {
+  0% { stroke-dasharray: 0, 100; stroke-dashoffset: 0; }
+  50% { stroke-dasharray: 60, 100; stroke-dashoffset: 0; }
+  100% { stroke-dasharray: 60, 100; stroke-dashoffset: -100; }
+}
 
 /* Custom base styles handled in index.html, this file exists to satisfy build/import requirements */

@@ -67,7 +67,7 @@ export interface ItemReport {
   createdAt: number;
 }
 
-export type ViewState = 'AUTH' | 'DASHBOARD' | 'REPORT_LOST' | 'REPORT_FOUND' | 'MESSAGES' | 'PROFILE' | 'COMPARATOR' | 'FEATURES';
+export type ViewState = 'AUTH' | 'DASHBOARD' | 'REPORT_LOST' | 'REPORT_FOUND' | 'MESSAGES' | 'PROFILE' | 'COMPARATOR' | 'FEATURES' | 'AI_ASSISTANT';
 
 export interface AppNotification {
   id: string;

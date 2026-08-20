@@ -54,6 +54,8 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
     // Explicitly clear messages when ID changes to avoid flicker
     setSubcollectionMessages([]);
 
+    // Temporary fix: Removing the hard limit of 50 to allow all messages to load
+    // so historical truncation does not occur. We will implement proper pagination later.
     const messagesRef = db.collection('chats').doc(activeChatId).collection('messages');
     const q = messagesRef.orderBy('timestamp', 'asc');
 

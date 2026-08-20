@@ -1,7 +1,5 @@
 import { ItemCategory, GeminiAnalysisResult, ItemReport } from "../types";
-
-// Declare global Puter object from the script tag in index.html
-declare const puter: any;
+import { auth } from "./firebase";
 
 // --- TYPES ---
 export interface ComparisonResult {
@@ -66,54 +64,41 @@ const calculateTextSimilarity = (str1: string, str2: string): number => {
     return intersection.size / union.size;
 };
 
-// --- HELPER: PUTER WRAPPER ---
+// --- HELPER: BACKEND AI WRAPPER ---
 // Updated to accept string array for images
 const callPuterAI = async (
   prompt: string, 
   images?: string | string[], 
   systemInstruction?: string
 ): Promise<string | null> => {
-  if (typeof puter === 'undefined') {
-      console.error("[Retriva] Puter.js is not loaded in window.");
-      return null;
-  }
-
   try {
-    const fullPrompt = systemInstruction 
-      ? `SYSTEM INSTRUCTION: ${systemInstruction}\n\nUSER QUERY: ${prompt}` 
-      : prompt;
-
-    let response;
+    const user = auth.currentUser;
+    const token = user ? await user.getIdToken() : '';
     
-    try {
-        if (images) {
-           // Pass images (single string or array) directly to puter
-           response = await puter.ai.chat(fullPrompt, images);
-        } else {
-           response = await puter.ai.chat(fullPrompt);
-        }
-    } catch (innerError: any) {
-        if (innerError?.message?.includes('401') || innerError?.code === 401) {
-             console.log("[Puter] Auth required. Attempting to sign in...");
-             await puter.auth.signIn({ attempt_temp_user_creation: true });
-             if (images) {
-                response = await puter.ai.chat(fullPrompt, images);
-             } else {
-                response = await puter.ai.chat(fullPrompt);
-             }
-        } else {
-            throw innerError;
-        }
+    const response = await fetch('/api/gemini/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        prompt,
+        images,
+        systemInstruction
+      })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("[Backend AI Error]", errText);
+      return null;
     }
 
-    if (typeof response === 'string') return response;
-    if (response?.message?.content) return response.message.content;
-    if (response?.text) return response.text;
-    
-    return JSON.stringify(response);
+    const data = await response.json();
+    return data.result;
 
   } catch (error: any) {
-    console.error(`[Puter] AI Error:`, error);
+    console.error(`[Backend API] Error:`, error);
     return null;
   }
 };

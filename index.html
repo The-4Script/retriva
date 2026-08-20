@@ -4,83 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RETRIVA</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://js.puter.com/v2/"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-            },
-            colors: {
-              brand: {
-                violet: '#5E5CE6',
-              },
-              'off-white': '#FDFBF7', // Warmer light mode background
-            },
-            animation: {
-              'fade-in': 'fadeIn 0.5s ease-out',
-              'slide-up': 'slideUp 0.5s ease-out',
-              'pulse-soft': 'pulseSoft 3s ease-in-out infinite',
-              'shimmer': 'shimmer 2.5s infinite',
-              'gradient-slow': 'gradientMove 15s ease infinite',
-              'signal': 'signal 3s cubic-bezier(0, 0, 0.2, 1) infinite',
-              'neon-pulse': 'neonPulse 2s ease-in-out infinite alternate',
-              'shimmer-fast': 'shimmerFast 2.5s linear infinite',
-              'scale-pulse': 'scalePulse 3s ease-in-out infinite',
-              'draw-loop': 'drawLoop 4s cubic-bezier(0.4, 0, 0.2, 1) infinite',
-            },
-            keyframes: {
-              fadeIn: {
-                '0%': { opacity: '0' },
-                '100%': { opacity: '1' },
-              },
-              slideUp: {
-                '0%': { transform: 'translateY(20px)', opacity: '0' },
-                '100%': { transform: 'translateY(0)', opacity: '1' },
-              },
-              pulseSoft: {
-                '0%, 100%': { opacity: '1', transform: 'scale(1)' },
-                '50%': { opacity: '0.7', transform: 'scale(1.05)' },
-              },
-              shimmer: {
-                '0%': { transform: 'translateX(-100%)' },
-                '100%': { transform: 'translateX(100%)' },
-              },
-              gradientMove: {
-                '0%': { backgroundPosition: '0% 50%' },
-                '50%': { backgroundPosition: '100% 50%' },
-                '100%': { backgroundPosition: '0% 50%' },
-              },
-              signal: {
-                '0%': { transform: 'scale(1)', opacity: '1' },
-                '100%': { transform: 'scale(2.5)', opacity: '0' },
-              },
-              neonPulse: {
-                '0%': { filter: 'drop-shadow(0 0 2px rgba(66, 133, 244, 0.4))' },
-                '100%': { filter: 'drop-shadow(0 0 8px rgba(66, 133, 244, 0.8))' },
-              },
-              shimmerFast: {
-                '0%': { transform: 'translateX(-150%) skewX(-15deg)' },
-                '100%': { transform: 'translateX(250%) skewX(-15deg)' },
-              },
-              scalePulse: {
-                '0%, 100%': { transform: 'scale(1)' },
-                '50%': { transform: 'scale(1.02)' },
-              },
-              drawLoop: {
-                '0%': { strokeDasharray: '0, 100', strokeDashoffset: '0' },
-                '50%': { strokeDasharray: '60, 100', strokeDashoffset: '0' },
-                '100%': { strokeDasharray: '60, 100', strokeDashoffset: '-100' },
-              }
-            }
-          }
-        }
-      }
-    </script>
     <style>
       body {
         font-family: 'Inter', sans-serif;
@@ -115,18 +39,7 @@
         background: transparent;
       }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "lucide-react": "https://esm.sh/lucide-react@^0.561.0",
-    "firebase/": "https://esm.sh/firebase@^12.7.0/"
-  }
-}
-</script>
-</head>
+  </head>
   <body class="bg-off-white dark:bg-slate-950 text-slate-900 dark:text-slate-50 transition-colors duration-300 antialiased selection:bg-indigo-100 dark:selection:bg-indigo-900/30">
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>

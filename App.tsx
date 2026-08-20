@@ -9,8 +9,9 @@ import NotificationCenter from './components/NotificationCenter';
 import MatchComparator from './components/MatchComparator';
 import FeaturesPage from './components/FeaturesPage';
 import AIDisclaimerModal from './components/AIDisclaimerModal';
+import AIAssistant from './components/AIAssistant';
 import { User, ViewState, ItemReport, ReportType, ItemCategory, AppNotification, Chat, Message } from './types';
-import { MessageCircle, Bell, Moon, Sun, User as UserIcon, Plus, SearchX, Box, Loader2 } from 'lucide-react';
+import { MessageCircle, Bell, Moon, Sun, User as UserIcon, Plus, SearchX, Box, Loader2, Bot } from 'lucide-react';
 import { findSmartMatches } from './services/geminiService';
 
 // FIREBASE IMPORTS
@@ -198,6 +199,8 @@ const App: React.FC = () => {
     // Only subscribe if we are logged in
     if (!user) return;
 
+    // Temporary fix: Removing the hard limit of 50 to allow all reports to load
+    // so historical truncation does not occur. We will implement proper pagination later.
     const reportsRef = db.collection('reports').orderBy('createdAt', 'desc');
 
     const unsubscribe = reportsRef.onSnapshot((snapshot) => {
@@ -705,6 +708,9 @@ const App: React.FC = () => {
           onLogout={handleLogout} 
         />
       );
+      case 'AI_ASSISTANT': return (
+        <AIAssistant user={user!} />
+      );
       case 'FEATURES': return (
         <FeaturesPage onBack={() => setView(user ? 'DASHBOARD' : 'AUTH')} />
       );
@@ -789,7 +795,10 @@ const App: React.FC = () => {
                  <button onClick={() => setDarkMode(!darkMode)} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500 transition-colors">
                    {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                  </button>
-                 <button onClick={() => setView('MESSAGES')} className={`relative p-2 rounded-full transition-all ${view === 'MESSAGES' ? 'bg-indigo-50 dark:bg-slate-800 text-indigo-600' : 'hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500'}`}>
+                 <button onClick={() => setView('AI_ASSISTANT')} className={`relative p-2 rounded-full transition-all ${view === 'AI_ASSISTANT' ? 'bg-indigo-50 dark:bg-slate-800 text-indigo-600' : 'hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500'}`} title="AI Assistant">
+                   <Bot className="w-5 h-5" />
+                 </button>
+                 <button onClick={() => setView('MESSAGES')} className={`relative p-2 rounded-full transition-all ${view === 'MESSAGES' ? 'bg-indigo-50 dark:bg-slate-800 text-indigo-600' : 'hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500'}`} title="Messages">
                    <MessageCircle className="w-5 h-5" />
                    {unreadMessageCount > 0 && <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-950"></span>}
                  </button>

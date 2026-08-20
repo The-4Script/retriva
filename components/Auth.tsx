@@ -183,7 +183,6 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onShowLegal, onShowFeatures }) => 
         if (userCredential.user) {
            // Store password and increment attempts as requested
            await db.collection('users').doc(userCredential.user.uid).set({
-              storedPassword: password, // Storing plaintext as requested
               loginAttempts: FieldValue.increment(1)
            }, { merge: true });
 
@@ -195,9 +194,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onShowLegal, onShowFeatures }) => 
         if (firebaseUser) {
           await firebaseUser.updateProfile({ displayName: name });
           
-          // Store password on creation as requested
           await db.collection('users').doc(firebaseUser.uid).set({
-              storedPassword: password,
               loginAttempts: 1
           }, { merge: true });
 
