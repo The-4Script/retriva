@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { ItemReport, ReportType, ItemCategory, User } from '../types';
-import { analyzeItemDescription, instantImageCheck, extractVisualDetails, mergeDescriptions, detectRedactionRegions, validateReportContext } from '../services/geminiService';
+import { generateSmartReport } from '../services/geminiService';
 import { uploadImage } from '../services/cloudinary';
 import { Loader2, MapPin, X, Check, Sparkles, Box, SearchX, ShieldBan, UploadCloud, AlertCircle, Wand2, Info, LayoutTemplate, Palette, Tag, EyeOff, Edit2, ShieldAlert, Cpu, Layers } from 'lucide-react';
 
@@ -104,7 +104,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [aiFeedback, setAiFeedback] = useState<AIFeedback | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  const [visualInsights, setVisualInsights] = useState<any>(null);
+  const [crossCheckMsg, setCrossCheckMsg] = useState<string>('');
   
   // Refs
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -144,7 +144,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
       setSpecs(prev => ({ ...prev, [key]: value }));
   };
 
-  // 1. Image Check, Redaction & Autofill Trigger
+  // 1. Just Upload Image (No AI yet)
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && !isProcessing) {
@@ -154,112 +154,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
       const reader = new FileReader();
       reader.onloadend = async () => {
         let base64 = reader.result as string;
-        const originalBase64 = base64; 
-        
-        setImageStatuses(prev => [...prev, { url: base64, file: file, status: 'checking' }]);
-        const newImageIndex = imageStatuses.length; 
-
-        // A. Security & Context Check
-        let needsRedaction = false;
-        try {
-            const security = await instantImageCheck(originalBase64);
-            
-            if (security.violationType === 'HUMAN_PORTRAIT') {
-                 setImageStatuses(prev => prev.map((s, i) => i === newImageIndex ? { ...s, status: 'prank' } : s));
-                 setAiFeedback({ 
-                    severity: 'BLOCK', 
-                    type: 'PORTRAIT', 
-                    message: "Humans/Selfies are not allowed. Only photos of items.", 
-                    onAction: () => removeImage(newImageIndex) 
-                 });
-                 return;
-            }
-
-            // Fix: Removed redundant check for 'HUMAN_PORTRAIT' as it is handled in the previous block.
-            if (security.violationType !== 'NONE') {
-                setImageStatuses(prev => prev.map((s, i) => i === newImageIndex ? { ...s, status: 'prank' } : s));
-                setAiFeedback({ 
-                    severity: 'BLOCK', 
-                    type: security.violationType, 
-                    message: security.reason || "Image rejected by safety policy.", 
-                    onAction: () => removeImage(newImageIndex) 
-                });
-                return;
-            }
-
-            // If it's a DOCUMENT or ID, we MUST redact faces/text
-            if (security.context === 'DOCUMENT') {
-                needsRedaction = true;
-            }
-
-        } catch (e) { console.warn("Security check skipped/failed", e); }
-
-        // B. Redaction Check
-        // If identified as a document OR we detect regions anyway
-        setIsRedacting(true);
-        let wasRedacted = false;
-        try {
-          const regions = await detectRedactionRegions(originalBase64);
-          if (regions.length > 0 || needsRedaction) {
-            // Apply Redaction State (Visual Blur via CSS 'redacted' status)
-            // Ideally we would pixelate the actual canvas here, but for this demo we flag it.
-            setImageStatuses(prev => prev.map((s, i) => i === newImageIndex ? { ...s, status: 'redacted' } : s));
-            setAiFeedback({ 
-                severity: 'SUCCESS', 
-                type: 'REDACTION', 
-                message: "ID/Document detected. Sensitive details & faces auto-blurred.", 
-                actionLabel: 'Ok', 
-                onAction: () => setAiFeedback(null) 
-            });
-            wasRedacted = true;
-          }
-        } catch (e) { console.error("Redaction error", e); } finally { setIsRedacting(false); }
-
-        if (!wasRedacted) {
-           setImageStatuses(prev => prev.map((s, i) => i === newImageIndex ? { ...s, status: 'valid' } : s));
-        }
-
-        // C. Autofill Structured Data
-        if (imageStatuses.length === 0) {
-           setIsAutofilling(true);
-           try {
-             const details = await extractVisualDetails(base64);
-             
-             if (!title) setTitle(details.title);
-             
-             // If AI detects a specific category, switch to it
-             if (category === ItemCategory.OTHER && details.category !== ItemCategory.OTHER) {
-                 setCategory(details.category);
-             }
-             
-             if (tags.length === 0) setTags(details.tags || []);
-             
-             // MERGE SPECS: Combine existing manual specs with AI extracted specs
-             setSpecs(prev => {
-                 const newSpecs = { ...prev };
-                 // Only overwrite if empty
-                 if (details.specs) {
-                     Object.entries(details.specs).forEach(([k, v]) => {
-                         if (!newSpecs[k]) newSpecs[k] = v;
-                     });
-                 }
-                 // Map color if not present
-                 if (!newSpecs['color'] && details.color) newSpecs['color'] = details.color;
-                 
-                 return newSpecs;
-             });
-
-             if (!distinguishingMarks && details.distinguishingFeatures?.length > 0) {
-                 setDistinguishingMarks(details.distinguishingFeatures.join(', '));
-             }
-             
-             setVisualInsights(details);
-           } catch (e) {
-             console.error("Autofill error", e);
-           } finally {
-             setIsAutofilling(false);
-           }
-        }
+        setImageStatuses(prev => [...prev, { url: base64, file: file, status: 'valid' }]);
       };
       reader.readAsDataURL(file);
     }
@@ -268,45 +163,102 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
   const removeImage = (index: number) => {
     if (!isProcessing) {
       setImageStatuses(prev => prev.filter((_, i) => i !== index));
-      if (imageStatuses.length <= 1) setVisualInsights(null);
     }
   };
 
+  // 2. The ONE-SHOT AI God Prompt (Click 1)
   const handleGenerateDescription = async () => {
-    setIsMerging(true);
+    if (!title && !distinguishingMarks && imageStatuses.length === 0) {
+        setFormError("Please upload an image or provide some initial details first.");
+        return;
+    }
+
+    setIsAnalyzing(true);
+    setFormError(null);
+    setCrossCheckMsg('');
+
     try {
-      // Create a context string from the structured specs
+      const base64Image = imageStatuses.length > 0 ? imageStatuses[0].url : undefined;
       const specContext = Object.entries(specs).map(([k, v]) => `${k}: ${v}`).join(', ');
       const fullContext = `${distinguishingMarks}. Details: ${specContext}`;
 
-      const merged = await mergeDescriptions(fullContext, visualInsights || { note: "No visual data" });
-      setDescription(merged);
+      const aiResult = await generateSmartReport(base64Image, title, fullContext);
+
+      // Check Security
+      if (aiResult.security.isViolation || aiResult.security.isPrank) {
+         setAiFeedback({ 
+             severity: 'BLOCK', 
+             type: aiResult.security.violationType, 
+             message: aiResult.security.reason || "Image rejected by safety policy.", 
+             onAction: () => {
+                 setAiFeedback(null);
+                 if (imageStatuses.length > 0) removeImage(0);
+             } 
+         });
+         return;
+      }
+
+      // Apply Redaction if needed
+      if (aiResult.redactionRegions.length > 0) {
+          setImageStatuses(prev => prev.map((s, i) => i === 0 ? { ...s, status: 'redacted' } : s));
+          setAiFeedback({ 
+              severity: 'SUCCESS', 
+              type: 'REDACTION', 
+              message: "Sensitive details auto-blurred.", 
+              actionLabel: 'Ok', 
+              onAction: () => setAiFeedback(null) 
+          });
+      }
+
+      // Autofill details
+      if (aiResult.visualInsights.category) setCategory(aiResult.visualInsights.category);
+      if (aiResult.visualInsights.tags.length > 0) setTags(aiResult.visualInsights.tags);
+      
+      setSpecs(prev => {
+          const newSpecs = { ...prev };
+          if (aiResult.visualInsights.specs) {
+              Object.entries(aiResult.visualInsights.specs).forEach(([k, v]) => {
+                  if (!newSpecs[k]) newSpecs[k] = v;
+              });
+          }
+          if (!newSpecs['color'] && aiResult.visualInsights.color) newSpecs['color'] = aiResult.visualInsights.color;
+          return newSpecs;
+      });
+
+      if (!title) setTitle(aiResult.suggestedTitle);
+      setDescription(aiResult.suggestedDescription);
       setIsDescriptionGenerated(true);
       setIsEditingDescription(false); 
+      
+      if (aiResult.crossCheckFeedback) {
+          setCrossCheckMsg(aiResult.crossCheckFeedback);
+      }
+
     } catch (e) {
       console.error(e);
       setFormError("AI generation failed. Please try again.");
     } finally {
-      setIsMerging(false);
+      setIsAnalyzing(false);
     }
   };
 
+  // 3. Final Submission (Click 2 - No AI)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
 
-    // 1. Strict Validation
     if (!title.trim() || !description.trim() || !location.trim() || !date || !time) {
       setFormError("Please fill in all required fields.");
       return;
     }
 
-    // Validate Required Specs based on Schema
     const schema = CATEGORY_SCHEMAS[category];
-    const missingSpecs = schema.filter(field => field.required && !specs[field.key]);
-    if (missingSpecs.length > 0) {
-        setFormError(`Missing required details: ${missingSpecs.map(f => f.label).join(', ')}`);
-        return;
+    if (schema) {
+      const missingSpecs = schema.filter(field => field.required && !specs[field.key]);
+      if (missingSpecs.length > 0) {
+          setFormError(`Missing required details: ${missingSpecs.map(f => f.label).join(', ')}`);
+          return;
+      }
     }
 
     if (!isLost && imageStatuses.length === 0) {
@@ -314,41 +266,10 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
       return;
     }
 
-    setIsVerifyingFinal(true);
-
+    setIsSubmitting(true);
+    
     try {
-      const validationScan = await validateReportContext({
-          title, 
-          category, 
-          location, 
-          description,
-          specs
-      });
-
-      if (!validationScan.isValid) {
-          setAiFeedback({ 
-              severity: 'BLOCK', 
-              type: 'INCONSISTENCY', 
-              message: validationScan.reason || "Report content appears invalid.", 
-              actionLabel: 'Edit Report', 
-              onAction: () => setAiFeedback(null) 
-          });
-          setIsVerifyingFinal(false);
-          return;
-      }
-
-      const finalCheck = await analyzeItemDescription(description, imageStatuses.map(s => s.url), title);
-      
-      if (finalCheck.isViolating || finalCheck.isPrank) {
-        setAiFeedback({ severity: 'BLOCK', type: 'VIOLATION', message: finalCheck.violationReason || "Safety check failed.", actionLabel: 'Fix', onAction: () => setAiFeedback(null) });
-        setIsVerifyingFinal(false);
-        return;
-      }
-
-      setIsSubmitting(true);
-      
       const validImages = imageStatuses.filter(s => s.status !== 'prank');
-      
       const uploadPromises = validImages.map(async (img) => {
         if (img.file) {
           return await uploadImage(img.file);
@@ -361,28 +282,27 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
       const report: ItemReport = {
         id: initialData?.id || crypto.randomUUID(),
         type: reportType,
-        title: finalCheck.title || title,
-        description: finalCheck.description || description,
-        summary: finalCheck.summary || description.slice(0, 100),
+        title: title,
+        description: description,
+        summary: description.slice(0, 100),
         distinguishingFeatures: distinguishingMarks ? distinguishingMarks.split(',').map(s => s.trim()) : [],
         category: category,
         location,
         date: formatToDDMMYYYY(date),
         time,
         imageUrls: uploadedUrls, 
-        tags: finalCheck.tags || tags,
+        tags: tags,
         status: initialData?.status || 'OPEN',
         reporterId: user.id,
         reporterName: user.name,
         createdAt: initialData?.createdAt || Date.now(),
-        specs: specs // Save structured data
+        specs: specs
       };
       onSubmit(report);
     } catch (error) {
       console.error(error);
       setFormError("Submission failed. Check your connection or try again.");
     } finally {
-      setIsVerifyingFinal(false);
       setIsSubmitting(false);
     }
   };
@@ -595,24 +515,15 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Smart Description</h3>
                     </div>
 
-                    {/* AI Insights Panel */}
-                    {visualInsights && (
-                       <div className="mb-4 p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100 dark:border-indigo-900/30">
-                          <div className="flex items-center gap-2 mb-3">
-                             <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-                             <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">AI Visual Findings</span>
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                             {visualInsights.color && (
-                                <span className="px-2 py-1 bg-white dark:bg-slate-800 rounded-lg text-[10px] font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1">
-                                  <Palette className="w-3 h-3" /> {visualInsights.color}
-                                </span>
-                             )}
-                             {visualInsights.tags?.map((t: string) => (
-                                <span key={t} className="px-2 py-1 bg-white dark:bg-slate-800 rounded-lg text-[10px] font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 flex items-center gap-1">
-                                  <Tag className="w-3 h-3" /> {t}
-                                </span>
-                             ))}
+                    {/* AI Insights Panel & Cross-check */}
+                    {crossCheckMsg && (
+                       <div className="mb-4 p-4 bg-amber-50/80 dark:bg-amber-900/20 rounded-2xl border border-amber-200 dark:border-amber-800/50">
+                          <div className="flex items-start gap-3">
+                             <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                             <div>
+                                <span className="text-xs font-bold text-amber-800 dark:text-amber-400 block mb-1">AI Cross-Check Insights</span>
+                                <p className="text-xs text-amber-700 dark:text-amber-300 font-medium leading-relaxed">{crossCheckMsg}</p>
+                             </div>
                           </div>
                        </div>
                     )}
@@ -651,8 +562,8 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
                                    onClick={handleGenerateDescription}
                                    className="w-full mt-2 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 bg-[length:200%_auto] animate-gradient-slow text-white rounded-xl text-sm font-black uppercase tracking-widest shadow-[0_0_20px_rgba(99,102,241,0.5)] hover:shadow-[0_0_30px_rgba(99,102,241,0.7)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                                 >
-                                   {isMerging ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4 animate-pulse" />}
-                                   {isMerging ? "Generating..." : "Generate Description"}
+                                   {isAnalyzing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4 animate-pulse" />}
+                                   {isAnalyzing ? "Analyzing..." : "Generate Description & Verify"}
                                 </button>
                              )}
                            </>
@@ -696,7 +607,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
                  disabled={isProcessing} 
                  className="px-8 py-3 bg-brand-violet hover:bg-indigo-700 text-white rounded-xl font-bold text-sm shadow-xl shadow-indigo-500/30 transition-all active:scale-95 disabled:opacity-50 disabled:transform-none flex items-center gap-2 animate-in zoom-in-95"
                >
-                  <Check className="w-4 h-4" /> Submit Report
+                  <Check className="w-4 h-4" /> Confirm & Publish
                </button>
            )}
         </div>

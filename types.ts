@@ -6,6 +6,10 @@ export enum ItemCategory {
   ACCESSORIES = 'Accessories',
   ID_CARDS = 'ID Cards',
   BOOKS = 'Books',
+  BAGS = 'Bags & Wallets',
+  KEYS = 'Keys & Tools',
+  BOTTLES = 'Bottles & Containers',
+  SPORTS = 'Sports Equipment',
   OTHER = 'Other'
 }
 

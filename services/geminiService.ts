@@ -69,7 +69,8 @@ const calculateTextSimilarity = (str1: string, str2: string): number => {
 const callPuterAI = async (
   prompt: string, 
   images?: string | string[], 
-  systemInstruction?: string
+  systemInstruction?: string,
+  cascadeMode?: 'VISION' | 'TEXT'
 ): Promise<string | null> => {
   try {
     const user = auth.currentUser;
@@ -84,7 +85,8 @@ const callPuterAI = async (
       body: JSON.stringify({
         prompt,
         images,
-        systemInstruction
+        systemInstruction,
+        cascadeMode
       })
     });
 
@@ -154,14 +156,14 @@ export const findSmartMatches = async (sourceItem: ItemReport, allReports: ItemR
     let candidates = allReports.filter(r => 
         r.status === 'OPEN' && 
         r.type === targetType &&
-        r.id !== sourceItem.id
+        r.id !== sourceItem.id &&
+        r.category === sourceItem.category // STRICT CATEGORY FILTERING (Offline Optimization)
     );
 
     if (candidates.length === 0) return [];
 
-    // Removed strict category filtering to allow for user classification errors (e.g. Electronics vs Accessories)
-    // We limit candidates to top 15 by recency to save tokens
-    if (candidates.length > 15) candidates = candidates.slice(0, 15);
+    // We limit candidates to top 10 by recency to save tokens
+    if (candidates.length > 10) candidates = candidates.slice(0, 10);
 
     let matchResults: MatchCandidate[] = [];
     let usedAI = false;
@@ -195,7 +197,7 @@ export const findSmartMatches = async (sourceItem: ItemReport, allReports: ItemR
           { "matches": [ { "id": "candidate_id", "confidence": number } ] }
         `;
         
-        const text = await callPuterAI(fullPrompt);
+        const text = await callPuterAI(fullPrompt, undefined, undefined, 'TEXT');
 
         if (text) {
             const cleanText = cleanJSON(text);
@@ -234,213 +236,119 @@ export const findSmartMatches = async (sourceItem: ItemReport, allReports: ItemR
     return results.sort((a, b) => b.confidence - a.confidence);
 };
 
-export const instantImageCheck = async (base64Image: string): Promise<{ 
-  faceStatus: 'NONE' | 'ACCIDENTAL' | 'PRANK';
-  isPrank: boolean;
-  violationType: 'GORE' | 'ANIMAL' | 'HUMAN_PORTRAIT' | 'NONE';
-  context: 'ITEM' | 'DOCUMENT' | 'HUMAN';
-  reason: string;
-}> => {
+export interface SmartReportResult {
+  security: {
+    isViolation: boolean;
+    violationType: 'GORE' | 'ANIMAL' | 'HUMAN_PORTRAIT' | 'IRRELEVANT' | 'NONE';
+    reason: string;
+    isPrank: boolean;
+  };
+  redactionRegions: number[][]; // [ymin, xmin, ymax, xmax]
+  visualInsights: {
+    category: ItemCategory;
+    color: string;
+    tags: string[];
+    specs: Record<string, string>;
+  };
+  suggestedTitle: string;
+  suggestedDescription: string;
+  crossCheckFeedback: string;
+}
+
+export const generateSmartReport = async (
+  base64Image: string | undefined,
+  userTitle: string,
+  userDescription: string
+): Promise<SmartReportResult> => {
   try {
-    const text = await callPuterAI(
-      `Safety & Context Analysis for Campus Lost & Found.
-       
-       STRICT MODERATION RULES:
-       1. REJECT ("ANIMAL") if the image contains ANY LIVING BEING (Pet, Dog, Cat, Hamster, Human). 
-          EXCEPTION: Plants and Flowers are ALLOWED.
-       2. REJECT ("HUMAN_PORTRAIT") if the main subject is a live human, selfie, or group photo.
-       3. REJECT ("GORE") if violence, blood, or nudity.
-       4. ACCEPT ("DOCUMENT") if it is an ID Card, Student ID, or Document. (Redaction will apply later).
-       5. ACCEPT ("ITEM") if it is an inanimate object (phone, keys, bottle, plant).
+    const prompt = `
+      ACT AS A ONE-SHOT LOST & FOUND VISION AI.
+      You are analyzing an uploaded image for a lost and found report.
+      User provided Title: "${userTitle}"
+      User provided Description: "${userDescription}"
 
-       Return JSON: 
-       { 
-         "violationType": "GORE"|"ANIMAL"|"HUMAN_PORTRAIT"|"NONE", 
-         "context": "ITEM"|"DOCUMENT"|"HUMAN",
-         "isPrank": boolean, 
-         "reason": "short explanation of the violation or content" 
-       }`,
-       base64Image
-    );
+      TASKS:
+      1. SECURITY CHECK: Check for violence/gore, live animals/pets (plants are ok), human portraits/selfies, or pranks/nonsense.
+      2. REDACTION: If there are faces or ID cards, provide bounding boxes [ymin, xmin, ymax, xmax] (scale 0-1000).
+      3. VISUAL ANALYSIS: Extract strict technical details (color, category, specs like brand/model, visual tags).
+      4. CONTENT GENERATION: Write a highly detailed, factual description combining the user's input and your visual analysis. Suggest a clean, concise title.
+      5. CROSS-CHECK: Compare user's input with the image. If the user said "Blue Laptop" but the image is a "Red Backpack", note this discrepancy in crossCheckFeedback.
 
-    if (!text) return { faceStatus: 'NONE', violationType: 'NONE', context: 'ITEM', isPrank: false, reason: "Offline" };
-    const result = JSON.parse(cleanJSON(text));
-    
-    return {
-        faceStatus: result.faceStatus || 'NONE',
-        violationType: result.violationType || 'NONE',
-        context: result.context || 'ITEM',
-        isPrank: result.isPrank || false,
-        reason: result.reason || ''
-    };
-  } catch (e) {
-    return { faceStatus: 'NONE', violationType: 'NONE', context: 'ITEM', isPrank: false, reason: "Check unavailable" };
-  }
-};
+      CATEGORIES MUST BE EXACTLY ONE OF: 
+      Electronics, Stationery, Clothing, Accessories, ID Cards, Books, Bags & Wallets, Keys & Tools, Bottles & Containers, Sports Equipment, Other.
 
-export const detectRedactionRegions = async (base64Image: string): Promise<number[][]> => {
-  try {
-    const text = await callPuterAI(
-      `Identify bounding boxes [ymin, xmin, ymax, xmax] (scale 0-1000) for sensitive info.
-       TARGETS: 
-       1. FACES (Both real faces and ID card photos)
-       2. ID NUMBERS / NAMES / ADDRESSES
-       
-       Return JSON { "regions": [[ymin, xmin, ymax, xmax], ...] }`,
-       base64Image
-    );
-    
-    if (!text) return [];
-    const data = JSON.parse(cleanJSON(text));
-    return data.regions || [];
-  } catch (e) {
-    return [];
-  }
-};
-
-export const extractVisualDetails = async (base64Image: string): Promise<{
-  title: string;
-  category: ItemCategory;
-  tags: string[];
-  specs: Record<string, string>;
-  color: string;
-  distinguishingFeatures: string[];
-}> => {
-  try {
-    const text = await callPuterAI(
-       `Extract strict technical item details.
-        
-        OUTPUT JSON FORMAT:
-        {
-          "title": "Short title",
-          "category": "Electronics" | "Clothing" | "Accessories" | "Stationery" | "ID Cards" | "Other",
-          "color": "Dominant Color",
+      OUTPUT JSON FORMAT EXACTLY AS:
+      {
+        "security": {
+          "isViolation": boolean,
+          "violationType": "GORE" | "ANIMAL" | "HUMAN_PORTRAIT" | "IRRELEVANT" | "NONE",
+          "reason": "String",
+          "isPrank": boolean
+        },
+        "redactionRegions": [[ymin, xmin, ymax, xmax]],
+        "visualInsights": {
+          "category": "String (must match one of the categories)",
+          "color": "String",
           "tags": ["tag1", "tag2"],
-          "specs": {
-             // IF ELECTRONICS: "brand", "model", "serialNumber" (if visible)
-             // IF CLOTHING: "brand", "size" (if visible), "material"
-             // IF ID CARD: "issuer", "type"
-             // IF KEYS: "count", "type" (car/house), "keychain"
-             // OTHERWISE: generic key-value pairs of visible text/data
-          },
-          "distinguishingFeatures": ["scratch on screen", "sticker", "dent"]
-        }`,
-        base64Image
-    );
-    
-    if (!text) throw new Error("No response");
+          "specs": { "key": "value" }
+        },
+        "suggestedTitle": "String",
+        "suggestedDescription": "String",
+        "crossCheckFeedback": "String (e.g. 'You mentioned it's a laptop, but it looks like a tablet. I've updated the category.') or empty string if perfect."
+      }
+    `;
+
+    const text = await callPuterAI(prompt, base64Image, undefined, 'VISION');
+    if (!text) throw new Error("No response from AI");
+
     const parsed = JSON.parse(cleanJSON(text));
     
+    // Ensure category maps to our enum correctly
+    const validCategories = Object.values(ItemCategory) as string[];
+    let cat = parsed.visualInsights?.category;
+    if (!validCategories.includes(cat)) {
+        cat = ItemCategory.OTHER;
+    }
+
     return {
-        title: parsed.title || "",
-        category: parsed.category || ItemCategory.OTHER,
-        tags: parsed.tags || [],
-        specs: parsed.specs || {},
-        color: parsed.color || "",
-        distinguishingFeatures: parsed.distinguishingFeatures || []
+      security: {
+        isViolation: parsed.security?.isViolation || false,
+        violationType: parsed.security?.violationType || 'NONE',
+        reason: parsed.security?.reason || '',
+        isPrank: parsed.security?.isPrank || false
+      },
+      redactionRegions: parsed.redactionRegions || [],
+      visualInsights: {
+        category: cat as ItemCategory,
+        color: parsed.visualInsights?.color || '',
+        tags: parsed.visualInsights?.tags || [],
+        specs: parsed.visualInsights?.specs || {}
+      },
+      suggestedTitle: parsed.suggestedTitle || userTitle,
+      suggestedDescription: parsed.suggestedDescription || userDescription,
+      crossCheckFeedback: parsed.crossCheckFeedback || ''
     };
   } catch (e) {
-    return { 
-      title: "", category: ItemCategory.OTHER, tags: [], 
-      specs: {}, color: "", distinguishingFeatures: [] 
+    console.error("[God Prompt Error]", e);
+    // Safe fallback
+    return {
+      security: { isViolation: false, violationType: 'NONE', reason: '', isPrank: false },
+      redactionRegions: [],
+      visualInsights: { category: ItemCategory.OTHER, color: '', tags: [], specs: {} },
+      suggestedTitle: userTitle,
+      suggestedDescription: userDescription,
+      crossCheckFeedback: "AI Analysis unavailable. Proceeding with user input."
     };
   }
-};
-
-export const mergeDescriptions = async (userDistinguishingFeatures: string, visualData: any): Promise<string> => {
-    try {
-        const text = await callPuterAI(
-          `Write a concise, factual description for a Lost & Found report.
-           Focus on identifiers (Brand, Specs, Markings).
-           User Input: "${userDistinguishingFeatures}"
-           AI Visual Data: ${JSON.stringify(visualData)}`,
-        );
-        return text || userDistinguishingFeatures;
-    } catch (e) {
-        return userDistinguishingFeatures;
-    }
-};
-
-export const validateReportContext = async (reportData: any): Promise<{ isValid: boolean, reason: string }> => {
-    try {
-        const text = await callPuterAI(
-          `ACT AS A STRICT LOST & FOUND MODERATOR.
-           
-           YOUR JOB:
-           Validate if the following report is for a legitimate LOST PROPERTY ITEM.
-           
-           STRICT BLOCKING RULES (RETURN isValid: false):
-           1. LIVING THINGS: Block any report of lost pets, dogs, cats, animals, or humans. (Exception: Plants/Flowers are ALLOWED).
-           2. METAPHYSICAL/ABSTRACT: Block reports of "Lost Soul", "Lost Dignity", "Lost Hope", "Lost Virginity", "Lost Mind".
-           3. ILLICIT ITEMS: Block drugs, weapons, or illegal contraband.
-           4. NONSENSE: Block gibberish or spam (e.g., "asdfgh").
-           5. MISMATCH: Block if Title says "Laptop" but Category is "Clothing".
-           
-           ALLOW:
-           - Inanimate objects (Electronics, Books, Bottles, Keys, ID Cards).
-           - Plants.
-
-           Data: ${JSON.stringify(reportData)}
-           
-           Return JSON { "isValid": boolean, "reason": "Specific reason for rejection if invalid" }.`
-        );
-        if (!text) return { isValid: true, reason: "" };
-        const result = JSON.parse(cleanJSON(text));
-        return { isValid: result.isValid ?? true, reason: result.reason || "" };
-    } catch (e) {
-        return { isValid: true, reason: "" };
-    }
-};
-
-export const analyzeItemDescription = async (
-  description: string,
-  base64Images: string[] = [],
-  title: string = ""
-): Promise<GeminiAnalysisResult> => {
-    try {
-        const prompt = `
-          Analyze: "${title} - ${description}".
-          Output JSON: { "isViolating": boolean, "violationType": string, "summary": string, "tags": string[] }
-        `;
-        
-        const img = base64Images.length > 0 ? base64Images[0] : undefined;
-        const text = await callPuterAI(prompt, img);
-
-        if (!text) throw new Error("Failed");
-        
-        const result = JSON.parse(cleanJSON(text));
-        return {
-            category: result.category || ItemCategory.OTHER,
-            title: title,
-            summary: result.summary || description,
-            tags: result.tags || [],
-            description: description,
-            distinguishingFeatures: [],
-            isPrank: false,
-            faceStatus: 'NONE',
-            isViolating: result.isViolating || false,
-            violationType: result.violationType,
-            violationReason: result.violationReason
-        };
-    } catch (e) {
-        return {
-            category: ItemCategory.OTHER,
-            title,
-            summary: description,
-            tags: [],
-            description,
-            distinguishingFeatures: [],
-            isPrank: false,
-            faceStatus: 'NONE',
-            isViolating: false
-        };
-    }
 };
 
 export const parseSearchQuery = async (query: string): Promise<{ userStatus: 'LOST' | 'FOUND' | 'UNKNOWN', refinedQuery: string }> => {
     try {
         const text = await callPuterAI(
-          `Analyze query: "${query}". Return JSON { "userStatus": "LOST"|"FOUND"|"UNKNOWN", "refinedQuery": "keywords" }`
+          `Analyze query: "${query}". Return JSON { "userStatus": "LOST"|"FOUND"|"UNKNOWN", "refinedQuery": "keywords" }`,
+          undefined,
+          undefined,
+          'TEXT'
         );
         
         if (!text) throw new Error("No text");
@@ -505,7 +413,7 @@ export const compareItems = async (item1: ItemReport, item2: ItemReport): Promis
         `;
 
         // Pass array of images (1 or 2 images) to the AI
-        const text = await callPuterAI(prompt, imagesToAnalyze.length > 0 ? imagesToAnalyze : undefined);
+        const text = await callPuterAI(prompt, imagesToAnalyze.length > 0 ? imagesToAnalyze : undefined, undefined, 'VISION');
 
         if (!text) throw new Error("No response");
         
