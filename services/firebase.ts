@@ -2,11 +2,24 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import { getFirestore } from 'firebase/firestore';
-import firebaseConfig from '../firebase-applet-config.json';
+
+// Safely load local config for AI Studio Preview without breaking Vercel builds if missing
+const localConfigs = import.meta.glob('../firebase-applet-config.json', { eager: true });
+const fallbackConfig = (localConfigs['../firebase-applet-config.json'] as any)?.default || {};
+
+const firebaseConfig = {
+  apiKey: (import.meta as any).env.VITE_FIREBASE_API_KEY || fallbackConfig.apiKey,
+  authDomain: (import.meta as any).env.VITE_FIREBASE_AUTH_DOMAIN || fallbackConfig.authDomain,
+  projectId: (import.meta as any).env.VITE_FIREBASE_PROJECT_ID || fallbackConfig.projectId,
+  storageBucket: (import.meta as any).env.VITE_FIREBASE_STORAGE_BUCKET || fallbackConfig.storageBucket,
+  messagingSenderId: (import.meta as any).env.VITE_FIREBASE_MESSAGING_SENDER_ID || fallbackConfig.messagingSenderId,
+  appId: (import.meta as any).env.VITE_FIREBASE_APP_ID || fallbackConfig.appId,
+  firestoreDatabaseId: (import.meta as any).env.VITE_FIREBASE_DATABASE_ID || fallbackConfig.firestoreDatabaseId || "(default)",
+};
 
 // Safety check to warn in console if keys are missing
 if (!firebaseConfig.apiKey) {
-  console.error("RETRIVA CRITICAL ERROR: Firebase API Key is missing.");
+  console.error("RETRIVA CRITICAL ERROR: Firebase API Key is missing. Please add VITE_FIREBASE_API_KEY to your environment variables.");
 }
 
 let app;

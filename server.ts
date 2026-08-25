@@ -6,7 +6,7 @@ import * as admin from "firebase-admin";
 
 // Initialize Firebase Admin for token verification (relies on public keys, no service account needed)
 admin.initializeApp({
-  projectId: "gen-lang-client-0746267232"
+  projectId: process.env.FIREBASE_PROJECT_ID || "gen-lang-client-0746267232"
 });
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
