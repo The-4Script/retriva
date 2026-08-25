@@ -1,6 +1,5 @@
 import express from "express";
 import path from "path";
-import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import * as admin from "firebase-admin";
 
@@ -144,7 +143,7 @@ export const app = express();
 app.use(express.json({ limit: '50mb' }));
 
 // API Routes
-app.post("/api/gemini/chat", async (req, res) => {
+app.post(["/api/gemini/chat", "/"], async (req, res) => {
   try {
     // Basic auth check using the authorization header passed from the client
     const authHeader = req.headers.authorization;
@@ -191,6 +190,7 @@ async function startServer() {
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true, allowedHosts: true },
       appType: "spa",
