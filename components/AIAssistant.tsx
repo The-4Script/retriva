@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User as UserIcon, Loader2, Settings, Trash2, ChevronDown } from 'lucide-react';
+import { Send, Bot, User as UserIcon, Loader2, ArrowLeft, Trash2 } from 'lucide-react';
 import { User } from '../types';
 import { auth } from '../services/firebase';
 
 interface AIAssistantProps {
   user: User;
+  onBack: () => void;
 }
 
 interface ChatMessage {
@@ -12,16 +13,11 @@ interface ChatMessage {
   parts: { text: string }[];
 }
 
-export default function AIAssistant({ user }: AIAssistantProps) {
+export default function AIAssistant({ user, onBack }: AIAssistantProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Assistant Configuration
-  const [model, setModel] = useState('gemini-3.7-flash');
-  const [systemInstruction, setSystemInstruction] = useState('You are a helpful assistant for the RETRIVA lost and found application.');
-  const [showConfig, setShowConfig] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -51,9 +47,7 @@ export default function AIAssistant({ user }: AIAssistantProps) {
         },
         body: JSON.stringify({
           message: userMessage.parts[0].text,
-          history: messages,
-          model: model,
-          systemInstruction: systemInstruction
+          history: messages
         })
       });
 
@@ -62,7 +56,6 @@ export default function AIAssistant({ user }: AIAssistantProps) {
       const data = await response.json();
       
       if (data.history) {
-          // If the backend returns full history, use it. But we just append the model's response for safety.
           setMessages(prev => [...prev, { role: 'model', parts: [{ text: data.result }] }]);
       } else {
           setMessages(prev => [...prev, { role: 'model', parts: [{ text: data.result }] }]);
@@ -82,27 +75,23 @@ export default function AIAssistant({ user }: AIAssistantProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-off-white dark:bg-slate-950 max-w-4xl mx-auto w-full border-x border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+    <div className="flex flex-col h-full bg-off-white dark:bg-slate-950 max-w-4xl mx-auto w-full border-x border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden animate-fade-in">
       
       {/* Header */}
       <div className="flex-none p-4 border-b border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-brand-violet/10 text-brand-violet rounded-lg">
+          <button onClick={onBack} className="p-2 mr-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors" title="Back to Dashboard">
+            <ArrowLeft size={20} />
+          </button>
+          <div className="p-2 bg-brand-violet/10 text-brand-violet rounded-lg shadow-sm">
             <Bot size={24} />
           </div>
           <div>
-            <h2 className="text-lg font-semibold">Gemini Assistant</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Powered by @google/genai</p>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Retriva AI Assistant</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Powered by Gemini</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button 
-            onClick={() => setShowConfig(!showConfig)}
-            className={`p-2 rounded-lg transition-colors ${showConfig ? 'bg-brand-violet/10 text-brand-violet' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`}
-            title="Configure Assistant"
-          >
-            <Settings size={20} />
-          </button>
           <button 
             onClick={clearChat}
             className="p-2 text-slate-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 rounded-lg transition-colors"
@@ -113,67 +102,33 @@ export default function AIAssistant({ user }: AIAssistantProps) {
         </div>
       </div>
 
-      {/* Configuration Panel */}
-      {showConfig && (
-        <div className="flex-none p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80 animate-slide-up">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Model Selection
-              </label>
-              <div className="relative">
-                <select 
-                  value={model} 
-                  onChange={(e) => setModel(e.target.value)}
-                  className="w-full pl-3 pr-10 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-brand-violet"
-                >
-                  <option value="gemini-3.7-flash">Gemini 3.5 Flash (General Tasks)</option>
-                  <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (Complex Tasks)</option>
-                  <option value="gemini-3.1-flash-lite">Gemini 3.1 Flash Lite (Fast Tasks)</option>
-                </select>
-                <ChevronDown size={16} className="absolute right-3 top-3 text-slate-400 pointer-events-none" />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                System Instruction (Role)
-              </label>
-              <textarea 
-                value={systemInstruction}
-                onChange={(e) => setSystemInstruction(e.target.value)}
-                rows={2}
-                placeholder="Give the assistant a specific persona or behavior rule..."
-                className="w-full p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-violet resize-none"
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
         {messages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center px-4 opacity-50">
-            <Bot size={48} className="mb-4 text-slate-400" />
-            <h3 className="text-xl font-medium mb-2">How can I help you today?</h3>
+          <div className="h-full flex flex-col items-center justify-center text-center px-4 opacity-70">
+            <div className="relative">
+              <Bot size={48} className="mb-4 text-brand-violet relative z-10" />
+              <div className="absolute inset-0 bg-brand-violet/20 blur-xl rounded-full animate-pulse-soft"></div>
+            </div>
+            <h3 className="text-xl font-medium mb-2 text-slate-900 dark:text-white">How can I help you today?</h3>
             <p className="text-sm text-slate-500 max-w-sm">
-              Ask me to draft a lost item report, suggest matching items, or configure my persona using the settings above.
+              Ask me to draft a lost item report, suggest matching items, or help you navigate the Retriva platform.
             </p>
           </div>
         ) : (
           messages.map((msg, index) => (
             <div 
               key={index} 
-              className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+              className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''} animate-slide-up`}
             >
-              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${msg.role === 'user' ? 'bg-indigo-100 text-indigo-600' : 'bg-brand-violet text-white'}`}>
+              <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${msg.role === 'user' ? 'bg-indigo-100 text-indigo-600' : 'bg-brand-violet text-white shadow-md'}`}>
                 {msg.role === 'user' ? <UserIcon size={16} /> : <Bot size={16} />}
               </div>
               <div 
                 className={`max-w-[80%] rounded-2xl p-4 ${
                   msg.role === 'user' 
-                    ? 'bg-indigo-600 text-white rounded-tr-none' 
-                    : 'bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm rounded-tl-none'
+                    ? 'bg-brand-violet text-white rounded-tr-none shadow-sm' 
+                    : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm rounded-tl-none text-slate-800 dark:text-slate-200'
                 }`}
               >
                 <div className="prose dark:prose-invert prose-sm max-w-none whitespace-pre-wrap leading-relaxed">
@@ -185,11 +140,11 @@ export default function AIAssistant({ user }: AIAssistantProps) {
         )}
         
         {isLoading && (
-          <div className="flex gap-3">
-            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-brand-violet text-white flex items-center justify-center">
+          <div className="flex gap-3 animate-fade-in">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-brand-violet text-white flex items-center justify-center shadow-md">
               <Bot size={16} />
             </div>
-            <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm rounded-2xl rounded-tl-none p-4 flex items-center gap-2">
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm rounded-2xl rounded-tl-none p-4 flex items-center gap-2">
               <Loader2 size={16} className="animate-spin text-brand-violet" />
               <span className="text-sm text-slate-500 font-medium">Thinking...</span>
             </div>
@@ -200,7 +155,7 @@ export default function AIAssistant({ user }: AIAssistantProps) {
 
       {/* Input Area */}
       <div className="flex-none p-4 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
-        <div className="relative flex items-center">
+        <div className="relative flex items-center shadow-sm rounded-2xl">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -210,21 +165,21 @@ export default function AIAssistant({ user }: AIAssistantProps) {
                 handleSendMessage();
               }
             }}
-            placeholder="Message Gemini..."
+            placeholder="Message Retriva AI..."
             rows={1}
-            className="w-full bg-slate-100 dark:bg-slate-800 border-0 rounded-2xl py-3 pl-4 pr-12 focus:ring-2 focus:ring-brand-violet/50 resize-none max-h-32 overflow-y-auto"
+            className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white rounded-2xl py-3 pl-4 pr-12 focus:ring-2 focus:ring-brand-violet/50 resize-none max-h-32 overflow-y-auto"
             style={{ minHeight: '52px' }}
           />
           <button 
             onClick={handleSendMessage}
             disabled={!input.trim() || isLoading}
-            className="absolute right-2 p-2 bg-brand-violet hover:bg-indigo-600 disabled:opacity-50 disabled:hover:bg-brand-violet text-white rounded-xl transition-colors"
+            className="absolute right-2 p-2 bg-brand-violet hover:bg-indigo-600 disabled:opacity-50 disabled:hover:bg-brand-violet text-white rounded-xl transition-all shadow-sm active:scale-95"
           >
             <Send size={18} />
           </button>
         </div>
         <div className="text-center mt-2">
-           <span className="text-[10px] text-slate-400">Gemini can make mistakes. Verify important information.</span>
+           <span className="text-[10px] text-slate-400">I am an AI assistant and may make mistakes. Please verify important information.</span>
         </div>
       </div>
     </div>

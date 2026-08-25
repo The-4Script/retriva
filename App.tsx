@@ -709,7 +709,7 @@ const App: React.FC = () => {
         />
       );
       case 'AI_ASSISTANT': return (
-        <AIAssistant user={user!} />
+        <AIAssistant user={user!} onBack={() => setView('DASHBOARD')} />
       );
       case 'FEATURES': return (
         <FeaturesPage onBack={() => setView(user ? 'DASHBOARD' : 'AUTH')} />
@@ -795,9 +795,6 @@ const App: React.FC = () => {
                  <button onClick={() => setDarkMode(!darkMode)} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500 transition-colors">
                    {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                  </button>
-                 <button onClick={() => setView('AI_ASSISTANT')} className={`relative p-2 rounded-full transition-all ${view === 'AI_ASSISTANT' ? 'bg-indigo-50 dark:bg-slate-800 text-indigo-600' : 'hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500'}`} title="AI Assistant">
-                   <Bot className="w-5 h-5" />
-                 </button>
                  <button onClick={() => setView('MESSAGES')} className={`relative p-2 rounded-full transition-all ${view === 'MESSAGES' ? 'bg-indigo-50 dark:bg-slate-800 text-indigo-600' : 'hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500'}`} title="Messages">
                    <MessageCircle className="w-5 h-5" />
                    {unreadMessageCount > 0 && <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-950"></span>}
@@ -821,6 +818,24 @@ const App: React.FC = () => {
       {/* Main Container */}
       <main className={`flex-grow w-full mx-auto relative ${view === 'FEATURES' ? '' : 'p-4 md:p-6 max-w-[1400px]'}`}>
         {renderContent()}
+
+        {/* AI Chatbot Floating Button (Left) */}
+        {user && view !== 'AUTH' && view !== 'AI_ASSISTANT' && view !== 'FEATURES' && (
+           <div className="fixed bottom-6 left-6 md:bottom-8 md:left-8 z-50 animate-fade-in">
+              <button 
+                onClick={() => setView('AI_ASSISTANT')}
+                className="group relative flex items-center justify-center w-14 h-14 bg-gradient-to-tr from-brand-violet to-fuchsia-600 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 ring-4 ring-brand-violet/20 hover:ring-brand-violet/40"
+              >
+                 <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
+                 <Bot className="w-7 h-7 text-white animate-pulse-soft" />
+                 
+                 {/* Tooltip */}
+                 <div className="absolute left-full ml-4 px-3 py-1.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                    Ask Retriva AI
+                 </div>
+              </button>
+           </div>
+        )}
 
         {/* FLOATING ACTION BUTTON (FAB) - Hide on Features Page */}
         {user && view !== 'AUTH' && view !== 'MESSAGES' && view !== 'FEATURES' && (
@@ -852,14 +867,13 @@ const App: React.FC = () => {
                    </button>
                 </div>
              )}
-
              <button 
                 onClick={() => setShowFabMenu(!showFabMenu)}
-                className={`w-16 h-16 rounded-full flex items-center justify-center shadow-2xl transition-all transform hover:scale-110 active:scale-95 relative overflow-hidden group
-                   ${showFabMenu 
+                className={`w-16 h-16 rounded-full flex items-center justify-center shadow-2xl transition-all transform hover:scale-110 active:scale-95 relative overflow-hidden group 
+                  ${showFabMenu 
                       ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-slate-900/40 dark:shadow-white/30 ring-8 ring-indigo-500/10' 
                       : 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-indigo-600/40 hover:shadow-indigo-500/60 ring-8 ring-indigo-500/0 hover:ring-indigo-500/10'
-                   }
+                  }
                 `}
              >
                 <div className={`absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity`}></div>
@@ -877,7 +891,7 @@ const App: React.FC = () => {
             <div className="absolute top-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-60 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></div>
             <div className="max-w-7xl mx-auto px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] font-medium text-slate-400">
               <div className="flex items-center gap-4">
-                 <span>&copy; 2025 RETRIVA</span>
+                 <span>&copy; 2026 RETRIVA</span>
                  <div className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></div>
                  <div className="flex gap-3">
                     <button onClick={() => setView('FEATURES')} className="hover:text-indigo-500 transition-colors uppercase tracking-wider font-bold">Under the Hood</button>
