@@ -51,8 +51,21 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onShowLegal, onShowFeatures }) => 
   }, []);
 
   // Shared function to process user data after Auth (Popup or Redirect)
+  const isValidDomain = (email: string) => {
+    const emailLower = email.toLowerCase();
+    return emailLower.endsWith('@student.mes.ac.in') || emailLower.endsWith('@mes.ac.in');
+  };
+
   const processLogin = async (firebaseUser: any) => {
     try {
+      if (!firebaseUser.email || !isValidDomain(firebaseUser.email)) {
+        await auth.signOut();
+        setError("Access Denied: Only MES Students and Faculty are allowed to access this platform.");
+        setIsGoogleLoading(false);
+        setIsEmailLoading(false);
+        return;
+      }
+      
       const userDocRef = db.collection('users').doc(firebaseUser.uid);
       const userDoc = await userDocRef.get();
 
@@ -146,6 +159,11 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onShowLegal, onShowFeatures }) => 
       setError("Please enter your email address first to reset password.");
       return;
     }
+
+    if (!isValidDomain(email)) {
+      setError("Access Denied: Only MES Students and Faculty are allowed to access this platform.");
+      return;
+    }
     
     setIsResetLoading(true);
     setError(null);
@@ -171,6 +189,11 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onShowLegal, onShowFeatures }) => 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isEmailLoading || isGoogleLoading) return;
+
+    if (!isValidDomain(email)) {
+      setError("Access Denied: Only MES Students and Faculty are allowed to access this platform.");
+      return;
+    }
 
     setIsEmailLoading(true);
     setError(null);
@@ -412,11 +435,14 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onShowLegal, onShowFeatures }) => 
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           className="w-full pl-11 pr-5 py-3.5 bg-[#14161f] border border-slate-800 rounded-xl text-white font-bold outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all duration-300 placeholder:text-slate-600 text-sm"
-                          placeholder="student@university.edu"
+                          placeholder="user@student.mes.ac.in"
                           required
                           disabled={isEmailLoading || isGoogleLoading || isResetLoading}
                        />
                     </div>
+                    {!isLogin && (
+                       <p className="text-[10px] text-slate-500 mt-2 ml-4 font-medium">Only MES Students and Faculty are allowed.</p>
+                    )}
                  </div>
 
                  <div className="group">

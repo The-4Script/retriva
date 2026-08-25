@@ -90,6 +90,17 @@ const App: React.FC = () => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
+        // Enforce MES email domain restriction
+        const emailLower = (firebaseUser.email || '').toLowerCase();
+        const isValidDomain = emailLower.endsWith('@student.mes.ac.in') || emailLower.endsWith('@mes.ac.in');
+        
+        if (!isValidDomain) {
+            await auth.signOut();
+            setUser(null);
+            setAuthLoading(false);
+            return;
+        }
+
         // Fetch full profile from Firestore
         const userDocRef = db.collection('users').doc(firebaseUser.uid);
         try {
