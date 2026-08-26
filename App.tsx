@@ -9,6 +9,7 @@ import NotificationCenter from './components/NotificationCenter';
 import MatchComparator from './components/MatchComparator';
 import AIDisclaimerModal from './components/AIDisclaimerModal';
 import AIAssistant from './components/AIAssistant';
+import AdminDashboard from './components/admin/AdminDashboard';
 import { User, ViewState, ItemReport, ReportType, ItemCategory, AppNotification, Chat, Message } from './types';
 import { MessageCircle, Bell, Moon, Sun, User as UserIcon, Plus, SearchX, Box, Loader2, Bot } from 'lucide-react';
 import { findSmartMatches } from './services/aiService';
@@ -40,6 +41,8 @@ const App: React.FC = () => {
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [comparingItems, setComparingItems] = useState<{item1: ItemReport, item2: ItemReport} | null>(null);
   const [avatarError, setAvatarError] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [maintenanceMode, setMaintenanceMode] = useState<{enabled: boolean, message: string}>({enabled: false, message: 'Under Maintenance'});
 
   // NEW: Listen for system-wide Toast Events (e.g. from aiService)
   useEffect(() => {
@@ -52,10 +55,10 @@ const App: React.FC = () => {
     return () => window.removeEventListener('retriva-toast', handleToastEvent);
   }, []);
 
-  // SESSION TIMEOUT LOGIC (1 HOUR)
+  // SESSION TIMEOUT LOGIC (4 HOURS)
   useEffect(() => {
     // Check session duration every minute
-    const SESSION_DURATION = 1 * 60 * 60 * 1000; // 1 hour
+    const SESSION_DURATION = 4 * 60 * 60 * 1000; // 4 hours
     
     const checkSession = () => {
       if (!user) return;
@@ -67,9 +70,9 @@ const App: React.FC = () => {
         
         // If session exceeded duration
         if (now - startTime > SESSION_DURATION) {
-           console.log("Session expired (1h limit). Logging out.");
+           console.log("Session expired (4h limit). Logging out.");
            handleLogout();
-           setToast({ message: "Session expired due to inactivity. Please log in again.", type: 'alert' });
+           setToast({ message: "Session expired. Please log in again.", type: 'alert' });
         }
       } else {
         // If logged in but no start time, set it now
@@ -85,13 +88,27 @@ const App: React.FC = () => {
     return () => clearInterval(interval);
   }, [user]);
 
-  // 1. AUTH LISTENER: Persist Login & Presence
+  // 2. MAINTENANCE MODE LISTENER
+  useEffect(() => {
+    const unsub = db.collection('siteConfig').doc('global').onSnapshot(snap => {
+      if (snap.exists) {
+        const data = snap.data();
+        setMaintenanceMode({
+          enabled: data?.maintenanceMode || false,
+          message: data?.message || 'Under Maintenance'
+        });
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  // 3. AUTH LISTENER: Persist Login & Presence
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
-        // Enforce MES email domain restriction
+        // Enforce MES email domain restriction (and allow default admin)
         const emailLower = (firebaseUser.email || '').toLowerCase();
-        const isValidDomain = emailLower.endsWith('@student.mes.ac.in') || emailLower.endsWith('@mes.ac.in');
+        const isValidDomain = emailLower.endsWith('@student.mes.ac.in') || emailLower.endsWith('@mes.ac.in') || emailLower === 'durvesh.thorat999@gmail.com';
         
         if (!isValidDomain) {
             await auth.signOut();
@@ -100,7 +117,7 @@ const App: React.FC = () => {
             return;
         }
 
-        // Fetch full profile from Firestore
+         // Fetch full profile from Firestore
         const userDocRef = db.collection('users').doc(firebaseUser.uid);
         try {
           const userSnap = await userDocRef.get();
@@ -129,6 +146,23 @@ const App: React.FC = () => {
              };
              setUser(fallbackUser);
              userDocRef.set({ ...fallbackUser, isOnline: true, lastSeen: Date.now() });
+          }
+
+          // ADMIN CHECK
+          if (emailLower === 'durvesh.thorat999@gmail.com') {
+             const adminRef = db.collection('admins').doc(firebaseUser.uid);
+             const adminSnap = await adminRef.get();
+             if (!adminSnap.exists) {
+                await adminRef.set({
+                   email: emailLower,
+                   promotedAt: Date.now(),
+                   promotedBy: 'system'
+                });
+             }
+             setIsAdmin(true);
+          } else {
+             const adminSnap = await db.collection('admins').doc(firebaseUser.uid).get();
+             setIsAdmin(adminSnap.exists);
           }
 
           // RESTORE PREVIOUS STATE (View & Active Chat)
@@ -648,6 +682,19 @@ const App: React.FC = () => {
     );
   }
 
+  // MAINTENANCE MODE OVERRIDE
+  if (maintenanceMode.enabled && !isAdmin) {
+    return (
+      <div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center z-50">
+         <div className="w-20 h-20 rounded-full bg-indigo-500/10 flex items-center justify-center mb-6">
+             <Wrench className="w-10 h-10 text-indigo-400" />
+         </div>
+         <h1 className="text-3xl font-black text-white mb-2">We'll be right back</h1>
+         <p className="text-slate-400 max-w-md">{maintenanceMode.message}</p>
+      </div>
+    );
+  }
+
   // --- AUTH VIEW OR PUBLIC FEATURES ---
   if (!user) {
     return (
@@ -706,6 +753,7 @@ const App: React.FC = () => {
           onSelectChat={setActiveChatId}
           onBlockChat={handleBlockChat}
           onDeleteChat={handleDeleteChat}
+          isAdmin={isAdmin}
         />
       );
       case 'PROFILE': return (
@@ -716,6 +764,9 @@ const App: React.FC = () => {
           onDeleteAccount={handleDeleteAccount}
           onLogout={handleLogout} 
         />
+      );
+      case 'ADMIN_DASHBOARD': return (
+        isAdmin ? <AdminDashboard user={user!} onNavigate={setView} /> : <div className="p-8 text-center text-red-500">Access Denied</div>
       );
       case 'AI_ASSISTANT': return (
         <AIAssistant user={user!} onBack={() => setView('DASHBOARD')} />
@@ -801,6 +852,11 @@ const App: React.FC = () => {
                  <button onClick={() => setDarkMode(!darkMode)} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500 transition-colors">
                    {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                  </button>
+                 {isAdmin && (
+                   <button onClick={() => setView('ADMIN_DASHBOARD')} className={`relative p-2 rounded-full transition-all ${view === 'ADMIN_DASHBOARD' ? 'bg-indigo-50 dark:bg-slate-800 text-indigo-600' : 'hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500'}`} title="Admin Dashboard">
+                     <ShieldCheck className="w-5 h-5" />
+                   </button>
+                 )}
                  <button onClick={() => setView('MESSAGES')} className={`relative p-2 rounded-full transition-all ${view === 'MESSAGES' ? 'bg-indigo-50 dark:bg-slate-800 text-indigo-600' : 'hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500'}`} title="Messages">
                    <MessageCircle className="w-5 h-5" />
                    {unreadMessageCount > 0 && <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-950"></span>}

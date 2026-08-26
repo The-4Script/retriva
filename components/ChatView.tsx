@@ -14,9 +14,10 @@ interface ChatViewProps {
   onSelectChat: (id: string | null) => void;
   onBlockChat: (chatId: string) => void;
   onDeleteChat: (chatId: string) => void;
+  isAdmin?: boolean;
 }
 
-const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats, activeChatId, onSelectChat, onBlockChat, onDeleteChat }) => {
+const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats, activeChatId, onSelectChat, onBlockChat, onDeleteChat, isAdmin }) => {
   const [newMessage, setNewMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
@@ -27,6 +28,16 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
   
   const [subcollectionMessages, setSubcollectionMessages] = useState<Message[]>([]);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  
+  const [adminIds, setAdminIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Fetch all admin UIDs for badge rendering
+    const unsub = db.collection('admins').onSnapshot(snap => {
+       setAdminIds(snap.docs.map(d => d.id));
+    });
+    return () => unsub();
+  }, []);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -43,6 +54,8 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
   const otherParticipantId = useMemo(() => {
      return selectedChat?.participants.find(p => p !== user.id);
   }, [selectedChat, user.id]);
+
+  const pinnedMessage = selectedChat?.pinnedMessageId ? subcollectionMessages.find(m => m.id === selectedChat.pinnedMessageId) : null;
 
   // --- 1. FETCH MESSAGES ---
   useEffect(() => {
@@ -168,6 +181,34 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
           const distanceToBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
           setShowScrollButton(distanceToBottom > 300);
       }
+  };
+
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!activeChatId) return;
+    if (!confirm("Delete this message? This action is irreversible.")) return;
+    try {
+        await db.collection('chats').doc(activeChatId).collection('messages').doc(messageId).delete();
+        // Log action if isAdmin
+        if (isAdmin) {
+            const { logAdminAction } = await import('../services/adminService');
+            await logAdminAction('Delete Message', messageId, 'COMMUNITY');
+        }
+    } catch (e) {
+        console.error("Failed to delete message", e);
+    }
+  };
+
+  const handlePinMessage = async (messageId: string) => {
+    if (!activeChatId || !isAdmin) return;
+    try {
+        await db.collection('chats').doc(activeChatId).update({
+            pinnedMessageId: messageId ? messageId : FieldValue.delete()
+        });
+        const { logAdminAction } = await import('../services/adminService');
+        await logAdminAction(messageId ? 'Pin Message' : 'Unpin Message', messageId || activeChatId, 'COMMUNITY');
+    } catch (e) {
+        console.error("Failed to pin message", e);
+    }
   };
 
   const handleSendMessage = async (e?: React.FormEvent, attachment?: Message['attachment']) => {
@@ -452,6 +493,23 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                   </div>
               )}
 
+              {/* Pinned Message */}
+              {pinnedMessage && (
+                  <div className="sticky top-2 z-20 mb-4 flex justify-center">
+                     <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-indigo-200 dark:border-indigo-900/50 p-3 rounded-xl max-w-sm w-full shadow-lg flex flex-col gap-1">
+                        <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-1.5"><Pin className="w-3 h-3" /> Pinned Announcement</span>
+                            {isAdmin && (
+                                <button onClick={() => handlePinMessage('')} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                                   <X className="w-3.5 h-3.5" />
+                                </button>
+                            )}
+                        </div>
+                        <p className="text-sm text-slate-800 dark:text-slate-200 line-clamp-2">{pinnedMessage.text}</p>
+                     </div>
+                  </div>
+              )}
+
               {allMessages.map((msg, idx) => {
                 const isMe = msg.senderId === user.id;
                 
@@ -476,68 +534,95 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                     )}
                   
                     <div className={`flex w-full ${isMe ? 'justify-end' : 'justify-start'} ${isGroupStart ? 'mt-2' : 'mt-0.5'}`}>
-                      <div className={`flex flex-col max-w-[85%] md:max-w-[70%] ${isMe ? 'items-end' : 'items-start'}`}>
-                        
-                        {/* Sender Name in Global Chat */}
-                        {(isGlobal && !isMe && isGroupStart) && (
-                          <span className="text-[10px] font-bold text-slate-400 mb-1 ml-1">{msg.senderName || 'Student'}</span>
-                        )}
+                      <div className={`group flex items-center gap-2 max-w-[85%] md:max-w-[70%] ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                         <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                          
+                          {/* Sender Name in Global Chat */}
+                          {(isGlobal && !isMe && isGroupStart) && (
+                            <div className="flex items-center gap-2 mb-1 ml-1">
+                               <span className="text-[10px] font-bold text-slate-400">{msg.senderName || 'Student'}</span>
+                               {adminIds.includes(msg.senderId) && (
+                                  <span className="px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 text-[8px] uppercase tracking-wider font-bold flex items-center gap-0.5">
+                                     <ShieldCheck className="w-2.5 h-2.5" /> Admin
+                                  </span>
+                               )}
+                            </div>
+                          )}
 
-                        {/* Attachment Bubble */}
-                        {msg.attachment && (
-                          <div className={`mb-1 rounded-2xl overflow-hidden border shadow-sm cursor-pointer transition-transform hover:scale-[1.02] ${
-                              isMe ? 'rounded-br-sm' : 'rounded-bl-sm'
-                          } ${isBlocked ? 'opacity-50 grayscale' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'}`} 
-                          onClick={() => msg.attachment?.type === 'image' && setLightboxImg(msg.attachment.url)}>
-                              {msg.attachment.type === 'image' ? (
-                                <img 
-                                   src={msg.attachment.url} 
-                                   className="max-w-full max-h-60 object-cover" 
-                                   onLoad={() => scrollToBottom()} 
-                                />
-                              ) : (
-                                <div className="p-4 bg-white dark:bg-slate-800 flex items-center gap-3 min-w-[200px]">
-                                  <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
-                                      <File className="w-6 h-6 text-brand-violet" />
+                          {/* Attachment Bubble */}
+                          {msg.attachment && (
+                            <div className={`mb-1 rounded-2xl overflow-hidden border shadow-sm cursor-pointer transition-transform hover:scale-[1.02] ${
+                                isMe ? 'rounded-br-sm' : 'rounded-bl-sm'
+                            } ${isBlocked ? 'opacity-50 grayscale' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'}`} 
+                            onClick={() => msg.attachment?.type === 'image' && setLightboxImg(msg.attachment.url)}>
+                                {msg.attachment.type === 'image' ? (
+                                  <img 
+                                     src={msg.attachment.url} 
+                                     className="max-w-full max-h-60 object-cover" 
+                                     onLoad={() => scrollToBottom()} 
+                                  />
+                                ) : (
+                                  <div className="p-4 bg-white dark:bg-slate-800 flex items-center gap-3 min-w-[200px]">
+                                    <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
+                                        <File className="w-6 h-6 text-brand-violet" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-700 dark:text-slate-200">Attachment</p>
+                                        <p className="text-[10px] text-slate-400">Click to view</p>
+                                    </div>
                                   </div>
-                                  <div>
-                                      <p className="text-xs font-bold text-slate-700 dark:text-slate-200">Attachment</p>
-                                      <p className="text-[10px] text-slate-400">Click to view</p>
-                                  </div>
-                                </div>
+                                )}
+                            </div>
+                          )}
+                          
+                          {/* Text Bubble */}
+                          {msg.text && (
+                            <div className={`px-4 py-2 text-sm font-medium leading-relaxed shadow-sm relative break-words 
+                              ${isMe 
+                                ? `bg-brand-violet text-white rounded-2xl rounded-tr-sm ${isGroupEnd ? 'rounded-br-xl' : 'rounded-br-sm'}`
+                                : `bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-800 rounded-2xl rounded-tl-sm ${isGroupEnd ? 'rounded-bl-xl' : 'rounded-bl-sm'}`
+                              }
+                            `}>
+                              {msg.text}
+                            </div>
+                          )}
+                          
+                          {/* Status/Time Footer - Improved Indicators */}
+                          <div className={`flex items-center gap-1 mt-0.5 px-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
+                              <span className="text-[9px] font-bold text-slate-400 opacity-70">
+                                  {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                              
+                              {isMe && !isGlobal && (
+                                  <span className="ml-0.5">
+                                      {msg.status === 'read' ? (
+                                          <CheckCheck className="w-3 h-3 text-blue-500" /> 
+                                      ) : (
+                                          <Check className="w-3 h-3 text-slate-400" />
+                                      )}
+                                  </span>
                               )}
                           </div>
-                        )}
-                        
-                        {/* Text Bubble */}
-                        {msg.text && (
-                          <div className={`px-4 py-2 text-sm font-medium leading-relaxed shadow-sm relative break-words 
-                            ${isMe 
-                              ? `bg-brand-violet text-white rounded-2xl rounded-tr-sm ${isGroupEnd ? 'rounded-br-xl' : 'rounded-br-sm'}`
-                              : `bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-800 rounded-2xl rounded-tl-sm ${isGroupEnd ? 'rounded-bl-xl' : 'rounded-bl-sm'}`
-                            }
-                          `}>
-                            {msg.text}
-                          </div>
-                        )}
-                        
-                        {/* Status/Time Footer - Improved Indicators */}
-                        <div className={`flex items-center gap-1 mt-0.5 px-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
-                            <span className="text-[9px] font-bold text-slate-400 opacity-70">
-                                {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                            
-                            {isMe && !isGlobal && (
-                                <span className="ml-0.5">
-                                    {msg.status === 'read' ? (
-                                        <CheckCheck className="w-3 h-3 text-blue-500" /> 
-                                    ) : (
-                                        <Check className="w-3 h-3 text-slate-400" />
-                                    )}
-                                </span>
-                            )}
                         </div>
 
+                        {isAdmin && (
+                            <div className={`opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
+                               <button 
+                                  onClick={() => handlePinMessage(msg.id)}
+                                  className="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-500 hover:text-indigo-600 transition-colors"
+                                  title="Pin Message"
+                               >
+                                  <Pin className="w-3.5 h-3.5" />
+                               </button>
+                               <button 
+                                  onClick={() => handleDeleteMessage(msg.id)}
+                                  className="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-500 hover:text-rose-600 transition-colors"
+                                  title="Delete Message"
+                               >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                               </button>
+                            </div>
+                        )}
                       </div>
                     </div>
                   </React.Fragment>

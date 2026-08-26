@@ -68,7 +68,7 @@ export interface ItemReport {
   createdAt: number;
 }
 
-export type ViewState = 'AUTH' | 'DASHBOARD' | 'REPORT_LOST' | 'REPORT_FOUND' | 'MESSAGES' | 'PROFILE' | 'COMPARATOR' | 'AI_ASSISTANT';
+export type ViewState = 'AUTH' | 'DASHBOARD' | 'REPORT_LOST' | 'REPORT_FOUND' | 'MESSAGES' | 'PROFILE' | 'COMPARATOR' | 'AI_ASSISTANT' | 'ADMIN_DASHBOARD';
 
 export interface AppNotification {
   id: string;
@@ -113,4 +113,5 @@ export interface Chat {
   blockedBy?: string;
   typing?: Record<string, boolean>; // userId -> isTyping
   deletedIds?: string[]; // IDs of users who deleted this chat (soft delete)
+  pinnedMessageId?: string; // For Admin pinned announcements
 }
