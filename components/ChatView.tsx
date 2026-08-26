@@ -349,7 +349,7 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                               {chat.itemImage ? (
                                   <img src={chat.itemImage} className="w-full h-full object-cover" />
                               ) : (
-                                  chat.type === 'global' ? <Globe className="w-6 h-6" /> : chat.itemTitle.charAt(0)
+                                  chat.type === 'global' ? <Globe className="w-6 h-6" /> : (chat.itemTitle ? chat.itemTitle.charAt(0) : '#')
                               )}
                           </div>
                           
@@ -417,7 +417,7 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                         {selectedChat.itemImage ? (
                             <img src={selectedChat.itemImage} className="w-full h-full object-cover" />
                         ) : (
-                            isGlobal ? <Globe className="w-5 h-5" /> : selectedChat.itemTitle.charAt(0)
+                            isGlobal ? <Globe className="w-5 h-5" /> : (selectedChat.itemTitle ? selectedChat.itemTitle.charAt(0) : '#')
                         )}
                     </div>
                     {/* Header Online Indicator */}
