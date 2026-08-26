@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { ItemReport, ReportType, ItemCategory, User } from '../types';
-import { generateSmartReport } from '../services/geminiService';
+import { generateSmartReport } from '../services/aiService';
 import { uploadImage } from '../services/cloudinary';
 import { Loader2, MapPin, X, Check, Sparkles, Box, SearchX, ShieldBan, UploadCloud, AlertCircle, Wand2, Info, LayoutTemplate, Palette, Tag, EyeOff, Edit2, ShieldAlert, Cpu, Layers } from 'lucide-react';
 

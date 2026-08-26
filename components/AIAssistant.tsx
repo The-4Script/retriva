@@ -39,7 +39,7 @@ export default function AIAssistant({ user, onBack }: AIAssistantProps) {
       const userObj = auth.currentUser;
       const token = userObj ? await userObj.getIdToken() : '';
 
-      const response = await fetch('/api/gemini/chat', {
+      const response = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ export default function AIAssistant({ user, onBack }: AIAssistantProps) {
           </div>
           <div>
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Retriva AI Assistant</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Powered by Gemini</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Powered by Groq</p>
           </div>
         </div>
         <div className="flex items-center gap-2">

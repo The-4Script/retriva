@@ -1,4 +1,4 @@
-import { ItemCategory, GeminiAnalysisResult, ItemReport } from "../types";
+import { ItemCategory, AIAnalysisResult, ItemReport } from "../types";
 import { auth } from "./firebase";
 
 // --- TYPES ---
@@ -76,7 +76,7 @@ const callPuterAI = async (
     const user = auth.currentUser;
     const token = user ? await user.getIdToken() : '';
     
-    const response = await fetch('/api/gemini/chat', {
+    const response = await fetch('/api/ai/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -214,7 +214,7 @@ export const findSmartMatches = async (sourceItem: ItemReport, allReports: ItemR
             }
         }
     } catch (e) {
-        console.error("[Gemini] Smart Match Logic Error:", e);
+        console.error("[Groq] Smart Match Logic Error:", e);
     }
 
     // Fallback

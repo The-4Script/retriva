@@ -308,7 +308,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onShowLegal, onShowFeatures }) => 
                       RETRIVA
                     </h1>
                     <p className="text-sm text-slate-400 font-medium leading-relaxed max-w-sm mx-auto lg:mx-0">
-                      The intelligent campus recovery network powered by Gemini 3.0 Vision.
+                      The intelligent campus recovery network powered by Groq Qwen Vision.
                     </p>
                   </div>
 
@@ -319,7 +319,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onShowLegal, onShowFeatures }) => 
                           <BrainCircuit className="w-6 h-6 text-indigo-400" />
                         </div>
                         <div className="pt-1">
-                          <h3 className="font-bold text-slate-200 text-sm mb-1 group-hover:text-white transition-colors">Gemini Vision AI</h3>
+                          <h3 className="font-bold text-slate-200 text-sm mb-1 group-hover:text-white transition-colors">Groq Vision AI</h3>
                           <p className="text-[11px] text-slate-400 leading-relaxed">
                             Upload a photo and let our AI automatically handle description and safety checks.
                           </p>

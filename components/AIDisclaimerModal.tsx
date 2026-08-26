@@ -93,7 +93,7 @@ const AIDisclaimerModal: React.FC<AIDisclaimerModalProps> = ({ isOpen, onClose }
                        <Eye className="w-4 h-4" /> Visual Analysis
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                       Images uploaded to Retriva are processed by <strong>Google Gemini Vision</strong> to extract details (brand, color, type). By uploading, you grant us permission to process this visual data for categorization purposes.
+                       Images uploaded to Retriva are processed by <strong>Groq Vision</strong> to extract details (brand, color, type). By uploading, you grant us permission to process this visual data for categorization purposes.
                     </p>
                  </div>
 

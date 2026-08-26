@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ItemReport } from '../types';
-import { compareItems, ComparisonResult, getMatchTier } from '../services/geminiService';
+import { compareItems, ComparisonResult, getMatchTier } from '../services/aiService';
 import { X, Sparkles, MessageCircle, Check, AlertTriangle, MapPin, Clock, Tag, ScanLine, BrainCircuit, Info, Bot } from 'lucide-react';
 
 interface MatchComparatorProps {
@@ -11,7 +11,7 @@ interface MatchComparatorProps {
 }
 
 const LOADING_STEPS = [
-  "Initializing secure handshake with Gemini 3.0...",
+  "Initializing secure handshake with Groq...",
   "Vectorizing visual artifacts (4096-dim)...",
   "Segmenting object foreground from noise...",
   "Analyzing micro-features (scratches, wear)...",
@@ -147,7 +147,7 @@ const MatchComparator: React.FC<MatchComparatorProps> = ({ item1, item2, onClose
                    </div>
                 </div>
                 <h2 className="text-2xl font-black text-white tracking-tight mb-2">
-                   Gemini Vision <span className="text-[#4285F4]">Processing</span>
+                   Groq Vision <span className="text-[#4285F4]">Processing</span>
                 </h2>
                 <div className="h-6 overflow-hidden flex justify-center items-center gap-2">
                    <p className="text-sm font-medium text-slate-400 animate-slide-up key={loadingStep}">
@@ -283,7 +283,7 @@ const MatchComparator: React.FC<MatchComparatorProps> = ({ item1, item2, onClose
                           
                           <div className="flex items-center gap-2 mb-2">
                              <Bot className="w-3.5 h-3.5 text-[#4285F4]" />
-                             <span className="text-[10px] font-bold text-white uppercase tracking-widest">Gemini Analysis</span>
+                             <span className="text-[10px] font-bold text-white uppercase tracking-widest">Groq Analysis</span>
                           </div>
                           <p className="text-xs text-slate-300 leading-relaxed font-medium">
                              {analysis?.explanation}

@@ -8,7 +8,7 @@ interface FeaturesPageProps {
 
 // --- LOGO COMPONENTS FOR BACKGROUNDS ---
 
-const LogoGemini = ({ className }: { className?: string }) => (
+const LogoGroq = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="currentColor">
     <path d="M11.05 1.76a1.002 1.002 0 0 1 1.9 0l1.45 4.35a8.002 8.002 0 0 0 5.09 5.09l4.35 1.45a1.002 1.002 0 0 1 0 1.9l-4.35 1.45a8.002 8.002 0 0 0-5.09 5.09l-1.45 4.35a1.002 1.002 0 0 1-1.9 0l-1.45-4.35a8.002 8.002 0 0 0-5.09-5.09L.4 13.55a1.002 1.002 0 0 1 0-1.9l4.35-1.45a8.002 8.002 0 0 0 5.09-5.09l1.45-4.35Z" />
   </svg>
@@ -83,7 +83,7 @@ const VisionDemo = () => {
              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse delay-150"></div>
           </div>
           <div className={`transition-all duration-500 ${dataVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-             <p className="text-slate-500 mb-2">// Gemini 3.0 Extraction</p>
+             <p className="text-slate-500 mb-2">// Groq Vision Extraction</p>
              <p><span className="text-purple-400">const</span> item = {'{'}</p>
              <p className="pl-2">category: <span className="text-green-400">"Drinkware"</span>,</p>
              <p className="pl-2">color: <span className="text-green-400">"Light Blue"</span>,</p>
@@ -288,7 +288,7 @@ const FeatureSection = ({ align, title, subtitle, desc, icon: Icon, color, Visua
               <Code2 className="w-3 h-3 text-slate-400" /> How it works
            </h4>
            <p className="text-xs text-slate-400 leading-relaxed font-mono">
-              The system utilizes <strong>Gemini 3.0 Multimodal embeddings</strong> to convert raw input into high-dimensional vectors. This allows us to perform cosine similarity searches across millions of data points in milliseconds.
+              The system utilizes <strong>Groq-powered models</strong> to convert raw input into high-dimensional vectors. This allows us to perform cosine similarity searches across millions of data points in milliseconds.
            </p>
         </div>
      </div>
@@ -335,7 +335,7 @@ const FeaturesPage: React.FC<FeaturesPageProps> = ({ onBack }) => {
           {/* Hero Section */}
           <header className="py-20 lg:py-32 text-center max-w-4xl mx-auto space-y-8 animate-in zoom-in-95 duration-700">
              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-black uppercase tracking-widest mb-4">
-                <Sparkles className="w-3.5 h-3.5" /> Powered by Gemini 3.0 Flash
+                <Sparkles className="w-3.5 h-3.5" /> Powered by Llama 3
              </div>
              
              <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.9]">
@@ -359,8 +359,8 @@ const FeaturesPage: React.FC<FeaturesPageProps> = ({ onBack }) => {
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <TechCard 
                   icon={BrainCircuit}
-                  logo={LogoGemini}
-                  title="Google Gemini 3.0"
+                  logo={LogoGroq}
+                  title="Groq AI Stack"
                   desc="Multimodal reasoning model powering our vision analysis and semantic search engine."
                   color="from-blue-600 to-indigo-600"
                 />
@@ -396,7 +396,7 @@ const FeaturesPage: React.FC<FeaturesPageProps> = ({ onBack }) => {
                align="left"
                title="Pixel-to-Data Conversion."
                subtitle="Vision Intelligence"
-               desc="When you snap a photo, Gemini 3.0 doesn't just see pixels. It extracts structured data: precise color codes, brand recognition, material analysis, and damage assessment. This turns a raw image into a searchable database entry automatically."
+               desc="When you snap a photo, The AI doesn't just see pixels. It extracts structured data: precise color codes, brand recognition, material analysis, and damage assessment. This turns a raw image into a searchable database entry automatically."
                icon={Eye}
                color="from-cyan-500 to-blue-600"
                VisualComponent={VisionDemo}

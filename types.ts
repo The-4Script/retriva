@@ -30,7 +30,7 @@ export interface User {
   lastSeen?: number;
 }
 
-export interface GeminiAnalysisResult {
+export interface AIAnalysisResult {
   category: ItemCategory;
   title: string;
   summary: string;

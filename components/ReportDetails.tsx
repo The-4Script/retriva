@@ -6,7 +6,7 @@ import {
   ArrowRight, Clock, Fingerprint, MessageCircle, ChevronLeft, ChevronRight, 
   Box, Maximize2, FileText, ScanSearch, ArrowLeftRight, ExternalLink, AlertCircle, Cpu
 } from 'lucide-react';
-import { findSmartMatches, getMatchTier } from '../services/geminiService';
+import { findSmartMatches, getMatchTier } from '../services/aiService';
 
 interface ReportDetailsProps {
   report: ItemReport;

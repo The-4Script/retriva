@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { ItemReport, ReportType, User, ViewState } from '../types';
 import { Search, MapPin, SearchX, Box, Sparkles, ArrowRight, ScanLine, Loader2, RefreshCw, History, CheckCircle2, AlertCircle, Scan, Zap, Layers, Network, Wrench, ShieldCheck, Cpu, ChevronRight, Fingerprint, Radar, ChevronLeft, Target, User as UserIcon, WifiOff, HelpCircle, X, Check, Activity, Clock, Plus } from 'lucide-react';
 import ReportDetails from './ReportDetails';
-import { parseSearchQuery, findSmartMatches, getMatchTier } from '../services/geminiService';
+import { parseSearchQuery, findSmartMatches, getMatchTier } from '../services/aiService';
 
 interface DashboardProps {
   user: User;
@@ -319,7 +319,7 @@ const AIDiscoveryHub = ({ user, reports, onCompare, onNavigate }: { user: User, 
                         <>
                            <h3 className="text-2xl font-black text-white mb-3 tracking-tight">Initialize Recovery Scanner</h3>
                            <p className="text-slate-400 text-sm leading-relaxed mb-8">
-                              You haven't reported any lost items yet. To utilize our <strong>Gemini Semantic Matcher</strong> and find potential matches in the database, please file a report.
+                              You haven't reported any lost items yet. To utilize our <strong>Groq Semantic Matcher</strong> and find potential matches in the database, please file a report.
                            </p>
                            <button 
                              onClick={() => onNavigate('REPORT_LOST')}

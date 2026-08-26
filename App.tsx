@@ -12,7 +12,7 @@ import AIDisclaimerModal from './components/AIDisclaimerModal';
 import AIAssistant from './components/AIAssistant';
 import { User, ViewState, ItemReport, ReportType, ItemCategory, AppNotification, Chat, Message } from './types';
 import { MessageCircle, Bell, Moon, Sun, User as UserIcon, Plus, SearchX, Box, Loader2, Bot } from 'lucide-react';
-import { findSmartMatches } from './services/geminiService';
+import { findSmartMatches } from './services/aiService';
 
 // FIREBASE IMPORTS
 import { auth, db, FieldValue, generateUniqueStudentId } from './services/firebase';
@@ -42,7 +42,7 @@ const App: React.FC = () => {
   const [comparingItems, setComparingItems] = useState<{item1: ItemReport, item2: ItemReport} | null>(null);
   const [avatarError, setAvatarError] = useState(false);
 
-  // NEW: Listen for system-wide Toast Events (e.g. from GeminiService)
+  // NEW: Listen for system-wide Toast Events (e.g. from aiService)
   useEffect(() => {
     const handleToastEvent = (e: any) => {
         if (e.detail) setToast(e.detail);
