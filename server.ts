@@ -34,14 +34,14 @@ const runGroq = async (modelName: string, prompt: string, images?: string[], sys
           temperature: 0.6,
           max_completion_tokens: 2048,
           top_p: 0.95,
-          reasoning_effort: "default"
+          reasoning_effort: "default",
        };
    } else if (modelName === "openai/gpt-oss-120b" || modelName === "openai/gpt-oss-20b") {
        groqParams = {
           temperature: 1,
           max_completion_tokens: 2048,
           top_p: 1,
-          reasoning_effort: "medium"
+          reasoning_effort: "medium",
        };
    }
 
