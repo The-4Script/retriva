@@ -148,7 +148,7 @@ const UserManagement = ({ user: currentUser }: { user: User }) => {
                         <td className="p-4">
                            <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-slate-800 flex items-center justify-center shrink-0 overflow-hidden">
-                                 {u.avatar ? <img src={u.avatar} className="w-full h-full object-cover" /> : <span className="font-bold text-indigo-500">{u?.name?.charAt(0) || u?.email?.charAt(0) || 'U'}</span>}
+                                 {u.avatar ? <img src={u.avatar} className="w-full h-full object-cover" /> : <span className="font-bold text-indigo-500">{u.name.charAt(0)}</span>}
                               </div>
                               <div>
                                  <p className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">

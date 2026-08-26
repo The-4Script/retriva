@@ -73,42 +73,27 @@ const calculateTextSimilarity = (str1: string, str2: string): number => {
 };
 
 // --- HELPER: BACKEND AI WRAPPER ---
-// Updated to accept string array for images and robustly handle network fallbacks
+// Updated to accept string array for images and use exponential backoff
 const callPuterAI = async (
   prompt: string, 
   images?: string | string[], 
   systemInstruction?: string,
   cascadeMode?: 'VISION' | 'TEXT'
 ): Promise<string | null> => {
-  const MAX_RETRIES = 2;
+  const MAX_RETRIES = 3;
   let attempt = 0;
   
   while (attempt <= MAX_RETRIES) {
     try {
       const user = auth.currentUser;
-      let token = '';
-      if (user) {
-        try {
-          token = await user.getIdToken();
-        } catch {
-          token = '';
-        }
-      }
+      const token = user ? await user.getIdToken() : '';
       
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json'
-      };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
-      const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-      const timeoutId = controller ? setTimeout(() => controller.abort(), 20000) : null;
-
       const response = await fetch('/api/ai/chat', {
         method: 'POST',
-        headers,
-        signal: controller?.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           prompt,
           images,
@@ -117,29 +102,32 @@ const callPuterAI = async (
         })
       });
 
-      if (timeoutId) clearTimeout(timeoutId);
-
       if (!response.ok) {
+        const errText = await response.text();
+        console.error(`[Backend AI Error - Attempt ${attempt + 1}]`, errText);
+        
         if ((response.status === 503 || response.status === 429) && attempt < MAX_RETRIES) {
-          const delayMs = Math.pow(2, attempt) * 800 + Math.random() * 300;
+          const delayMs = Math.pow(2, attempt) * 1000 + Math.random() * 500;
+          console.warn(`AI Provider Overloaded. Retrying in ${Math.round(delayMs)}ms...`);
           await new Promise(resolve => setTimeout(resolve, delayMs));
           attempt++;
           continue;
         }
+        
         return null;
       }
 
       const data = await response.json();
-      return data?.result || null;
+      return data.result;
 
     } catch (error: any) {
+      console.error(`[Backend API] Error on attempt ${attempt + 1}:`, error);
       if (attempt < MAX_RETRIES) {
-          const delayMs = Math.pow(2, attempt) * 600;
+          const delayMs = Math.pow(2, attempt) * 1000;
           await new Promise(resolve => setTimeout(resolve, delayMs));
           attempt++;
           continue;
       }
-      // On network failure or offline mode, return null to gracefully trigger local heuristic fallback
       return null;
     }
   }

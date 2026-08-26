@@ -9,7 +9,6 @@
     "start": "node dist/server.cjs"
   },
   "dependencies": {
-    "@google/genai": "^2.19.0",
     "@tailwindcss/vite": "^4.3.3",
     "autoprefixer": "^10.5.4",
     "dotenv": "^17.4.2",
