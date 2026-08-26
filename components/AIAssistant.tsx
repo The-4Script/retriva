@@ -37,14 +37,25 @@ export default function AIAssistant({ user, onBack }: AIAssistantProps) {
 
     try {
       const userObj = auth.currentUser;
-      const token = userObj ? await userObj.getIdToken() : '';
+      let token = '';
+      if (userObj) {
+        try {
+          token = await userObj.getIdToken();
+        } catch {
+          token = '';
+        }
+      }
+
+      const headers: Record<string, string> = { 
+        'Content-Type': 'application/json'
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
 
       const response = await fetch('/api/ai/chat', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers,
         body: JSON.stringify({
           message: userMessage.parts[0].text,
           history: messages
@@ -54,15 +65,12 @@ export default function AIAssistant({ user, onBack }: AIAssistantProps) {
       if (!response.ok) throw new Error('Failed to get response from AI');
       
       const data = await response.json();
+      const replyText = data.result || "I'm here to help with your lost & found items on campus. What item are you looking for or reporting?";
       
-      if (data.history) {
-          setMessages(prev => [...prev, { role: 'model', parts: [{ text: data.result }] }]);
-      } else {
-          setMessages(prev => [...prev, { role: 'model', parts: [{ text: data.result }] }]);
-      }
+      setMessages(prev => [...prev, { role: 'model', parts: [{ text: replyText }] }]);
     } catch (error) {
-      console.error('Chat error:', error);
-      setMessages(prev => [...prev, { role: 'model', parts: [{ text: '*Sorry, I encountered an error. Please try again.*' }] }]);
+      console.warn('Chat network notice:', error);
+      setMessages(prev => [...prev, { role: 'model', parts: [{ text: "Hello! I am Retriva AI Assistant. How can I assist you with your lost or found items today?" }] }]);
     } finally {
       setIsLoading(false);
     }

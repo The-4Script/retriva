@@ -1,0 +1,112 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Registered campus student/staff profile",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "studentId": { "type": "string" },
+        "avatar": { "type": "string" },
+        "department": { "type": "string" },
+        "isVerified": { "type": "boolean" },
+        "isOnline": { "type": "boolean" },
+        "lastSeen": { "type": "number" }
+      },
+      "required": ["id", "name", "email", "isVerified"]
+    },
+    "ItemReport": {
+      "title": "ItemReport",
+      "description": "Lost or found item report",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string", "enum": ["LOST", "FOUND"] },
+        "title": { "type": "string" },
+        "summary": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "location": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "imageUrls": { "type": "array" },
+        "tags": { "type": "array" },
+        "status": { "type": "string", "enum": ["OPEN", "RESOLVED"] },
+        "reporterId": { "type": "string" },
+        "reporterName": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["id", "type", "title", "description", "category", "location", "status", "reporterId", "reporterName", "createdAt"]
+    },
+    "Chat": {
+      "title": "Chat",
+      "description": "Conversation between users regarding an item or global discussion",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string", "enum": ["direct", "global"] },
+        "itemId": { "type": "string" },
+        "itemTitle": { "type": "string" },
+        "itemImage": { "type": "string" },
+        "participants": { "type": "array" },
+        "lastMessage": { "type": "string" },
+        "lastMessageTime": { "type": "number" },
+        "unreadCount": { "type": "number" }
+      },
+      "required": ["id", "type", "participants", "lastMessageTime"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Chat message inside a conversation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "text": { "type": "string" },
+        "timestamp": { "type": "number" },
+        "status": { "type": "string", "enum": ["sent", "read"] }
+      },
+      "required": ["id", "senderId", "text", "timestamp"]
+    },
+    "AppNotification": {
+      "title": "AppNotification",
+      "description": "User notification for match or chat alerts",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string", "enum": ["match", "message", "system"] },
+        "timestamp": { "type": "number" },
+        "isRead": { "type": "boolean" }
+      },
+      "required": ["id", "title", "message", "type", "timestamp", "isRead"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Collection of user profiles"
+    },
+    "/reports/{reportId}": {
+      "schema": "ItemReport",
+      "description": "Collection of lost and found item reports"
+    },
+    "/chats/{chatId}": {
+      "schema": "Chat",
+      "description": "Collection of direct and global chat channels"
+    },
+    "/chats/{chatId}/messages/{messageId}": {
+      "schema": "Message",
+      "description": "Subcollection of chat messages"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "AppNotification",
+      "description": "Collection of user notifications"
+    }
+  }
+}
