@@ -66,6 +66,25 @@ const CATEGORY_SCHEMAS: Record<ItemCategory, { key: string; label: string; place
     { key: 'item', label: 'Item Name', placeholder: 'What is it?', required: true },
     { key: 'color', label: 'Color', placeholder: 'Dominant Color' },
     { key: 'material', label: 'Material', placeholder: 'e.g. Plastic, Metal' },
+  ],
+  [ItemCategory.BAGS]: [
+    { key: 'type', label: 'Bag Type', placeholder: 'e.g. Backpack, Tote', required: true },
+    { key: 'brand', label: 'Brand', placeholder: 'e.g. Jansport, Nike' },
+    { key: 'color', label: 'Color', placeholder: 'Dominant Color' },
+  ],
+  [ItemCategory.KEYS]: [
+    { key: 'type', label: 'Key Type', placeholder: 'e.g. Car Key, House Key', required: true },
+    { key: 'identifyingFeature', label: 'Keychain / Tag', placeholder: 'e.g. Red lanyard, Batman keychain' },
+  ],
+  [ItemCategory.BOTTLES]: [
+    { key: 'brand', label: 'Brand', placeholder: 'e.g. Hydroflask, Yeti', required: true },
+    { key: 'color', label: 'Color', placeholder: 'Dominant Color' },
+    { key: 'material', label: 'Material', placeholder: 'e.g. Metal, Plastic' },
+  ],
+  [ItemCategory.SPORTS]: [
+    { key: 'type', label: 'Equipment Type', placeholder: 'e.g. Basketball, Racket', required: true },
+    { key: 'brand', label: 'Brand', placeholder: 'e.g. Spalding, Wilson' },
+    { key: 'color', label: 'Color', placeholder: 'Dominant Color' },
   ]
 };
 

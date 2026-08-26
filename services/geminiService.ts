@@ -359,12 +359,35 @@ export const parseSearchQuery = async (query: string): Promise<{ userStatus: 'LO
     }
 };
 
+const getBase64FromUrl = async (url: string) => {
+    try {
+        const data = await fetch(url);
+        const blob = await data.blob();
+        return new Promise<string>((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(blob); 
+            reader.onloadend = () => {
+                resolve(reader.result as string);
+            }
+        });
+    } catch (e) {
+        console.warn("Failed to fetch image for comparison", e);
+        return null;
+    }
+}
+
 export const compareItems = async (item1: ItemReport, item2: ItemReport): Promise<ComparisonResult> => {
     try {
         // Collect images from both items for visual comparison
         const imagesToAnalyze: string[] = [];
-        if (item1.imageUrls?.[0]) imagesToAnalyze.push(item1.imageUrls[0]);
-        if (item2.imageUrls?.[0]) imagesToAnalyze.push(item2.imageUrls[0]);
+        if (item1.imageUrls?.[0]) {
+            const b64 = await getBase64FromUrl(item1.imageUrls[0]);
+            if (b64) imagesToAnalyze.push(b64);
+        }
+        if (item2.imageUrls?.[0]) {
+            const b64 = await getBase64FromUrl(item2.imageUrls[0]);
+            if (b64) imagesToAnalyze.push(b64);
+        }
 
         const prompt = `
            You are an expert Lost & Found Verification Specialist.

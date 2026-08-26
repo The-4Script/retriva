@@ -28,9 +28,6 @@ export interface User {
   isVerified: boolean;
   isOnline?: boolean;
   lastSeen?: number;
-  // Internal tracking fields
-  storedPassword?: string;
-  loginAttempts?: number;
 }
 
 export interface GeminiAnalysisResult {

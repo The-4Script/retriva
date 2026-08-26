@@ -1,6 +1,7 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
+import 'firebase/compat/analytics';
 import { getFirestore } from 'firebase/firestore';
 
 // Safely load local config for AI Studio Preview without breaking Vercel builds if missing
@@ -14,7 +15,8 @@ const firebaseConfig = {
   storageBucket: (import.meta as any).env.VITE_FIREBASE_STORAGE_BUCKET || fallbackConfig.storageBucket,
   messagingSenderId: (import.meta as any).env.VITE_FIREBASE_MESSAGING_SENDER_ID || fallbackConfig.messagingSenderId,
   appId: (import.meta as any).env.VITE_FIREBASE_APP_ID || fallbackConfig.appId,
-  firestoreDatabaseId: (import.meta as any).env.VITE_FIREBASE_DATABASE_ID || fallbackConfig.firestoreDatabaseId || "(default)",
+  measurementId: (import.meta as any).env.VITE_FIREBASE_MEASUREMENT_ID || fallbackConfig.measurementId,
+  firestoreDatabaseId: "(default)",
 };
 
 // Safety check to warn in console if keys are missing
@@ -34,6 +36,14 @@ if (!firebase.apps.length) {
 }
 
 export const auth = firebase.auth();
+export let analytics: firebase.analytics.Analytics | null = null;
+if (typeof window !== 'undefined') {
+  try {
+    analytics = firebase.analytics();
+  } catch (e) {
+    console.error("Firebase Analytics Initialization Error:", e);
+  }
+}
 
 // Initialize the v9 db with the explicit databaseId, then monkey-patch 
 // the v8 compat instance to use it. This avoids a massive codebase rewrite.

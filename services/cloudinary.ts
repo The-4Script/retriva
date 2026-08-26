@@ -1,5 +1,3 @@
-import { compressImage } from './imageCompression';
-
 // VERCEL CONFIG: Add these to Environment Variables in Vercel Dashboard
 // Direct access ensures Vite replaces them at build time.
 const CLOUD_NAME = (import.meta as any).env.VITE_CLOUDINARY_CLOUD_NAME;
