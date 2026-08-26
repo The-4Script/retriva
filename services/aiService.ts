@@ -73,44 +73,65 @@ const calculateTextSimilarity = (str1: string, str2: string): number => {
 };
 
 // --- HELPER: BACKEND AI WRAPPER ---
-// Updated to accept string array for images
+// Updated to accept string array for images and use exponential backoff
 const callPuterAI = async (
   prompt: string, 
   images?: string | string[], 
   systemInstruction?: string,
   cascadeMode?: 'VISION' | 'TEXT'
 ): Promise<string | null> => {
-  try {
-    const user = auth.currentUser;
-    const token = user ? await user.getIdToken() : '';
-    
-    const response = await fetch('/api/ai/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        prompt,
-        images,
-        systemInstruction,
-        cascadeMode
-      })
-    });
+  const MAX_RETRIES = 3;
+  let attempt = 0;
+  
+  while (attempt <= MAX_RETRIES) {
+    try {
+      const user = auth.currentUser;
+      const token = user ? await user.getIdToken() : '';
+      
+      const response = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          prompt,
+          images,
+          systemInstruction,
+          cascadeMode
+        })
+      });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("[Backend AI Error]", errText);
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error(`[Backend AI Error - Attempt ${attempt + 1}]`, errText);
+        
+        if ((response.status === 503 || response.status === 429) && attempt < MAX_RETRIES) {
+          const delayMs = Math.pow(2, attempt) * 1000 + Math.random() * 500;
+          console.warn(`AI Provider Overloaded. Retrying in ${Math.round(delayMs)}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+          attempt++;
+          continue;
+        }
+        
+        return null;
+      }
+
+      const data = await response.json();
+      return data.result;
+
+    } catch (error: any) {
+      console.error(`[Backend API] Error on attempt ${attempt + 1}:`, error);
+      if (attempt < MAX_RETRIES) {
+          const delayMs = Math.pow(2, attempt) * 1000;
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+          attempt++;
+          continue;
+      }
       return null;
     }
-
-    const data = await response.json();
-    return data.result;
-
-  } catch (error: any) {
-    console.error(`[Backend API] Error:`, error);
-    return null;
   }
+  return null;
 };
 
 // --- FALLBACK LOGIC ---
@@ -214,11 +235,15 @@ export const findSmartMatches = async (sourceItem: ItemReport, allReports: ItemR
                 matchResults = data.matches || [];
                 usedAI = true;
             } catch (jsonErr) {
-                 // Try aggressive cleanup for control characters
-                 const sanitized = cleanText.replace(/[\x00-\x1F]/g, " ");
-                 const data = JSON.parse(sanitized);
-                 matchResults = data.matches || [];
-                 usedAI = true;
+                try {
+                    const sanitized = cleanText.replace(/[\x00-\x1F]/g, " ");
+                    const data = JSON.parse(sanitized);
+                    matchResults = data.matches || [];
+                    usedAI = true;
+                } catch (fallbackErr) {
+                    console.warn("AI Smart Match JSON invalid:", text);
+                    usedAI = false;
+                }
             }
         }
     } catch (e) {
@@ -231,7 +256,7 @@ export const findSmartMatches = async (sourceItem: ItemReport, allReports: ItemR
             const titleSim = calculateTextSimilarity(sourceItem.title, c.title);
             const descSim = calculateTextSimilarity(sourceItem.description, c.description);
             let score = (titleSim * 50) + (descSim * 50);
-            if (c.category === sourceItem.category) score += 10;
+            if (c.category === sourceItem.category) score += 25;
             return { id: c.id, confidence: Math.min(score, 100) };
         }).filter(m => m.confidence > 20);
     }
@@ -454,16 +479,17 @@ export const compareItems = async (item1: ItemReport, item2: ItemReport): Promis
         try {
             result = JSON.parse(cleanedText);
         } catch (parseError: any) {
-            // FIX for "Bad control character in string literal" error
-            // Often occurs when AI puts literal newlines in the explanation string
-            if (parseError.message.includes("Bad control character") || parseError.message.includes("JSON")) {
-                // Aggressive fix: remove all control characters (newlines, tabs) to make it valid single-line JSON
-                // We assume the AI output newlines were mostly for formatting, not content critical structure.
+            try {
                 const sanitized = cleanedText.replace(/[\x00-\x1F]/g, " ");
                 result = JSON.parse(sanitized);
-            } else {
-                throw parseError;
+            } catch (fallbackParseError) {
+                console.warn("AI returned invalid JSON:", text);
+                throw new Error("Invalid JSON from AI");
             }
+        }
+
+        if (!result || typeof result.confidence !== "number") {
+             throw new Error("Missing confidence in AI result");
         }
         
         // --- SCORE NORMALIZATION LOGIC ---

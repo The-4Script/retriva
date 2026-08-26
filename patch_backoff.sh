@@ -1,0 +1,68 @@
+cat << 'INNER_EOF' > replacement.txt
+// --- HELPER: BACKEND AI WRAPPER ---
+// Updated to accept string array for images and use exponential backoff
+const callPuterAI = async (
+  prompt: string, 
+  images?: string | string[], 
+  systemInstruction?: string,
+  cascadeMode?: 'VISION' | 'TEXT'
+): Promise<string | null> => {
+  const MAX_RETRIES = 3;
+  let attempt = 0;
+  
+  while (attempt <= MAX_RETRIES) {
+    try {
+      const user = auth.currentUser;
+      const token = user ? await user.getIdToken() : '';
+      
+      const response = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': \`Bearer \${token}\`
+        },
+        body: JSON.stringify({
+          prompt,
+          images,
+          systemInstruction,
+          cascadeMode
+        })
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error(\`[Backend AI Error - Attempt \${attempt + 1}]\`, errText);
+        
+        if ((response.status === 503 || response.status === 429) && attempt < MAX_RETRIES) {
+          const delayMs = Math.pow(2, attempt) * 1000 + Math.random() * 500;
+          console.warn(\`AI Provider Overloaded. Retrying in \${Math.round(delayMs)}ms...\`);
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+          attempt++;
+          continue;
+        }
+        
+        return null;
+      }
+
+      const data = await response.json();
+      return data.result;
+
+    } catch (error: any) {
+      console.error(\`[Backend API] Error on attempt \${attempt + 1}:\`, error);
+      if (attempt < MAX_RETRIES) {
+          const delayMs = Math.pow(2, attempt) * 1000;
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+          attempt++;
+          continue;
+      }
+      return null;
+    }
+  }
+  return null;
+};
+INNER_EOF
+
+# Replace lines 75 to 114 with replacement.txt
+sed -i -e '75,114c\' -e "$(cat replacement.txt | sed 's/$/\\/')" services/aiService.ts
+# Remove trailing slash from last line of sed insertion if it exists (which it does because of the map)
+sed -i 's/\\$//g' services/aiService.ts

@@ -106,7 +106,7 @@ const MatchComparator: React.FC<MatchComparatorProps> = ({ item1, item2, onClose
   const getScoreColor = (s: number) => {
       if (s >= 90) return '#34A853'; // Green
       if (s >= 70) return '#4285F4'; // Blue
-      if (s >= 50) return '#FBBC05'; // Yellow
+      if (s >= 40) return '#FBBC05'; // Yellow
       return '#EA4335'; // Red
   };
 
@@ -283,7 +283,7 @@ const MatchComparator: React.FC<MatchComparatorProps> = ({ item1, item2, onClose
                           
                           <div className="flex items-center gap-2 mb-2">
                              <Bot className="w-3.5 h-3.5 text-[#4285F4]" />
-                             <span className="text-[10px] font-bold text-white uppercase tracking-widest">Groq Analysis</span>
+                             <span className="text-[10px] font-bold text-white uppercase tracking-widest">{analysis?.explanation.includes('AI Unavailable') ? 'Local Semantic Match' : 'Groq Analysis'}</span>
                           </div>
                           <p className="text-xs text-slate-300 leading-relaxed font-medium">
                              {analysis?.explanation}
