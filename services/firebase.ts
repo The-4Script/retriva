@@ -2,7 +2,7 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import 'firebase/compat/analytics';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, initializeFirestore } from 'firebase/firestore';
 
 // Safely load local config for AI Studio Preview without breaking Vercel builds if missing
 const localConfigs = (import.meta as any).glob('../firebase-applet-config.json', { eager: true });
@@ -48,7 +48,7 @@ if (typeof window !== 'undefined') {
 // Initialize the v9 db with the explicit databaseId, then monkey-patch 
 // the v8 compat instance to use it. This avoids a massive codebase rewrite.
 export const db = firebase.firestore();
-const dbV9 = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+const dbV9 = initializeFirestore(app, { experimentalForceLongPolling: true }, firebaseConfig.firestoreDatabaseId);
 (db as any)._delegate = dbV9;
 
 export const googleProvider = new firebase.auth.GoogleAuthProvider();
