@@ -1,8 +1,5 @@
 {
   "name": "RETRIVA",
   "description": "A smart campus lost and found application powered by Groq AI to automatically categorize and match lost items.",
-  "requestFramePermissions": [],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
+  "requestFramePermissions": []
 }

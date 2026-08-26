@@ -129,7 +129,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
                     )}
                 </div>
                 <div className="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold overflow-hidden ring-2 ring-white dark:ring-slate-950">
-                    {user?.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : (user?.name?.charAt(0) || user?.email?.charAt(0) || 'A')}
+                    {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : user.name.charAt(0)}
                 </div>
              </div>
           </header>
