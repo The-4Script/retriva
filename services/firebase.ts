@@ -5,7 +5,7 @@ import 'firebase/compat/analytics';
 import { getFirestore } from 'firebase/firestore';
 
 // Safely load local config for AI Studio Preview without breaking Vercel builds if missing
-const localConfigs = import.meta.glob('../firebase-applet-config.json', { eager: true });
+const localConfigs = (import.meta as any).glob('../firebase-applet-config.json', { eager: true });
 const fallbackConfig = (localConfigs['../firebase-applet-config.json'] as any)?.default || {};
 
 const firebaseConfig = {

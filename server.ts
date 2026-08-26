@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import path from "path";
 import * as admin from "firebase-admin";
+import { getAuth } from "firebase-admin/auth";
 
 // Initialize Firebase Admin for token verification
 admin.initializeApp({
@@ -117,7 +118,7 @@ app.post("/api/ai/chat", async (req, res) => {
     
     const idToken = authHeader.split("Bearer ")[1];
     try {
-       await admin.auth().verifyIdToken(idToken);
+       await getAuth().verifyIdToken(idToken);
     } catch (authError: any) {
        console.warn("[Auth Warning] Token validation issue on serverless", authError.message);
        if (idToken.split('.').length !== 3) {
@@ -206,7 +207,7 @@ app.post("/api/ai/chat", async (req, res) => {
 });
 
 async function startServer() {
-  const PORT = process.env.PORT || 3000;
+  const PORT = Number(process.env.PORT || 3000);
 
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {

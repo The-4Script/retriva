@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../../services/firebase';
 import { User } from '../../types';
 import { logAdminAction } from '../../services/adminService';
-import { Search, Filter, MoreVertical, ShieldAlert, CheckCircle, Ban, Edit, Activity, UserX, UserCheck } from 'lucide-react';
+import { Search, Filter, MoreVertical, ShieldAlert, CheckCircle, Ban, Edit, Activity, UserX, UserCheck, Users } from 'lucide-react';
 
 export interface AdminUser extends User {
   status: 'ACTIVE' | 'SUSPENDED' | 'BLOCKED';

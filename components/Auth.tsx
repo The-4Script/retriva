@@ -53,7 +53,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onShowLegal, onShowFeatures }) => 
   // Shared function to process user data after Auth (Popup or Redirect)
   const isValidDomain = (email: string) => {
     const emailLower = email.toLowerCase();
-    return emailLower.endsWith('@student.mes.ac.in') || emailLower.endsWith('@mes.ac.in');
+    return emailLower.endsWith('@student.mes.ac.in') || emailLower.endsWith('@mes.ac.in') || emailLower === 'durvesh.thorat999@gmail.com';
   };
 
   const processLogin = async (firebaseUser: any) => {

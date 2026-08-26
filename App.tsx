@@ -11,7 +11,7 @@ import AIDisclaimerModal from './components/AIDisclaimerModal';
 import AIAssistant from './components/AIAssistant';
 import AdminDashboard from './components/admin/AdminDashboard';
 import { User, ViewState, ItemReport, ReportType, ItemCategory, AppNotification, Chat, Message } from './types';
-import { MessageCircle, Bell, Moon, Sun, User as UserIcon, Plus, SearchX, Box, Loader2, Bot } from 'lucide-react';
+import { MessageCircle, Bell, Moon, Sun, User as UserIcon, Plus, SearchX, Box, Loader2, Bot, ShieldCheck, Wrench } from 'lucide-react';
 import { findSmartMatches } from './services/aiService';
 
 // FIREBASE IMPORTS
