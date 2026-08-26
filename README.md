@@ -142,7 +142,7 @@ retriva/
 
 <br/>
 
-## The Team — 4SCRIPT
+## The Team — FORGESCRIPT
 
 Built by first-year engineering students at **Pillai College of Engineering, New Panvel**.
 
@@ -163,7 +163,7 @@ This is an educational project. Issues and suggestions are welcome — open a Gi
 
 ## License
 
-© 2026 Team 4SCRIPT — Pillai College of Engineering.  
+© 2026 Team FORGESCRIPT — Pillai College of Engineering.  
 Created for educational purposes. All rights reserved.
 
 <br/>

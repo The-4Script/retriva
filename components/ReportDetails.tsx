@@ -195,7 +195,7 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
                  </h1>
 
                  {/* ACTION: SCAN FOR MATCHES */}
-                 {report.status === 'OPEN' && (
+                 {report.status === 'OPEN' && isLost && isOwner && (
                    <div className="space-y-4">
                        {!scanResults ? (
                             <button 

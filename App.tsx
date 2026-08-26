@@ -7,7 +7,6 @@ import Profile from './components/Profile';
 import Toast from './components/Toast';
 import NotificationCenter from './components/NotificationCenter';
 import MatchComparator from './components/MatchComparator';
-import FeaturesPage from './components/FeaturesPage';
 import AIDisclaimerModal from './components/AIDisclaimerModal';
 import AIAssistant from './components/AIAssistant';
 import { User, ViewState, ItemReport, ReportType, ItemCategory, AppNotification, Chat, Message } from './types';
@@ -650,13 +649,12 @@ const App: React.FC = () => {
   }
 
   // --- AUTH VIEW OR PUBLIC FEATURES ---
-  if (!user && view !== 'FEATURES') {
+  if (!user) {
     return (
       <>
         <Auth 
           onLogin={handleLogin} 
           onShowLegal={() => setShowLegal(true)} 
-          onShowFeatures={() => setView('FEATURES')}
         />
         <AIDisclaimerModal isOpen={showLegal} onClose={() => setShowLegal(false)} />
       </>
@@ -722,9 +720,6 @@ const App: React.FC = () => {
       case 'AI_ASSISTANT': return (
         <AIAssistant user={user!} onBack={() => setView('DASHBOARD')} />
       );
-      case 'FEATURES': return (
-        <FeaturesPage onBack={() => setView(user ? 'DASHBOARD' : 'AUTH')} />
-      );
       default: return null;
     }
   };
@@ -761,7 +756,7 @@ const App: React.FC = () => {
       {/* Hide standard Nav if on Features Page for immersive effect, OR keep it. 
           The design prompt requested a "Brand New Page", implies fullscreen. 
           Let's conditionally hide the main nav if view === 'FEATURES' */}
-      {view !== 'FEATURES' && user && (
+      {user && (
         <nav className="sticky top-0 z-40 bg-off-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6">
             <div className="max-w-7xl mx-auto h-20 flex items-center justify-between py-3">
               <div className="flex items-center gap-10">
@@ -827,11 +822,11 @@ const App: React.FC = () => {
       )}
 
       {/* Main Container */}
-      <main className={`flex-grow w-full mx-auto relative ${view === 'FEATURES' ? '' : 'p-4 md:p-6 max-w-[1400px]'}`}>
+      <main className={`flex-grow w-full mx-auto relative ${'p-4 md:p-6 max-w-[1400px]'}`}>
         {renderContent()}
 
         {/* AI Chatbot Floating Button (Left) */}
-        {user && view !== 'AUTH' && view !== 'AI_ASSISTANT' && view !== 'FEATURES' && (
+        {user && view !== 'AUTH' && view !== 'AI_ASSISTANT' && (
            <div className="fixed bottom-6 left-6 md:bottom-8 md:left-8 z-50 animate-fade-in">
               <button 
                 onClick={() => setView('AI_ASSISTANT')}
@@ -849,7 +844,7 @@ const App: React.FC = () => {
         )}
 
         {/* FLOATING ACTION BUTTON (FAB) - Hide on Features Page */}
-        {user && view !== 'AUTH' && view !== 'MESSAGES' && view !== 'FEATURES' && (
+        {user && view !== 'AUTH' && view !== 'MESSAGES' && (
           <div className="fixed bottom-24 right-6 md:bottom-8 md:right-8 z-50 flex flex-col items-end gap-3">
              {showFabMenu && (
                 <div className="flex flex-col items-end gap-5 mb-4 animate-in fade-in slide-in-from-bottom-8 zoom-in-90 duration-500 ease-out">
@@ -897,7 +892,7 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {view !== 'FEATURES' && (
+      {(
         <footer className="w-full relative bg-white dark:bg-slate-950 mt-auto border-t border-slate-100 dark:border-slate-800">
             <div className="absolute top-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-60 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></div>
             <div className="max-w-7xl mx-auto px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] font-medium text-slate-400">
@@ -905,14 +900,13 @@ const App: React.FC = () => {
                  <span>&copy; 2026 RETRIVA</span>
                  <div className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></div>
                  <div className="flex gap-3">
-                    <button onClick={() => setView('FEATURES')} className="hover:text-indigo-500 transition-colors uppercase tracking-wider font-bold">Under the Hood</button>
                     <button onClick={() => setShowLegal(true)} className="hover:text-indigo-500 transition-colors">Privacy & Terms</button>
                  </div>
               </div>
               <div className="flex items-center gap-2">
                  <span className="opacity-60">Engineered by</span>
                  <span className="font-cursive text-lg bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent hover:scale-105 transition-transform cursor-default">
-                   4SCRIPT
+                   FORGESCRIPT
                  </span>
               </div>
             </div>
