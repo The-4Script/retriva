@@ -54,7 +54,7 @@ const ApiConfigManagement = () => {
       await new Promise(r => setTimeout(r, 1000)); // Simulate API call
       
       // Update UI with masked key
-      const masked = newKey.length > 8 ? `\${newKey.substring(0, 4)}****\${newKey.substring(newKey.length - 4)}` : '****';
+      const masked = newKey.length > 8 ? `${newKey.substring(0, 4)}****${newKey.substring(newKey.length - 4)}` : '****';
       setModels(prev => prev.map(m => m.id === modelId ? { ...m, maskedKey: masked } : m));
       
       await logAdminAction('Update AI API Key', modelId, 'API_CONFIG');
@@ -79,7 +79,7 @@ const ApiConfigManagement = () => {
                       <p className="text-xs font-mono text-slate-500 mt-1">{model.id}</p>
                    </div>
                    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
-                        \${model.status === 'ONLINE' ? 'bg-emerald-100 text-emerald-700' : 
+                        ${model.status === 'ONLINE' ? 'bg-emerald-100 text-emerald-700' : 
                           model.status === 'RATE_LIMITED' ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-600'}
                    `}>
                       {model.status === 'ONLINE' ? <CheckCircle className="w-3 h-3" /> : model.status === 'RATE_LIMITED' ? <XCircle className="w-3 h-3" /> : <Activity className="w-3 h-3" />}

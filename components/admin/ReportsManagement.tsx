@@ -111,7 +111,7 @@ const ReportsManagement = () => {
 
             <button 
                onClick={() => setFlagFilter(!flagFilter)}
-               className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold transition-colors \${flagFilter ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 border border-rose-200 dark:border-rose-800' : 'bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'}`}
+               className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-bold transition-colors ${flagFilter ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 border border-rose-200 dark:border-rose-800' : 'bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800'}`}
             >
                <ShieldAlert className="w-4 h-4" />
                AI Flagged
@@ -122,7 +122,7 @@ const ReportsManagement = () => {
       {/* GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {filteredReports.map(report => (
-             <div key={report.id} className={`bg-white dark:bg-slate-950 rounded-2xl border \${report.hidden ? 'border-rose-300 dark:border-rose-800 opacity-75' : 'border-slate-200 dark:border-slate-800'} p-4 flex gap-4 shadow-sm transition-all hover:shadow-md`}>
+             <div key={report.id} className={`bg-white dark:bg-slate-950 rounded-2xl border ${report.hidden ? 'border-rose-300 dark:border-rose-800 opacity-75' : 'border-slate-200 dark:border-slate-800'} p-4 flex gap-4 shadow-sm transition-all hover:shadow-md`}>
                 <div className="w-32 h-32 rounded-xl bg-slate-100 dark:bg-slate-900 overflow-hidden shrink-0 border border-slate-200 dark:border-slate-800 relative">
                     {report.imageUrls?.[0] ? (
                        <img src={report.imageUrls[0]} className="w-full h-full object-cover" />
@@ -138,7 +138,7 @@ const ReportsManagement = () => {
                 <div className="flex-1 min-w-0 flex flex-col">
                    <div className="flex justify-between items-start mb-1">
                       <h3 className="font-bold text-slate-900 dark:text-white truncate">{report.title}</h3>
-                      <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-md \${report.type === 'LOST' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                      <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-md ${report.type === 'LOST' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>
                          {report.type}
                       </span>
                    </div>
@@ -177,7 +177,7 @@ const ReportsManagement = () => {
                                   handleToggleHide(report);
                                }
                             }}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 \${report.hidden ? 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40'}`}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 ${report.hidden ? 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40'}`}
                          >
                             {report.hidden ? <><EyeOff className="w-3.5 h-3.5" /> Restore</> : <><AlertTriangle className="w-3.5 h-3.5" /> Takedown</>}
                          </button>

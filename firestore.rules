@@ -48,5 +48,19 @@ service cloud.firestore {
       allow create: if isAuthenticated();
       allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
+    
+    match /admins/{adminId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // manage via a trusted Cloud Function / Admin SDK only, never the client
+    }
+    match /auditLogs/{logId} {
+      allow read: if isAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      allow create: if isAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      allow update, delete: if false;
+    }
+    match /siteConfig/{docId} {
+      allow read: if true; // needed pre-login to show maintenance banner
+      allow write: if isAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
   }
 }

@@ -38,7 +38,7 @@ const MaintenanceManagement = () => {
         estimatedEndTime: endTimestamp
       }, { merge: true });
       
-      await logAdminAction(`Toggle Maintenance: \${enabled ? 'ON' : 'OFF'}`, 'global', 'SYSTEM');
+      await logAdminAction(`Toggle Maintenance: ${enabled ? 'ON' : 'OFF'}`, 'global', 'SYSTEM');
       
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
@@ -54,7 +54,7 @@ const MaintenanceManagement = () => {
        <div className="bg-white dark:bg-slate-950 p-6 md:p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
           
           <div className="flex items-center gap-4 mb-8">
-             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center \${enabled ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600' : 'bg-slate-100 dark:bg-slate-900 text-slate-400'}`}>
+             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${enabled ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600' : 'bg-slate-100 dark:bg-slate-900 text-slate-400'}`}>
                 <Wrench className="w-7 h-7" />
              </div>
              <div>

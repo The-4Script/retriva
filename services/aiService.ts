@@ -289,7 +289,7 @@ export interface SmartReportResult {
 }
 
 export const generateSmartReport = async (
-  base64Image: string | undefined,
+  base64Images: string[] | undefined,
   userTitle: string,
   userDescription: string
 ): Promise<SmartReportResult> => {
@@ -302,10 +302,9 @@ export const generateSmartReport = async (
 
       TASKS:
       1. SECURITY CHECK: Check for violence/gore, live animals/pets (plants are ok), human portraits/selfies, or pranks/nonsense.
-      2. REDACTION: If there are faces or ID cards, provide bounding boxes [ymin, xmin, ymax, xmax] (scale 0-1000).
-      3. VISUAL ANALYSIS: Extract strict technical details (color, category, specs like brand/model, visual tags).
-      4. CONTENT GENERATION: Write a highly detailed, factual description combining the user's input and your visual analysis. Suggest a clean, concise title.
-      5. CROSS-CHECK: Compare user's input with the image. If the user said "Blue Laptop" but the image is a "Red Backpack", note this discrepancy in crossCheckFeedback.
+      2. VISUAL ANALYSIS: Extract strict technical details (color, category, specs like brand/model, visual tags).
+      3. CONTENT GENERATION: Write a highly detailed, factual description combining the user's input and your visual analysis. Suggest a clean, concise title.
+      4. CROSS-CHECK: Compare user's input with the image. If the user said "Blue Laptop" but the image is a "Red Backpack", note this discrepancy in crossCheckFeedback.
 
       CATEGORIES MUST BE EXACTLY ONE OF: 
       Electronics, Stationery, Clothing, Accessories, ID Cards, Books, Bags & Wallets, Keys & Tools, Bottles & Containers, Sports Equipment, Other.
@@ -318,7 +317,6 @@ export const generateSmartReport = async (
           "reason": "String",
           "isPrank": boolean
         },
-        "redactionRegions": [[ymin, xmin, ymax, xmax]],
         "visualInsights": {
           "category": "String (must match one of the categories)",
           "color": "String",
@@ -331,7 +329,7 @@ export const generateSmartReport = async (
       }
     `;
 
-    const text = await callPuterAI(prompt, base64Image, undefined, 'VISION');
+    const text = await callPuterAI(prompt, base64Images, undefined, 'VISION');
     if (!text) throw new Error("No response from AI");
 
     const parsed = JSON.parse(cleanJSON(text));
@@ -392,35 +390,12 @@ export const parseSearchQuery = async (query: string): Promise<{ userStatus: 'LO
     }
 };
 
-const getBase64FromUrl = async (url: string) => {
-    try {
-        const data = await fetch(url);
-        const blob = await data.blob();
-        return new Promise<string>((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(blob); 
-            reader.onloadend = () => {
-                resolve(reader.result as string);
-            }
-        });
-    } catch (e) {
-        console.warn("Failed to fetch image for comparison", e);
-        return null;
-    }
-}
-
 export const compareItems = async (item1: ItemReport, item2: ItemReport): Promise<ComparisonResult> => {
     try {
         // Collect images from both items for visual comparison
         const imagesToAnalyze: string[] = [];
-        if (item1.imageUrls?.[0]) {
-            const b64 = await getBase64FromUrl(item1.imageUrls[0]);
-            if (b64) imagesToAnalyze.push(b64);
-        }
-        if (item2.imageUrls?.[0]) {
-            const b64 = await getBase64FromUrl(item2.imageUrls[0]);
-            if (b64) imagesToAnalyze.push(b64);
-        }
+        if (item1.imageUrls?.[0]) imagesToAnalyze.push(item1.imageUrls[0]);
+        if (item2.imageUrls?.[0]) imagesToAnalyze.push(item2.imageUrls[0]);
 
         const prompt = `
            You are an expert Lost & Found Verification Specialist.

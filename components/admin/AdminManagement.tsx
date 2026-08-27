@@ -54,7 +54,7 @@ const AdminManagement = ({ currentUser }: { currentUser: User }) => {
          return;
       }
       
-      if (confirm(`Are you sure you want to make \${newEmail} an admin? This grants full dashboard access.`)) {
+      if (confirm(`Are you sure you want to make ${newEmail} an admin? This grants full dashboard access.`)) {
           await db.collection('admins').doc(targetUser.id).set({
              email: newEmail.toLowerCase().trim(),
              promotedAt: Date.now(),
@@ -81,7 +81,7 @@ const AdminManagement = ({ currentUser }: { currentUser: User }) => {
     if (admin.id === currentUser.id) {
        if (!confirm("You are about to remove your own admin privileges. You will be logged out of the dashboard. Continue?")) return;
     } else {
-       if (!confirm(`Are you sure you want to remove admin privileges from \${admin.email}?`)) return;
+       if (!confirm(`Are you sure you want to remove admin privileges from ${admin.email}?`)) return;
     }
     
     try {

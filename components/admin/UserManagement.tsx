@@ -91,8 +91,8 @@ const UserManagement = ({ user: currentUser }: { user: User }) => {
           { label: 'New (7 Days)', value: newSignups, icon: Activity, color: 'text-indigo-500', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
         ].map((stat, i) => (
           <div key={i} className="bg-white dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
-             <div className={`w-12 h-12 rounded-xl \${stat.bg} flex items-center justify-center`}>
-                <stat.icon className={`w-6 h-6 \${stat.color}`} />
+             <div className={`w-12 h-12 rounded-xl ${stat.bg} flex items-center justify-center`}>
+                <stat.icon className={`w-6 h-6 ${stat.color}`} />
              </div>
              <div>
                 <p className="text-2xl font-black text-slate-800 dark:text-white leading-none">{stat.value}</p>
@@ -165,7 +165,7 @@ const UserManagement = ({ user: currentUser }: { user: User }) => {
                         </td>
                         <td className="p-4">
                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
-                              \${u.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 
+                              ${u.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 
                                 u.status === 'SUSPENDED' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : 
                                 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'}
                            `}>
@@ -176,7 +176,7 @@ const UserManagement = ({ user: currentUser }: { user: User }) => {
                         <td className="p-4">
                            <button 
                              onClick={() => handleVerifyToggle(u)}
-                             className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors \${u.isVerified ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                             className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${u.isVerified ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
                            >
                              {u.isVerified ? 'Verified' : 'Unverified'}
                            </button>
@@ -198,7 +198,7 @@ const UserManagement = ({ user: currentUser }: { user: User }) => {
                                   )}
                                   {u.status !== 'BLOCKED' && (
                                       <button onClick={() => {
-                                        if (confirm(`Are you sure you want to PERMANENTLY BLOCK \${u.name}?`)) handleStatusChange(u, 'BLOCKED', 'Permanent Ban');
+                                        if (confirm(`Are you sure you want to PERMANENTLY BLOCK ${u.name}?`)) handleStatusChange(u, 'BLOCKED', 'Permanent Ban');
                                       }} className="p-2 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors" title="Block User">
                                          <UserX className="w-4 h-4" />
                                       </button>
