@@ -180,95 +180,65 @@ const fallbackComparison = (item1: ItemReport, item2: ItemReport): ComparisonRes
 
 export const findSmartMatches = async (sourceItem: ItemReport, allReports: ItemReport[], options?: { disableAI?: boolean }): Promise<{ report: ItemReport, confidence: number, isOffline: boolean }[]> => {
     
+    // 1 & 2: Search only opposite type (halves the search space)
     const targetType = sourceItem.type === 'LOST' ? 'FOUND' : 'LOST';
     
+    // 3 & 4: Reduce DB view using category filtering and active status
     let candidates = allReports.filter(r => 
         r.status === 'OPEN' && 
         r.type === targetType &&
         r.id !== sourceItem.id &&
-        r.category === sourceItem.category // STRICT CATEGORY FILTERING (Offline Optimization)
+        r.category === sourceItem.category // STRICT CATEGORY FILTERING
     );
 
     if (candidates.length === 0) return [];
 
-    // We limit candidates to top 10 by recency to save tokens
-    if (candidates.length > 10) candidates = candidates.slice(0, 10);
-
-    let matchResults: MatchCandidate[] = [];
-    let usedAI = false;
+    // Helper to extract keywords from title, description, tags, and specs
+    const getKeywords = (item: ItemReport) => {
+        const text = `${item.title} ${item.description} ${item.tags.join(' ')} ${Object.values(item.specs || {}).join(' ')}`;
+        return new Set(text.toLowerCase().split(/\W+/).filter(x => x.length > 2));
+    };
     
-    // Use FULL keys so AI understands context, including SPECS if available
-    const aiCandidates = candidates.map(c => ({ 
-        id: c.id, 
-        title: c.title, 
-        description: c.description,
-        specs: c.specs || {}, // Pass structured data to AI
-        location: c.location,
-        category: c.category,
-        visual_tags: c.tags.join(', ')
-    }));
+    const sourceKeywords = getKeywords(sourceItem);
 
-    const sourceData = `TITLE: ${sourceItem.title}. DESC: ${sourceItem.description}. CAT: ${sourceItem.category}. SPECS: ${JSON.stringify(sourceItem.specs || {})}. LOC: ${sourceItem.location}.`;
-
-    if (!options?.disableAI) {
-        try {
-            const fullPrompt = `
-          ACT AS A LOST & FOUND MATCHER.
-          
-          TARGET ITEM: ${sourceData}
-          CANDIDATES DATABASE: ${JSON.stringify(aiCandidates)}
-          
-          INSTRUCTIONS:
-          1. Analyze the semantic meaning AND specific specs (e.g. Serial numbers are definitive).
-          2. Ignore minor category mismatches (e.g. Electronics vs Other).
-          3. Return a JSON object with a list of matches that have a probability > 40%.
-          
-          JSON FORMAT: 
-          { "matches": [ { "id": "candidate_id", "confidence": number } ] }
-        `;
+    // 5 & 12: No AI used. Only database queries and heuristic keyword matching.
+    const scoredCandidates = candidates.map(c => {
+        let score = 0;
         
-        const text = await callPuterAI(fullPrompt, undefined, undefined, 'TEXT');
+        // Base score for being in the same category and opposite type
+        score += 30;
 
-        if (text) {
-            const cleanText = cleanJSON(text);
-            try {
-                const data = JSON.parse(cleanText);
-                matchResults = data.matches || [];
-                usedAI = true;
-            } catch (jsonErr) {
-                try {
-                    const sanitized = cleanText.replace(/[\x00-\x1F]/g, " ");
-                    const data = JSON.parse(sanitized);
-                    matchResults = data.matches || [];
-                    usedAI = true;
-                } catch (fallbackErr) {
-                    console.warn("AI Smart Match JSON invalid:", text);
-                    usedAI = false;
-                }
-            }
+        // Keyword Overlap / Jaccard similarity (Up to 40 points)
+        const cKeywords = getKeywords(c);
+        if (sourceKeywords.size > 0 && cKeywords.size > 0) {
+            const intersection = new Set([...sourceKeywords].filter(x => cKeywords.has(x)));
+            const jaccard = intersection.size / new Set([...sourceKeywords, ...cKeywords]).size;
+            // Boost exact keyword intersections
+            score += (jaccard * 40);
         }
-    } catch (e) {
-        console.error("[Groq] Smart Match Logic Error:", e);
-    }
-    }
 
-    // Fallback
-    if (!usedAI || matchResults.length === 0) {
-        matchResults = candidates.map(c => {
-            const titleSim = calculateTextSimilarity(sourceItem.title, c.title);
-            const descSim = calculateTextSimilarity(sourceItem.description, c.description);
-            let score = (titleSim * 50) + (descSim * 50);
-            if (c.category === sourceItem.category) score += 25;
-            return { id: c.id, confidence: Math.min(score, 100) };
-        }).filter(m => m.confidence > 20);
-    }
+        // Location match (Up to 20 points)
+        if (c.location && sourceItem.location && c.location.toLowerCase().trim() === sourceItem.location.toLowerCase().trim()) {
+            score += 20;
+        }
 
-    const results = matchResults.map(m => {
-        const report = candidates.find(c => c.id === m.id);
-        return report ? { report, confidence: Math.round(m.confidence), isOffline: !usedAI } : null;
-    }).filter(Boolean) as { report: ItemReport, confidence: number, isOffline: boolean }[];
+        // Recency / Time relevance (Up to 10 points - simplified as flat 10 for now)
+        score += 10;
 
-    return results.sort((a, b) => b.confidence - a.confidence);
+        return { 
+            report: c, 
+            confidence: Math.min(Math.round(score), 100), 
+            isOffline: true 
+        };
+    });
+
+    // 6: Limit the Potential Candidates to Top 5 candidates, ordered descending by score
+    const topCandidates = scoredCandidates
+        .sort((a, b) => b.confidence - a.confidence)
+        .slice(0, 5);
+
+    // Only return candidates with a minimal baseline threshold
+    return topCandidates.filter(c => c.confidence > 35);
 };
 
 export interface SmartReportResult {
@@ -305,7 +275,7 @@ export const generateSmartReport = async (
       TASKS:
       1. SECURITY CHECK: Check for violence/gore, live animals/pets (plants are ok), human portraits/selfies, or pranks/nonsense.
       2. VISUAL ANALYSIS: Extract strict technical details (color, category, specs like brand/model, visual tags).
-      3. CONTENT GENERATION: Write a highly detailed, factual description combining the user's input and your visual analysis. Suggest a clean, concise title.
+      3. CONTENT GENERATION: Write a highly detailed, exhaustive, and factual description combining the user's input and your visual analysis. Include material, exact colors, distinguishing marks, brand, condition, and any unique identifiers. This description will be used later for strict AI matching, so do not miss any detail. Suggest a clean, concise title.
       4. CROSS-CHECK: Compare user's input with the image. If the user said "Blue Laptop" but the image is a "Red Backpack", note this discrepancy in crossCheckFeedback.
 
       CATEGORIES MUST BE EXACTLY ONE OF: 
@@ -326,7 +296,7 @@ export const generateSmartReport = async (
           "specs": { "key": "value" }
         },
         "suggestedTitle": "String",
-        "suggestedDescription": "String",
+        "suggestedDescription": "String (Provide a highly detailed and exhaustive description covering all physical attributes, brand, colors, and unique marks)",
         "crossCheckFeedback": "String (e.g. 'You mentioned it's a laptop, but it looks like a tablet. I've updated the category.') or empty string if perfect."
       }
     `;
@@ -406,19 +376,19 @@ export const compareItems = async (item1: ItemReport, item2: ItemReport): Promis
            We are trying to match a specific "Lost Item" (Item A) with a potential "Found Item" (Item B).
            Your sole job is to determine if these two reports refer to the **SAME PHYSICAL OBJECT**.
            
-           INPUT DATA:
+           INPUT DATA (Includes User fields & AI generated descriptions):
            [ITEM A - ${item1.type}]
            - Title: "${item1.title}"
            - Description: "${item1.description}"
            - Category: "${item1.category}"
-           - Specs: ${JSON.stringify(item1.specs || {})}
+           - Attributes & Specs: ${JSON.stringify(item1.specs || {})}
            - Visual Tags: "${item1.tags.join(', ')}"
            
            [ITEM B - ${item2.type}]
            - Title: "${item2.title}"
            - Description: "${item2.description}"
            - Category: "${item2.category}"
-           - Specs: ${JSON.stringify(item2.specs || {})}
+           - Attributes & Specs: ${JSON.stringify(item2.specs || {})}
            - Visual Tags: "${item2.tags.join(', ')}"
 
            VISUAL EVIDENCE:
@@ -428,7 +398,7 @@ export const compareItems = async (item1: ItemReport, item2: ItemReport): Promis
            1. **ACCOUNT FOR CIRCUMSTANCE**: Lighting conditions, camera angles, and user description accuracy may vary. Do NOT treat minor lighting/angle differences as physical differences.
            2. **LOOK FOR IDENTIFIERS**: Focus on Brands, Logos, Models, Unique Scratches, Stickers, or distinctive wear patterns.
            3. **IDENTIFY DEAL-BREAKERS**: A mismatch is only valid if it proves they are different objects (e.g. Different Brand, Different number of buttons, clearly different shape).
-           4. **VERDICT**: If they look like the same model and color with no visible contradictions, the score should be HIGH.
+           4. **LOGICAL REASONING**: Deduce logically why it is a potential match (pros) and why it is not (cons), using all provided fields, attributes, and tags.
 
            SCORING GUIDE:
            - 95-100%: DEFINITIVE (Matching Serial # or unique wear/damage).
@@ -438,10 +408,10 @@ export const compareItems = async (item1: ItemReport, item2: ItemReport): Promis
 
            OUTPUT FORMAT (JSON ONLY):
            { 
-              "confidence": number (Integer 0-100), 
-              "explanation": "Write a verdict for the user. Example: 'These appear to be the same Logitech mouse. Both have the same matte black finish and shape. The lighting is different, but the form factor matches.'", 
-              "similarities": ["List key matching features"], 
-              "differences": ["Only list REAL physical contradictions (e.g. 'Different Logo'), ignore lighting/angle"] 
+              "confidence": number (Integer 0-100, representing match score), 
+              "explanation": "Write a verdict explaining the logical reasoning.", 
+              "similarities": ["List pros: why it is a potential match"], 
+              "differences": ["List cons: why it is not a match (e.g. contradictions)"] 
            }
         `;
 

@@ -8,10 +8,9 @@ import Toast from './components/Toast';
 import NotificationCenter from './components/NotificationCenter';
 import MatchComparator from './components/MatchComparator';
 import AIDisclaimerModal from './components/AIDisclaimerModal';
-import AIAssistant from './components/AIAssistant';
 import AdminDashboard from './components/admin/AdminDashboard';
 import { User, ViewState, ItemReport, ReportType, ItemCategory, AppNotification, Chat, Message } from './types';
-import { MessageCircle, Bell, Moon, Sun, User as UserIcon, Plus, SearchX, Box, Loader2, Bot, ShieldCheck, Wrench } from 'lucide-react';
+import { MessageCircle, Bell, Moon, Sun, User as UserIcon, Plus, SearchX, Box, Loader2, ShieldCheck, Wrench } from 'lucide-react';
 import { findSmartMatches } from './services/aiService';
 
 // FIREBASE IMPORTS
@@ -402,7 +401,7 @@ const App: React.FC = () => {
           // Compare against all other reports (findSmartMatches handles filtering for FOUND types and self-reporting)
           // Note: This matches the "Cron Job" functionality described in features.
           try {
-             const matches = await findSmartMatches(lostItem, reports, { disableAI: true });
+             const matches = await findSmartMatches(lostItem, reports);
              
              // "If a potential match (Confidence > 85%) is found..."
              const urgentMatches = matches.filter(m => m.confidence > 85);
@@ -793,9 +792,6 @@ const App: React.FC = () => {
       case 'ADMIN_DASHBOARD': return (
         isAdmin ? <AdminDashboard user={user!} onNavigate={setView} /> : <div className="p-8 text-center text-red-500">Access Denied</div>
       );
-      case 'AI_ASSISTANT': return (
-        <AIAssistant user={user!} onBack={() => setView('DASHBOARD')} />
-      );
       default: return null;
     }
   };
@@ -905,24 +901,6 @@ const App: React.FC = () => {
       {/* Main Container */}
       <main className={`flex-grow w-full mx-auto relative ${'p-4 md:p-6 max-w-[1400px]'}`}>
         {renderContent()}
-
-        {/* AI Chatbot Floating Button (Left) */}
-        {user && view !== 'AUTH' && view !== 'AI_ASSISTANT' && (
-           <div className="fixed bottom-6 left-6 md:bottom-8 md:left-8 z-50 animate-fade-in">
-              <button 
-                onClick={() => setView('AI_ASSISTANT')}
-                className="group relative flex items-center justify-center w-14 h-14 bg-gradient-to-tr from-brand-violet to-fuchsia-600 rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-300 ring-4 ring-brand-violet/20 hover:ring-brand-violet/40"
-              >
-                 <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-20 transition-opacity"></div>
-                 <Bot className="w-7 h-7 text-white animate-pulse-soft" />
-                 
-                 {/* Tooltip */}
-                 <div className="absolute left-full ml-4 px-3 py-1.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                    Ask Retriva AI
-                 </div>
-              </button>
-           </div>
-        )}
 
         {/* FLOATING ACTION BUTTON (FAB) - Hide on Features Page */}
         {user && view !== 'AUTH' && view !== 'MESSAGES' && (

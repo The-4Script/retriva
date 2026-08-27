@@ -73,7 +73,7 @@ export interface ItemReport {
   hiddenReason?: string;
 }
 
-export type ViewState = 'AUTH' | 'DASHBOARD' | 'REPORT_LOST' | 'REPORT_FOUND' | 'MESSAGES' | 'PROFILE' | 'COMPARATOR' | 'AI_ASSISTANT' | 'ADMIN_DASHBOARD';
+export type ViewState = 'AUTH' | 'DASHBOARD' | 'REPORT_LOST' | 'REPORT_FOUND' | 'MESSAGES' | 'PROFILE' | 'COMPARATOR' | 'ADMIN_DASHBOARD';
 
 export interface AppNotification {
   id: string;

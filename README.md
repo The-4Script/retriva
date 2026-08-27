@@ -19,7 +19,6 @@
 
 [![React](https://img.shields.io/badge/React_19-TypeScript-61DAFB?style=flat-square&logo=react)](https://react.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-Firestore-FFCA28?style=flat-square&logo=firebase)](https://firebase.google.com)
-[![Gemini](https://img.shields.io/badge/Gemini_3.0-Flash_&_Pro-4285F4?style=flat-square&logo=google)](https://ai.google.dev)
 [![Vite](https://img.shields.io/badge/Vite-Build_Tool-646CFF?style=flat-square&logo=vite)](https://vitejs.dev)
 [![License](https://img.shields.io/badge/License-Educational-green?style=flat-square)](#-license)
 
@@ -78,7 +77,7 @@ Privacy isn't an afterthought. Before any image goes live:
 ├─────────────────┬───────────────────────────────────┤
 │  Frontend       │  React 19 + TypeScript + Vite     │
 │  Styling        │  Tailwind CSS + Lucide Icons       │
-│  AI Layer       │  Google Gemini 3.0 (Flash & Pro)  │
+│  AI Layer       │  Groq (Qwen & LLaMA)              │
 │  Backend        │  Firebase (Firestore + Auth)       │
 │  Media          │  Cloudinary API                   │
 └─────────────────┴───────────────────────────────────┘
@@ -92,7 +91,7 @@ Privacy isn't an afterthought. Before any image goes live:
 
 - Node.js `v18+`
 - A [Firebase project](https://console.firebase.google.com/)
-- [Gemini API key](https://aistudio.google.com/) (Google AI Studio)
+- [Groq API key](https://console.groq.com/) (Groq Console)
 - A [Cloudinary account](https://cloudinary.com/)
 
 ### Setup
@@ -112,7 +111,7 @@ npm install
 
 Create a `.env` file in the project root:
 ```env
-VITE_API_KEY=your_gemini_api_key
+GROQ_API_KEY=your_groq_api_key
 ```
 
 > Firebase and Cloudinary configs live in `src/services/firebase.ts` and `src/services/cloudinary.ts`.
@@ -133,7 +132,7 @@ retriva/
 │   ├── services/
 │   │   ├── firebase.ts   # Firestore & Auth config
 │   │   ├── cloudinary.ts # Media upload config
-│   │   └── gemini.ts     # AI service layer
+│   │   └── aiService.ts  # AI service layer
 │   ├── pages/            # Route-level views
 │   └── types/            # TypeScript interfaces
 ├── .env                  # API keys (not committed)
