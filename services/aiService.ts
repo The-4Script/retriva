@@ -178,7 +178,7 @@ const fallbackComparison = (item1: ItemReport, item2: ItemReport): ComparisonRes
 
 // --- EXPORTED FEATURES (API) ---
 
-export const findSmartMatches = async (sourceItem: ItemReport, allReports: ItemReport[]): Promise<{ report: ItemReport, confidence: number, isOffline: boolean }[]> => {
+export const findSmartMatches = async (sourceItem: ItemReport, allReports: ItemReport[], options?: { disableAI?: boolean }): Promise<{ report: ItemReport, confidence: number, isOffline: boolean }[]> => {
     
     const targetType = sourceItem.type === 'LOST' ? 'FOUND' : 'LOST';
     
@@ -210,8 +210,9 @@ export const findSmartMatches = async (sourceItem: ItemReport, allReports: ItemR
 
     const sourceData = `TITLE: ${sourceItem.title}. DESC: ${sourceItem.description}. CAT: ${sourceItem.category}. SPECS: ${JSON.stringify(sourceItem.specs || {})}. LOC: ${sourceItem.location}.`;
 
-    try {
-        const fullPrompt = `
+    if (!options?.disableAI) {
+        try {
+            const fullPrompt = `
           ACT AS A LOST & FOUND MATCHER.
           
           TARGET ITEM: ${sourceData}
@@ -248,6 +249,7 @@ export const findSmartMatches = async (sourceItem: ItemReport, allReports: ItemR
         }
     } catch (e) {
         console.error("[Groq] Smart Match Logic Error:", e);
+    }
     }
 
     // Fallback

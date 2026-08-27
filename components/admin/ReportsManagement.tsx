@@ -14,7 +14,7 @@ const ReportsManagement = () => {
   const [categoryFilter, setCategoryFilter] = useState<'ALL' | ItemCategory>('ALL');
 
   useEffect(() => {
-    const unsub = db.collection('reports').onSnapshot(snap => {
+    const unsub = db.collection('reports').orderBy('createdAt', 'desc').limit(100).onSnapshot(snap => {
       const fetched = snap.docs.map(doc => ({
         ...doc.data(),
         id: doc.id

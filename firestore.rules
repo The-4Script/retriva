@@ -11,6 +11,25 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
+    match /admins/{adminId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == 'durvesh.thorat999@gmail.com'
+      );
+    }
+    
+    match /auditLogs/{logId} {
+      allow read: if isAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      allow create: if isAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+      allow update, delete: if false;
+    }
+    
+    match /siteConfig/{docId} {
+      allow read: if true;
+      allow write: if isAuthenticated() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
     match /users/{userId} {
       allow read: if isAuthenticated();
       allow write: if isOwner(userId);

@@ -21,12 +21,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
   const [activeTab, setActiveTab] = useState<AdminTab>('USERS');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  const [showNotifications, setShowNotifications] = useState(false);
-  const [adminNotifications, setAdminNotifications] = useState([
-     { id: 1, title: 'AI quota nearing limit', message: 'GPT-OSS 120B has used 85% of daily quota', type: 'warning' },
-     { id: 2, title: 'New AI flag', message: 'Report "Keys found" flagged for policy violation', type: 'alert' }
-  ]);
-
   const TABS = [
     { id: 'USERS', label: 'User Management', icon: Users },
     { id: 'REPORTS', label: 'Reports', icon: FileText },
@@ -99,35 +93,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
                 {TABS.find(t => t.id === activeTab)?.label}
              </h2>
              <div className="flex items-center gap-4">
-                <div className="relative">
-                    <button 
-                       onClick={() => setShowNotifications(!showNotifications)}
-                       className="relative p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-                    >
-                       <Bell className="w-5 h-5" />
-                       {adminNotifications.length > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>}
-                    </button>
-                    {showNotifications && (
-                        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl overflow-hidden z-50">
-                           <div className="p-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 flex items-center justify-between">
-                              <span className="font-bold text-sm text-slate-800 dark:text-white">Admin Alerts</span>
-                              <button onClick={() => setAdminNotifications([])} className="text-[10px] font-bold text-slate-500 hover:text-indigo-600">Clear</button>
-                           </div>
-                           <div className="max-h-64 overflow-y-auto">
-                              {adminNotifications.length === 0 ? (
-                                 <div className="p-6 text-center text-xs text-slate-500">No new alerts.</div>
-                              ) : (
-                                 adminNotifications.map(n => (
-                                     <div key={n.id} className="p-3 border-b border-slate-100 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                        <p className="text-xs font-bold text-slate-800 dark:text-white">{n.title}</p>
-                                        <p className="text-xs text-slate-500 mt-0.5">{n.message}</p>
-                                     </div>
-                                 ))
-                              )}
-                           </div>
-                        </div>
-                    )}
-                </div>
                 <div className="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold overflow-hidden ring-2 ring-white dark:ring-slate-950">
                     {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : user.name.charAt(0)}
                 </div>

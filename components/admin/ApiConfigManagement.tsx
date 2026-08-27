@@ -20,52 +20,25 @@ interface ErrorLog {
 
 const ApiConfigManagement = () => {
   const [models, setModels] = useState<ModelConfig[]>([
-    { id: 'qwen3.6-27b', name: 'Qwen 3.6 27B (Vision)', maskedKey: 'gsk_****xyz3', status: 'ONLINE', dailyUsage: 142 },
-    { id: 'gpt-oss-120b', name: 'GPT-OSS 120B (Primary)', maskedKey: 'gsk_****abc1', status: 'ONLINE', dailyUsage: 856 },
-    { id: 'gpt-oss-20b', name: 'GPT-OSS 20B (Fallback)', maskedKey: 'gsk_****def2', status: 'UNKNOWN', dailyUsage: 0 },
+    { id: 'qwen3.8-27b', name: 'Qwen 3.8 27B (Vision)', maskedKey: 'via Vercel Env', status: 'UNKNOWN', dailyUsage: 0 },
+    { id: 'gpt-oss-120b', name: 'GPT-OSS 120B (Primary)', maskedKey: 'via Vercel Env', status: 'UNKNOWN', dailyUsage: 0 },
+    { id: 'gpt-oss-20b', name: 'GPT-OSS 20B (Fallback)', maskedKey: 'via Vercel Env', status: 'UNKNOWN', dailyUsage: 0 },
   ]);
   
-  const [errorLogs, setErrorLogs] = useState<ErrorLog[]>([
-    { id: '1', timestamp: Date.now() - 3600000, modelId: 'gpt-oss-120b', message: 'Rate limit exceeded: 429 Too Many Requests' },
-    { id: '2', timestamp: Date.now() - 7200000, modelId: 'qwen3.6-27b', message: 'Failed to parse JSON response' }
-  ]);
+  const [errorLogs, setErrorLogs] = useState<ErrorLog[]>([]);
 
-  const [editKeys, setEditKeys] = useState<Record<string, string>>({});
-  const [saving, setSaving] = useState<string | null>(null);
-
-  // In a real app, you would fetch these from a secure backend or Firestore.
-  // We'll mock the fetch here since keys shouldn't be in plaintext on the client.
-  
-  const handleUpdateKey = async (modelId: string) => {
-    const newKey = editKeys[modelId];
-    if (!newKey) return;
-    
-    setSaving(modelId);
-    try {
-      /* 
-         CRITICAL SECURITY NOTE:
-         This should go through Vercel's environment variable API or a secrets manager.
-         Never store the raw API key in Firestore in plaintext.
-         For this prototype, we'll log the action and mock the update.
-         In production, hit a protected serverless function:
-         await fetch('/api/admin/update-key', { method: 'POST', body: JSON.stringify({ modelId, key: newKey }) })
-      */
-      
-      await new Promise(r => setTimeout(r, 1000)); // Simulate API call
-      
-      // Update UI with masked key
-      const masked = newKey.length > 8 ? `${newKey.substring(0, 4)}****${newKey.substring(newKey.length - 4)}` : '****';
-      setModels(prev => prev.map(m => m.id === modelId ? { ...m, maskedKey: masked } : m));
-      
-      await logAdminAction('Update AI API Key', modelId, 'API_CONFIG');
-      
-      setEditKeys(prev => ({ ...prev, [modelId]: '' }));
-    } catch (e) {
-      console.error("Failed to update key", e);
-    } finally {
-      setSaving(null);
-    }
-  };
+  useEffect(() => {
+     const unsub = db.collection('aiIncidents').orderBy('timestamp', 'desc').limit(20).onSnapshot(snap => {
+        const logs = snap.docs.map(doc => ({
+           id: doc.id,
+           timestamp: doc.data().timestamp,
+           modelId: doc.data().mode || 'UNKNOWN',
+           message: doc.data().message
+        }));
+        setErrorLogs(logs);
+     });
+     return () => unsub();
+  }, []);
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -99,26 +72,9 @@ const ApiConfigManagement = () => {
                 </div>
 
                 <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
-                   <label className="text-xs font-bold text-slate-500 mb-2 block">Update API Key</label>
-                   <div className="flex gap-2">
-                      <div className="relative flex-1">
-                         <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                         <input 
-                           type="password" 
-                           placeholder="Paste new key..."
-                           value={editKeys[model.id] || ''}
-                           onChange={e => setEditKeys({...editKeys, [model.id]: e.target.value})}
-                           className="w-full pl-9 pr-3 py-2 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                         />
-                      </div>
-                      <button 
-                        onClick={() => handleUpdateKey(model.id)}
-                        disabled={!editKeys[model.id] || saving === model.id}
-                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:hover:bg-indigo-600 text-white rounded-lg text-sm font-bold flex items-center gap-2 transition-colors"
-                      >
-                         {saving === model.id ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <Save className="w-4 h-4" />}
-                      </button>
-                   </div>
+                   <p className="text-xs text-slate-500 italic">
+                      Rotate keys via the Vercel dashboard → Environment Variables
+                   </p>
                 </div>
              </div>
           ))}

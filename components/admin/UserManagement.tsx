@@ -22,7 +22,7 @@ const UserManagement = ({ user: currentUser }: { user: User }) => {
   const newSignups = users.filter(u => u.createdAt > Date.now() - 7 * 24 * 60 * 60 * 1000).length;
 
   useEffect(() => {
-    const unsub = db.collection('users').onSnapshot(snap => {
+    const unsub = db.collection('users').orderBy('createdAt', 'desc').limit(100).onSnapshot(snap => {
       const fetched = snap.docs.map(doc => ({
         ...doc.data(),
         id: doc.id,

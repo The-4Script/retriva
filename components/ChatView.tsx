@@ -67,19 +67,19 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
     // Explicitly clear messages when ID changes to avoid flicker
     setSubcollectionMessages([]);
 
-    // Temporary fix: Removing the hard limit of 50 to allow all messages to load
-    // so historical truncation does not occur. We will implement proper pagination later.
+    // Fetch latest 50 messages
     const messagesRef = db.collection('chats').doc(activeChatId).collection('messages');
-    const q = messagesRef.orderBy('timestamp', 'asc');
+    const q = messagesRef.orderBy('timestamp', 'desc').limit(50);
 
     const unsubscribe = q.onSnapshot((snapshot) => {
         const msgs = snapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data()
         })) as Message[];
-        setSubcollectionMessages(msgs);
+        // Reverse so they are chronological
+        setSubcollectionMessages(msgs.reverse());
     }, (error) => {
-        console.error("Error fetching subcollection messages:", error);
+        console.warn("Error fetching subcollection messages:", error);
     });
 
     return () => {

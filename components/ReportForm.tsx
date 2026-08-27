@@ -124,6 +124,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
   const [aiFeedback, setAiFeedback] = useState<AIFeedback | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [crossCheckMsg, setCrossCheckMsg] = useState<string>('');
+  const [securityResult, setSecurityResult] = useState<any>(null);
   
   // Refs
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -202,6 +203,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
       const fullContext = `${distinguishingMarks}. Details: ${specContext}`;
 
       const aiResult = await generateSmartReport(base64Images, title, fullContext);
+      setSecurityResult(aiResult.security);
 
       // Check Security
       if (aiResult.security.isViolation || aiResult.security.isPrank) {
@@ -303,7 +305,10 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
         reporterId: user.id,
         reporterName: user.name,
         createdAt: initialData?.createdAt || Date.now(),
-        specs: specs
+        specs: specs,
+        needsReview: !!crossCheckMsg || (securityResult && securityResult.violationType !== 'NONE'),
+        violationType: securityResult?.violationType || 'NONE',
+        aiFeedback: crossCheckMsg || ''
       };
       onSubmit(report);
     } catch (error) {
@@ -488,9 +493,14 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
                     <div className="grid grid-cols-4 gap-3">
                        {imageStatuses.map((s, i) => (
                           <div key={i} className="aspect-square relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 group">
-                             <img src={s.url} className={`w-full h-full object-cover`} />
+                             <img src={s.url} className={`w-full h-full object-cover ${s.status === 'redacted' ? 'blur-[1px]' : ''}`} />
                              
                              {s.status === 'checking' && <div className="absolute inset-0 bg-black/50 flex items-center justify-center"><Loader2 className="w-5 h-5 text-white animate-spin" /></div>}
+                             {s.status === 'redacted' && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
+                                    <EyeOff className="w-6 h-6 text-white/80" />
+                                </div>
+                             )}
                              
                              <button type="button" onClick={() => removeImage(i)} className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-0.5"><X className="w-3 h-3" /></button>
                           </div>
@@ -504,10 +514,10 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
                     </div>
                     <input type="file" ref={fileInputRef} onChange={handleImageUpload} className="hidden" accept="image/*" />
                     
-                    <p className="mt-3 text-[10px] text-slate-400 flex items-center gap-1.5">
-                       <Info className="w-3 h-3" /> 
-                       Selfies and inappropriate images are not allowed and will be blocked.
-                    </p>
+                     <p className="mt-3 text-[10px] text-slate-400 flex items-center gap-1.5">
+                        <Info className="w-3 h-3" /> 
+                        Photos with violence or inappropriate content are not allowed.
+                     </p>
                  </div>
 
                  {/* 2. AI & Description Center */}

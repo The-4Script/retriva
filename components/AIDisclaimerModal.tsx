@@ -102,7 +102,7 @@ const AIDisclaimerModal: React.FC<AIDisclaimerModalProps> = ({ isOpen, onClose }
                        <ShieldAlert className="w-4 h-4" /> PII Redaction
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                       Our "Guardian AI" attempts to automatically blur faces and ID cards. <span className="font-bold">This is not 100% foolproof.</span> You are strictly prohibited from intentionally uploading high-resolution images of sensitive documents (Passports, Credit Cards).
+                       Our AI scans for inappropriate content. You are strictly prohibited from intentionally uploading high-resolution images of sensitive documents (Passports, Credit Cards) or inappropriate content.
                     </p>
                  </div>
               </div>

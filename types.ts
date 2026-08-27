@@ -66,6 +66,11 @@ export interface ItemReport {
   reporterId: string;
   reporterName: string;
   createdAt: number;
+  needsReview?: boolean;
+  violationType?: string;
+  aiFeedback?: string;
+  hidden?: boolean;
+  hiddenReason?: string;
 }
 
 export type ViewState = 'AUTH' | 'DASHBOARD' | 'REPORT_LOST' | 'REPORT_FOUND' | 'MESSAGES' | 'PROFILE' | 'COMPARATOR' | 'AI_ASSISTANT' | 'ADMIN_DASHBOARD';

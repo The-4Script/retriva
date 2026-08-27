@@ -8,7 +8,8 @@ const AnalyticsView = () => {
     reportsByDay: [],
     reportsByCategory: [],
     avgResolveTime: 'N/A',
-    totalResolved: 0
+    totalResolved: 0,
+    totalReports: 0
   });
   
   const [loading, setLoading] = useState(true);
@@ -43,12 +44,29 @@ const AnalyticsView = () => {
            const reportsByDay = Object.entries(days).map(([name, count]) => ({ name, count }));
 
            const resolved = reports.filter(r => r.status === 'RESOLVED');
+           
+           let totalResolveTime = 0;
+           let resolvedWithTime = 0;
+           resolved.forEach(r => {
+              if (r.resolvedAt && r.createdAt) {
+                  totalResolveTime += (r.resolvedAt - r.createdAt);
+                  resolvedWithTime++;
+              }
+           });
+           
+           let avgResolveTimeStr = 'N/A';
+           if (resolvedWithTime > 0) {
+               const avgMs = totalResolveTime / resolvedWithTime;
+               const days = (avgMs / (1000 * 60 * 60 * 24)).toFixed(1);
+               avgResolveTimeStr = `${days} Days`;
+           }
 
            setStats({
               reportsByDay,
               reportsByCategory,
-              avgResolveTime: '2.4 Days', // Mocked complex calc for brevity
-              totalResolved: resolved.length
+              avgResolveTime: avgResolveTimeStr,
+              totalResolved: resolved.length,
+              totalReports: reports.length
            });
        } catch (e) {
            console.error("Failed to load analytics", e);
@@ -96,11 +114,11 @@ const AnalyticsView = () => {
           </div>
           <div className="bg-white dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
              <div className="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center">
-                <Activity className="w-6 h-6" />
+                <FileText className="w-6 h-6" />
              </div>
              <div>
-                <p className="text-2xl font-black text-slate-800 dark:text-white">92%</p>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">AI Match Rate</p>
+                <p className="text-2xl font-black text-slate-800 dark:text-white">{stats.totalReports}</p>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">Total Reports</p>
              </div>
           </div>
        </div>

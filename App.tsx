@@ -106,7 +106,6 @@ const App: React.FC = () => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
-        setAuthLoading(true);
         // Enforce MES email domain restriction (and allow default admin)
         const emailLower = (firebaseUser.email || '').toLowerCase();
         const isValidDomain = emailLower.endsWith('@student.mes.ac.in') || emailLower.endsWith('@mes.ac.in') || emailLower === 'durvesh.thorat999@gmail.com';
@@ -121,71 +120,97 @@ const App: React.FC = () => {
          // Fetch full profile from Firestore
         const userDocRef = db.collection('users').doc(firebaseUser.uid);
         try {
-          const userSnap = await userDocRef.get();
-          if (userSnap.exists) {
-             const userData = userSnap.data() as User;
-             
-             // BACKFILL: Ensure existing users have a unique Student ID
-             if (!userData.studentId) {
-                 const uniqueId = await generateUniqueStudentId();
-                 await userDocRef.update({ studentId: uniqueId }).catch(e => console.warn("Backfill failed", e));
-                 userData.studentId = uniqueId;
-             }
+           const userSnap = await userDocRef.get();
+           if (userSnap.exists) {
+              const userData = userSnap.data() as User;
+              
+              // BACKFILL: Ensure existing users have a unique Student ID
+              if (!userData.studentId) {
+                  const uniqueId = await generateUniqueStudentId();
+                  await userDocRef.update({ studentId: uniqueId }).catch(e => console.warn("Backfill failed", e));
+                  userData.studentId = uniqueId;
+              }
 
-             setUser(userData);
-             // Set Online safely
-             userDocRef.set({ isOnline: true, lastSeen: Date.now() }, { merge: true }).catch(e => console.warn("Presence update failed", e));
-          } else {
-             // Basic fallback creation
-             const uniqueId = await generateUniqueStudentId();
-             const fallbackUser = {
-               id: firebaseUser.uid,
-               name: firebaseUser.displayName || 'User',
-               email: firebaseUser.email || '',
-               studentId: uniqueId,
-               isVerified: false
-             };
-             setUser(fallbackUser);
-             userDocRef.set({ ...fallbackUser, isOnline: true, lastSeen: Date.now() });
-          }
+              setUser(userData);
+              // Set Online safely
+              userDocRef.set({ isOnline: true, lastSeen: Date.now() }, { merge: true }).catch(e => console.warn("Presence update failed", e));
+           } else {
+              // Basic fallback creation
+              const uniqueId = await generateUniqueStudentId();
+              const fallbackUser = {
+                id: firebaseUser.uid,
+                name: firebaseUser.displayName || 'User',
+                email: firebaseUser.email || '',
+                studentId: uniqueId,
+                isVerified: false
+              };
+              setUser(fallbackUser);
+              userDocRef.set({ ...fallbackUser, isOnline: true, lastSeen: Date.now() }).catch(e => console.warn("Fallback user update failed", e));
+           }
+        } catch (e: any) {
+           console.warn("Could not fetch user profile from server:", e.message);
+           try {
+              const userSnap = await userDocRef.get({ source: 'cache' });
+              if (userSnap.exists) {
+                 setUser(userSnap.data() as User);
+              } else {
+                 throw new Error("No cache");
+              }
+           } catch (cacheErr) {
+              console.warn("Could not fetch user profile from cache either. Building offline profile.");
+              setUser({
+                id: firebaseUser.uid,
+                name: firebaseUser.displayName || 'User',
+                email: firebaseUser.email || '',
+                studentId: '', // Blank for offline
+                isVerified: false
+              });
+           }
+        }
 
-          // ADMIN CHECK
-          if (emailLower === 'durvesh.thorat999@gmail.com') {
-             const adminRef = db.collection('admins').doc(firebaseUser.uid);
-             const adminSnap = await adminRef.get();
-             if (!adminSnap.exists) {
-                await adminRef.set({
-                   email: emailLower,
-                   promotedAt: Date.now(),
-                   promotedBy: 'system'
-                });
-             }
-             setIsAdmin(true);
-          } else {
-             const adminSnap = await db.collection('admins').doc(firebaseUser.uid).get();
-             setIsAdmin(adminSnap.exists);
-          }
+        // ADMIN CHECK
+        try {
+           if (emailLower === 'durvesh.thorat999@gmail.com') {
+              const adminRef = db.collection('admins').doc(firebaseUser.uid);
+              const adminSnap = await adminRef.get();
+              if (!adminSnap.exists) {
+                 await adminRef.set({
+                    email: emailLower,
+                    promotedAt: Date.now(),
+                    promotedBy: 'system'
+                 }).catch(e => console.warn("Admin set failed", e));
+              }
+              setIsAdmin(true);
+           } else {
+              const adminSnap = await db.collection('admins').doc(firebaseUser.uid).get();
+              setIsAdmin(adminSnap.exists);
+           }
+        } catch (e: any) {
+           console.warn("Could not fetch admin status from server:", e.message);
+           try {
+              const adminSnap = await db.collection('admins').doc(firebaseUser.uid).get({ source: 'cache' });
+              setIsAdmin(adminSnap.exists);
+           } catch (e2) {
+              setIsAdmin(false);
+           }
+        }
 
-          // RESTORE PREVIOUS STATE (View & Active Chat)
-          const savedView = localStorage.getItem('retriva_view') as ViewState;
-          const savedChatId = localStorage.getItem('retriva_active_chat');
+        // RESTORE PREVIOUS STATE (View & Active Chat)
+        const savedView = localStorage.getItem('retriva_view') as ViewState;
+        const savedChatId = localStorage.getItem('retriva_active_chat');
 
-          if (savedView && savedView !== 'AUTH') {
-             setView(savedView);
-             if (savedView === 'MESSAGES' && savedChatId) {
-                setActiveChatId(savedChatId);
-             }
-          } else {
-             setView('DASHBOARD');
-          }
+        if (savedView && savedView !== 'AUTH') {
+           setView(savedView);
+           if (savedView === 'MESSAGES' && savedChatId) {
+              setActiveChatId(savedChatId);
+           }
+        } else {
+           setView('DASHBOARD');
+        }
 
-          // Ensure session start time is set if missing
-          if (!localStorage.getItem('retriva_session_start')) {
-             localStorage.setItem('retriva_session_start', Date.now().toString());
-          }
-
-        } catch (e) {
-          console.error("Error fetching user profile", e);
+        // Ensure session start time is set if missing
+        if (!localStorage.getItem('retriva_session_start')) {
+           localStorage.setItem('retriva_session_start', Date.now().toString());
         }
       } else {
         setUser(null);
@@ -244,9 +269,8 @@ const App: React.FC = () => {
     // Only subscribe if we are logged in
     if (!user) return;
 
-    // Temporary fix: Removing the hard limit of 50 to allow all reports to load
-    // so historical truncation does not occur. We will implement proper pagination later.
-    const reportsRef = db.collection('reports').orderBy('createdAt', 'desc');
+    // Limit to 100 recent reports to avoid unbounded reads. Pagination should be added later.
+    const reportsRef = db.collection('reports').orderBy('createdAt', 'desc').limit(100);
 
     const unsubscribe = reportsRef.onSnapshot((snapshot) => {
       const liveReports = snapshot.docs.map(doc => ({
@@ -256,7 +280,7 @@ const App: React.FC = () => {
       
       setReports(liveReports);
     }, (error) => {
-      console.error("Error fetching reports:", error);
+      console.warn("Error fetching reports:", error);
     });
 
     return () => unsubscribe();
@@ -281,7 +305,7 @@ const App: React.FC = () => {
           unreadCount: 0
         });
       }
-    });
+    }).catch(e => console.warn("Could not ensure global chat:", e.message));
 
     // B. Listen to Global Chat
     const unsubGlobal = globalChatRef.onSnapshot((docSnap) => {
@@ -321,7 +345,7 @@ const App: React.FC = () => {
              });
           });
         }, (error) => {
-            console.error("Chat listener error:", error);
+            console.warn("Chat listener error:", error);
         });
 
         return () => {
@@ -329,7 +353,7 @@ const App: React.FC = () => {
           unsubPrivate();
         };
     } catch (e) {
-        console.error("Failed to setup chat listener", e);
+        console.warn("Failed to setup chat listener", e);
         return () => unsubGlobal();
     }
   }, [user]);
@@ -351,7 +375,82 @@ const App: React.FC = () => {
     setToast({ message: message, type: type === 'match' ? 'alert' : type === 'message' ? 'info' : 'success' });
   }, []);
 
-  // Proactive scan moved to server-side API call upon report creation.
+  // PROACTIVE SCAN & ALERT SYSTEM (Client-Side Simulation of Cron Job)
+  useEffect(() => {
+    if (!user || !user.id) return;
+
+    // Request Notification Permission on login/mount
+    if (Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    const runProactiveScan = async () => {
+       // Only scan if we have reports and user is logged in
+       if (reports.length === 0) return;
+
+       // 1. Get my active lost items
+       const myLostItems = reports.filter(r => r.reporterId === user.id && r.type === ReportType.LOST && r.status === 'OPEN');
+       
+       if (myLostItems.length === 0) return;
+
+       // 2. Get history of notified matches to prevent spam (Persisted in LocalStorage)
+       const notifiedKey = `retriva_notified_matches_${user.id}`;
+       const notified = new Set(JSON.parse(localStorage.getItem(notifiedKey) || '[]'));
+       let hasNewNotifications = false;
+
+       for (const lostItem of myLostItems) {
+          // Compare against all other reports (findSmartMatches handles filtering for FOUND types and self-reporting)
+          // Note: This matches the "Cron Job" functionality described in features.
+          try {
+             const matches = await findSmartMatches(lostItem, reports, { disableAI: true });
+             
+             // "If a potential match (Confidence > 85%) is found..."
+             const urgentMatches = matches.filter(m => m.confidence > 85);
+
+             for (const match of urgentMatches) {
+                 const uniqueMatchId = `${lostItem.id}_${match.report.id}`;
+                 
+                 if (!notified.has(uniqueMatchId)) {
+                     // TRIGGER ALERT
+                     const msg = `Found ${match.confidence}% match for your ${lostItem.title}!`;
+                     
+                     // 1. In-App Notification
+                     addNotification('Proactive Match Alert', msg, 'match', 'DASHBOARD');
+                     
+                     // 2. Browser Push Notification
+                     if (Notification.permission === 'granted') {
+                         new Notification('Retriva Match Found', {
+                             body: msg,
+                             icon: '/icon.png' // Fallback to default if missing
+                         });
+                     }
+
+                     notified.add(uniqueMatchId);
+                     hasNewNotifications = true;
+                 }
+             }
+          } catch (e) {
+             console.warn("Proactive scan failed for item", lostItem.id, e);
+          }
+       }
+
+       if (hasNewNotifications) {
+           localStorage.setItem(notifiedKey, JSON.stringify(Array.from(notified)));
+       }
+    };
+
+    // Trigger Scan Logic:
+    // 1. Debounce the scan to run 5s after reports update (Reactive to new data)
+    const scanTimer = setTimeout(runProactiveScan, 5000);
+
+    // 2. Also run periodically (every 2 minutes) as a "Cron" backup to ensure nothing was missed
+    const cronInterval = setInterval(runProactiveScan, 120000);
+
+    return () => {
+        clearTimeout(scanTimer);
+        clearInterval(cronInterval);
+    };
+  }, [user, reports, addNotification]);
 
   const handleLogin = (loggedInUser: User) => {
     setUser(loggedInUser);
@@ -468,14 +567,6 @@ const App: React.FC = () => {
         await db.collection('reports').doc(report.id).set(report);
         addNotification('Posted', 'Your report is now live.', 'system');
       }
-      
-      // Trigger match scan in the background
-      fetch('/api/scan-matches', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reportId: report.id })
-      }).catch(err => console.error("Match scan trigger failed", err));
-
       setView('DASHBOARD');
       setShowFabMenu(false);
     } catch (e) {
