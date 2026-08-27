@@ -165,18 +165,50 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
   };
 
   // 1. Just Upload Image (No AI yet)
+  const resizeImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 512; // Force small size to save AI tokens
+
+          if (width > height && width > maxDim) {
+            height *= maxDim / width;
+            width = maxDim;
+          } else if (height > maxDim) {
+            width *= maxDim / height;
+            height = maxDim;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.6)); // 60% quality jpeg
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && !isProcessing) {
       setFormError(null);
       const file = files[0];
       
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        let base64 = reader.result as string;
-        setImageStatuses(prev => [...prev, { url: base64, file: file, status: 'valid' }]);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const resizedBase64 = await resizeImage(file);
+        // We still pass the original file for Cloudinary, but use resizedBase64 for AI preview
+        setImageStatuses(prev => [...prev, { url: resizedBase64, file: file, status: 'valid' }]);
+      } catch (err) {
+        console.error("Image resize failed", err);
+      }
     }
   };
 

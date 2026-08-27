@@ -8,7 +8,39 @@ admin.initializeApp({
   projectId: process.env.FIREBASE_PROJECT_ID || "gen-lang-client-0746267232"
 });
 
-const runGroq = async (modelName: string, prompt: string, images?: string[], systemInstruction?: string) => {
+// Simple Request Queue to prevent burst TPM spikes
+class RequestQueue {
+    private queue: (() => Promise<void>)[] = [];
+    private isProcessing = false;
+
+    async add<T>(task: () => Promise<T>): Promise<T> {
+        return new Promise((resolve, reject) => {
+            this.queue.push(async () => {
+                try {
+                    const res = await task();
+                    resolve(res);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+            if (!this.isProcessing) this.process();
+        });
+    }
+
+    private async process() {
+        this.isProcessing = true;
+        while (this.queue.length > 0) {
+            const task = this.queue.shift();
+            if (task) await task();
+            await new Promise(r => setTimeout(r, 1500)); // Minimum 1.5s delay between ANY Groq calls
+        }
+        this.isProcessing = false;
+    }
+}
+const groqQueue = new RequestQueue();
+const requestCache = new Map<string, { result: string, timestamp: number }>();
+
+const runGroqTask = async (modelName: string, prompt: string, images?: string[], systemInstruction?: string) => {
    const groqKey = process.env.GROQ_API_KEY;
    if (!groqKey) throw new Error("GROQ_API_KEY missing");
 
@@ -19,7 +51,13 @@ const runGroq = async (modelName: string, prompt: string, images?: string[], sys
           let url = img;
           if (img.startsWith('http')) {
               try {
-                  const fetchRes = await fetch(img);
+                  // Downscale Cloudinary images aggressively to save AI tokens (512x512, 60% quality)
+                  let fetchUrl = img;
+                  if (fetchUrl.includes('res.cloudinary.com') && fetchUrl.includes('/upload/')) {
+                      fetchUrl = fetchUrl.replace('/upload/', '/upload/w_512,c_limit,q_60/');
+                  }
+                  
+                  const fetchRes = await fetch(fetchUrl);
                   if (fetchRes.ok) {
                       const arrayBuffer = await fetchRes.arrayBuffer();
                       const buffer = Buffer.from(arrayBuffer);
@@ -66,22 +104,68 @@ const runGroq = async (modelName: string, prompt: string, images?: string[], sys
       ...groqParams
    };
 
-   const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-         "Authorization": `Bearer ${groqKey}`,
-         "Content-Type": "application/json"
-      },
-      body: JSON.stringify(body)
-   });
+   let attempts = 0;
+   const maxAttempts = 4;
+   
+   while (attempts < maxAttempts) {
+       attempts++;
+       const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+             "Authorization": `Bearer ${groqKey}`,
+             "Content-Type": "application/json"
+          },
+          body: JSON.stringify(body)
+       });
 
-   if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`Groq Error (${modelName}): ${res.status} ${err}`);
+       if (res.status === 429) {
+           const errText = await res.text();
+           const waitMatch = errText.match(/try again in ([\d.]+)s/);
+           let waitMs = 12000; // default 12s backoff
+           
+           if (waitMatch && waitMatch[1]) {
+               waitMs = Math.max(parseFloat(waitMatch[1]) * 1000, 11000) + Math.random() * 2000;
+           } else {
+               waitMs = Math.max(Math.pow(2, attempts) * 2500, 11000) + Math.random() * 2000;
+           }
+           
+           console.warn(`[Groq Rate Limit] 429 hit for ${modelName}. Retrying in ${Math.round(waitMs)}ms... (Attempt ${attempts}/${maxAttempts})`);
+           await new Promise(r => setTimeout(r, waitMs));
+           continue;
+       }
+
+       if (!res.ok) {
+          const err = await res.text();
+          throw new Error(`Groq Error (${modelName}): ${res.status} ${err}`);
+       }
+       
+       const data = await res.json();
+       return data.choices[0].message.content;
    }
    
-   const data = await res.json();
-   return data.choices[0].message.content;
+   throw new Error(`Groq Error (${modelName}): Max retries exceeded for 429`);
+};
+
+const runGroq = async (modelName: string, prompt: string, images?: string[], systemInstruction?: string) => {
+   // Caching layer to save tokens for identical requests
+   const cacheKey = JSON.stringify({ modelName, prompt, images: images?.length || 0, systemInstruction });
+   const cached = requestCache.get(cacheKey);
+   
+   if (cached && (Date.now() - cached.timestamp < 1000 * 60 * 60 * 24)) { // 24 hour cache for identical prompts
+       console.log(`[Cache Hit] Serving from memory for ${modelName}`);
+       return cached.result;
+   }
+
+   const result = await groqQueue.add(() => runGroqTask(modelName, prompt, images, systemInstruction));
+   
+   // Keep cache size bounded
+   if (requestCache.size > 200) {
+       const oldest = requestCache.keys().next().value;
+       if (oldest) requestCache.delete(oldest);
+   }
+   requestCache.set(cacheKey, { result, timestamp: Date.now() });
+   
+   return result;
 };
 
 export const runWithCascade = async (prompt: string, images?: string[], systemInstruction?: string, cascadeMode?: 'VISION' | 'TEXT') => {
