@@ -39,6 +39,7 @@ class RequestQueue {
         this.isProcessing = false;
     }
 }
+
 const groqQueue = new RequestQueue();
 const requestCache = new Map<string, { result: string, timestamp: number }>();
 
@@ -51,26 +52,15 @@ const runGroqTask = async (modelName: string, prompt: string, images?: string[],
       contentPayload = [ { type: "text", text: prompt } ];
       for (const img of images) {
           let url = img;
-          if (img.startsWith('http')) {
-              try {
-                  // Downscale Cloudinary images aggressively to save AI tokens (512x512, 60% quality)
-                  let fetchUrl = img;
-                  if (fetchUrl.includes('res.cloudinary.com') && fetchUrl.includes('/upload/')) {
-                      fetchUrl = fetchUrl.replace('/upload/', '/upload/w_512,c_limit,q_60/');
-                  }
-                  
-                  const fetchRes = await fetch(fetchUrl);
-                  if (fetchRes.ok) {
-                      const arrayBuffer = await fetchRes.arrayBuffer();
-                      const buffer = Buffer.from(arrayBuffer);
-                      const mimeType = fetchRes.headers.get('content-type') || 'image/jpeg';
-                      url = `data:${mimeType};base64,${buffer.toString('base64')}`;
-                  }
-              } catch (e) {
-                  console.warn("Failed to fetch image on server", e);
+          if (url.startsWith('data:')) {
+              console.warn("Dropping base64 image because Groq Qwen requires URLs");
+              continue; // Skip base64
+          }
+          if (url.startsWith('http')) {
+              // Downscale Cloudinary images aggressively to save AI tokens
+              if (url.includes('res.cloudinary.com') && url.includes('/upload/')) {
+                  url = url.replace('/upload/', '/upload/w_512,c_limit,q_60/');
               }
-          } else if (!img.startsWith('data:')) {
-              url = `data:image/jpeg;base64,${img.split(',')[1] || img}`;
           }
           contentPayload.push({ type: "image_url", image_url: { url } });
       }
@@ -82,23 +72,13 @@ const runGroqTask = async (modelName: string, prompt: string, images?: string[],
    }
    messages.push({ role: "user", content: contentPayload });
 
-   let groqParams: any = {};
-   if (modelName === "qwen/qwen3.8-27b") {
-       groqParams = {
-          temperature: 0.6,
-          max_completion_tokens: 2048,
-          top_p: 0.95,
-          reasoning_effort: "default",
-       };
-   } else if (modelName === "openai/gpt-oss-120b" || modelName === "openai/gpt-oss-20b") {
-       groqParams = {
-          temperature: 1,
-          max_completion_tokens: 2048,
-          top_p: 1,
-          reasoning_effort: "medium",
-       };
-   }
+   let groqParams: any = {
+      temperature: 0.6,
+      max_tokens: 2048,
+      top_p: 0.95,
+   };
 
+   console.log("GROQ REQUEST BODY:", JSON.stringify({model: modelName, messages}, null, 2));
    const body = {
       model: modelName,
       messages: messages,
@@ -149,20 +129,17 @@ const runGroqTask = async (modelName: string, prompt: string, images?: string[],
 };
 
 const runGroq = async (modelName: string, prompt: string, images?: string[], systemInstruction?: string) => {
-   // Caching layer to save tokens for identical requests
-   // Hash image content instead of just length to avoid false cache hits
    const imageSig = images?.map(i => i.length + '_' + i.substring(i.length - 100)) || [];
    const cacheKey = JSON.stringify({ modelName, prompt, images: imageSig, systemInstruction });
    const cached = requestCache.get(cacheKey);
    
-   if (cached && (Date.now() - cached.timestamp < 1000 * 60 * 60 * 24)) { // 24 hour cache for identical prompts
+   if (cached && (Date.now() - cached.timestamp < 1000 * 60 * 60 * 24)) {
        console.log(`[Cache Hit] Serving from memory for ${modelName}`);
        return cached.result;
    }
 
    const result = await groqQueue.add(() => runGroqTask(modelName, prompt, images, systemInstruction));
    
-   // Keep cache size bounded
    if (requestCache.size > 200) {
        const oldest = requestCache.keys().next().value;
        if (oldest) requestCache.delete(oldest);
@@ -185,8 +162,7 @@ export const runWithCascade = async (prompt: string, images?: string[], systemIn
    } else {
       modelsToTry = [
          'openai/gpt-oss-120b',
-         'openai/gpt-oss-20b',
-         'qwen/qwen3.8-27b'
+         'openai/gpt-oss-20b'
       ];
    }
 
@@ -206,15 +182,7 @@ export const runWithCascade = async (prompt: string, images?: string[], systemIn
    
    const errMessage = lastError?.message || 'Unknown';
    
-   try {
-       await getFirestore().collection('aiIncidents').add({
-           timestamp: Date.now(),
-           mode: mode,
-           message: "All Groq models failed. Last error: " + errMessage
-       });
-   } catch (e) {
-       console.error("Failed to log aiIncident", e);
-   }
+   
 
    throw new Error("All Groq models failed. Last error: " + errMessage);
 }

@@ -195,7 +195,7 @@ export const findSmartMatches = async (sourceItem: ItemReport, allReports: ItemR
 
     // Helper to extract keywords from title, description, tags, and specs
     const getKeywords = (item: ItemReport) => {
-        const text = `${item.title} ${item.description} ${item.tags.join(' ')} ${Object.values(item.specs || {}).join(' ')}`;
+        const text = `${item.title} ${item.description} ${(item.tags || []).join(' ')} ${Object.values(item.specs || {}).join(' ')}`;
         return new Set(text.toLowerCase().split(/\W+/).filter(x => x.length > 2));
     };
     
@@ -382,14 +382,14 @@ export const compareItems = async (item1: ItemReport, item2: ItemReport): Promis
            - Description: "${item1.description}"
            - Category: "${item1.category}"
            - Attributes & Specs: ${JSON.stringify(item1.specs || {})}
-           - Visual Tags: "${item1.tags.join(', ')}"
+           - Visual Tags: "${(item1.tags || []).join(', ')}"
            
            [ITEM B - ${item2.type}]
            - Title: "${item2.title}"
            - Description: "${item2.description}"
            - Category: "${item2.category}"
            - Attributes & Specs: ${JSON.stringify(item2.specs || {})}
-           - Visual Tags: "${item2.tags.join(', ')}"
+           - Visual Tags: "${(item2.tags || []).join(', ')}"
 
            VISUAL EVIDENCE:
            ${imagesToAnalyze.length} images provided.

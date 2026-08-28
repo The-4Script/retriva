@@ -230,11 +230,22 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
     setCrossCheckMsg('');
 
     try {
-      const base64Images = imageStatuses.length > 0 ? imageStatuses.map(s => s.url) : undefined;
+      // Cloudinary upload pass BEFORE AI (because Groq Qwen does not support base64 natively)
+      const uploadPromises = imageStatuses.map(async (img) => {
+        if (img.file && img.url.startsWith('data:')) {
+           const cloudinaryUrl = await uploadImage(img.file);
+           return { ...img, url: cloudinaryUrl, file: undefined };
+        }
+        return img;
+      });
+      const uploadedStatuses = await Promise.all(uploadPromises);
+      setImageStatuses(uploadedStatuses);
+
+      const cloudUrls = uploadedStatuses.length > 0 ? uploadedStatuses.map(s => s.url) : undefined;
       const specContext = Object.entries(specs).map(([k, v]) => `${k}: ${v}`).join(', ');
       const fullContext = `${distinguishingMarks}. Details: ${specContext}`;
 
-      const aiResult = await generateSmartReport(base64Images, title, fullContext);
+      const aiResult = await generateSmartReport(cloudUrls, title, fullContext);
       setSecurityResult(aiResult.security);
 
       // Check Security
@@ -468,7 +479,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
                                         value={specs[field.key] || ''}
                                         onChange={(e) => handleSpecChange(field.key, e.target.value)}
                                         placeholder={field.placeholder}
-                                        className={`${inputClass} bg-teal-50/30 dark:bg-teal-900/10 focus:bg-white dark:focus:bg-[#2A2625] dark:bg-[#302C2A]`}
+                                        className={`${inputClass} bg-teal-50/30 dark:bg-teal-900/10 focus:bg-white dark:focus:bg-white dark:bg-[#302C2A]`}
                                     />
                                 </div>
                             ))}

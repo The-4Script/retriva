@@ -278,7 +278,7 @@ const MatchComparator: React.FC<MatchComparatorProps> = ({ item1, item2, onClose
                           
                           <div className="flex items-center gap-2 mb-2">
                              <Bot className="w-3.5 h-3.5 text-[#4285F4]" />
-                             <span className="text-[10px] font-bold text-white uppercase tracking-widest">{analysis?.explanation.includes('AI Unavailable') ? 'Local Semantic Match' : 'Groq Analysis'}</span>
+                             <span className="text-[10px] font-bold text-white uppercase tracking-widest">{(analysis?.explanation || '').includes('AI Unavailable') ? 'Local Semantic Match' : 'Groq Analysis'}</span>
                           </div>
                           <p className="text-xs text-[#C8C0B8] leading-relaxed font-medium">
                              {analysis?.explanation}
@@ -292,7 +292,7 @@ const MatchComparator: React.FC<MatchComparatorProps> = ({ item1, item2, onClose
                                <Check className="w-3 h-3 text-[#34A853]" /> Matching Features
                             </h4>
                             <div className="space-y-1.5">
-                               {analysis?.similarities.slice(0, 3).map((sim, i) => (
+                               {(analysis?.similarities || []).slice(0, 3).map((sim, i) => (
                                   <div key={i} className="flex items-start gap-2 p-2 rounded-lg bg-[#34A853]/5 border border-[#34A853]/10">
                                      <div className="w-1 h-1 rounded-full bg-[#34A853] mt-1.5 shrink-0"></div>
                                      <span className="text-[10px] text-[#34A853] font-medium leading-snug">{sim}</span>

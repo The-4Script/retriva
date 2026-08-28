@@ -118,7 +118,7 @@ const AIDisclaimerModal: React.FC<AIDisclaimerModalProps> = ({ isOpen, onClose }
         <div className="p-5 border-t border-[#E5E0D8] dark:border-[#49433F] bg-[#FAF8F5] dark:bg-[#2A2625] flex justify-end">
            <button 
              onClick={onClose}
-             className="px-8 py-3 bg-white dark:bg-[#302C2A] dark:bg-white text-white dark:text-[#2C2724] dark:text-[#918982] rounded-xl font-bold text-sm hover:opacity-90 transition-opacity"
+             className="px-8 py-3 bg-white dark:bg-[#302C2A] dark:bg-white text-white dark:text-[#2C2724] dark:text-[#F5F1EA] rounded-xl font-bold text-sm hover:opacity-90 transition-opacity"
            >
              I Understand
            </button>
