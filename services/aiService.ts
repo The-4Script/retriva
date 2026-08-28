@@ -73,21 +73,27 @@ const calculateTextSimilarity = (str1: string, str2: string): number => {
 };
 
 // --- HELPER: BACKEND AI WRAPPER ---
-// Updated to accept string array for images and use exponential backoff
+// The backend now does its own bounded, fast retry + a shared circuit breaker
+// (see server.ts), so the client only needs ONE short retry for genuine transient
+// issues (503, or a dropped connection). A 429 from the backend means the model
+// cascade is already confirmed rate-limited server-side — retrying it here would
+// just burn more time before the same fallback kicks in, so we skip straight
+// to the caller's fallback path instead.
 const callPuterAI = async (
-  prompt: string, 
-  images?: string | string[], 
+  prompt: string,
+  images?: string | string[],
   systemInstruction?: string,
-  cascadeMode?: 'VISION' | 'TEXT'
+  cascadeMode?: 'VISION' | 'TEXT' | 'TEXT_LIGHT',
+  maxTokens?: number
 ): Promise<string | null> => {
-  const MAX_RETRIES = 3;
+  const MAX_RETRIES = 1;
   let attempt = 0;
-  
+
   while (attempt <= MAX_RETRIES) {
     try {
       const user = auth.currentUser;
       const token = user ? await user.getIdToken() : '';
-      
+
       const response = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: {
@@ -98,22 +104,25 @@ const callPuterAI = async (
           prompt,
           images,
           systemInstruction,
-          cascadeMode
+          cascadeMode,
+          maxTokens
         })
       });
 
       if (!response.ok) {
         const errText = await response.text();
         console.error(`[Backend AI Error - Attempt ${attempt + 1}]`, errText);
-        
-        if ((response.status === 503 || response.status === 429) && attempt < MAX_RETRIES) {
-          const delayMs = Math.pow(2, attempt) * 1000 + Math.random() * 500;
-          console.warn(`AI Provider Overloaded. Retrying in ${Math.round(delayMs)}ms...`);
+
+        // Only retry on 503 (transient) — a 429 means the backend already
+        // exhausted its own retries and cascade, so retrying here is wasted time.
+        if (response.status === 503 && attempt < MAX_RETRIES) {
+          const delayMs = 1500 + Math.random() * 500;
+          console.warn(`AI Provider Overloaded. Retrying once in ${Math.round(delayMs)}ms...`);
           await new Promise(resolve => setTimeout(resolve, delayMs));
           attempt++;
           continue;
         }
-        
+
         return null;
       }
 
@@ -123,10 +132,9 @@ const callPuterAI = async (
     } catch (error: any) {
       console.error(`[Backend API] Error on attempt ${attempt + 1}:`, error);
       if (attempt < MAX_RETRIES) {
-          const delayMs = Math.pow(2, attempt) * 1000;
-          await new Promise(resolve => setTimeout(resolve, delayMs));
-          attempt++;
-          continue;
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        attempt++;
+        continue;
       }
       return null;
     }
@@ -266,42 +274,30 @@ export const generateSmartReport = async (
   userDescription: string
 ): Promise<SmartReportResult> => {
   try {
+    // Trimmed to keep instruction-token cost down (same schema/behavior as before,
+    // just less prose) — vision calls are the most rate-limit-constrained path.
     const prompt = `
-      ACT AS A ONE-SHOT LOST & FOUND VISION AI.
-      You are analyzing an uploaded image for a lost and found report.
-      User provided Title: "${userTitle}"
-      User provided Description: "${userDescription}"
+      Lost & Found vision AI. Analyze the image(s).
+      User title: "${userTitle}" | User description: "${userDescription}"
 
-      TASKS:
-      1. SECURITY CHECK: Check for violence/gore, live animals/pets (plants are ok), human portraits/selfies, or pranks/nonsense.
-      2. VISUAL ANALYSIS: Extract strict technical details (color, category, specs like brand/model, visual tags).
-      3. CONTENT GENERATION: Write a highly detailed, exhaustive, and factual description combining the user's input and your visual analysis. Include material, exact colors, distinguishing marks, brand, condition, and any unique identifiers. This description will be used later for strict AI matching, so do not miss any detail. Suggest a clean, concise title.
-      4. CROSS-CHECK: Compare user's input with the image. If the user said "Blue Laptop" but the image is a "Red Backpack", note this discrepancy in crossCheckFeedback.
+      1. SECURITY: flag violence/gore, live animals (plants ok), human portraits/selfies, or prank/nonsense images.
+      2. VISUAL ANALYSIS: color, category, brand/model specs, visual tags.
+      3. DESCRIPTION: write one detailed, factual description merging user input + visual analysis (material, exact colors, marks, brand, condition, unique identifiers) — this is used for later AI matching, so be specific. Suggest a short clean title.
+      4. CROSS-CHECK: if the image contradicts the user's text (e.g. "Blue Laptop" but it's a red backpack), note it in crossCheckFeedback.
 
-      CATEGORIES MUST BE EXACTLY ONE OF: 
-      Electronics, Stationery, Clothing, Accessories, ID Cards, Books, Bags & Wallets, Keys & Tools, Bottles & Containers, Sports Equipment, Other.
+      Category MUST be exactly one of: Electronics, Stationery, Clothing, Accessories, ID Cards, Books, Bags & Wallets, Keys & Tools, Bottles & Containers, Sports Equipment, Other.
 
-      OUTPUT JSON FORMAT EXACTLY AS:
+      Return ONLY this JSON:
       {
-        "security": {
-          "isViolation": boolean,
-          "violationType": "GORE" | "ANIMAL" | "HUMAN_PORTRAIT" | "IRRELEVANT" | "NONE",
-          "reason": "String",
-          "isPrank": boolean
-        },
-        "visualInsights": {
-          "category": "String (must match one of the categories)",
-          "color": "String",
-          "tags": ["tag1", "tag2"],
-          "specs": { "key": "value" }
-        },
+        "security": { "isViolation": boolean, "violationType": "GORE"|"ANIMAL"|"HUMAN_PORTRAIT"|"IRRELEVANT"|"NONE", "reason": "String", "isPrank": boolean },
+        "visualInsights": { "category": "String", "color": "String", "tags": ["tag1","tag2"], "specs": { "key": "value" } },
         "suggestedTitle": "String",
-        "suggestedDescription": "String (Provide a highly detailed and exhaustive description covering all physical attributes, brand, colors, and unique marks)",
-        "crossCheckFeedback": "String (e.g. 'You mentioned it's a laptop, but it looks like a tablet. I've updated the category.') or empty string if perfect."
+        "suggestedDescription": "String (detailed, factual, covers physical attributes/brand/colors/marks)",
+        "crossCheckFeedback": "String or empty if consistent"
       }
     `;
 
-    const text = await callPuterAI(prompt, base64Images, undefined, 'VISION');
+    const text = await callPuterAI(prompt, base64Images, undefined, 'VISION', 900);
     if (!text) throw new Error("No response from AI");
 
     const parsed = JSON.parse(cleanJSON(text));
@@ -347,11 +343,14 @@ export const generateSmartReport = async (
 
 export const parseSearchQuery = async (query: string): Promise<{ userStatus: 'LOST' | 'FOUND' | 'UNKNOWN', refinedQuery: string }> => {
     try {
+        // Trivial classification task — route straight to the smaller, higher-quota
+        // text model instead of competing for the same budget as the heavier tasks.
         const text = await callPuterAI(
           `Analyze query: "${query}". Return JSON { "userStatus": "LOST"|"FOUND"|"UNKNOWN", "refinedQuery": "keywords" }`,
           undefined,
           undefined,
-          'TEXT'
+          'TEXT_LIGHT',
+          120
         );
         
         if (!text) throw new Error("No text");
@@ -369,54 +368,29 @@ export const compareItems = async (item1: ItemReport, item2: ItemReport): Promis
         if (item1.imageUrls?.[0]) imagesToAnalyze.push(item1.imageUrls[0]);
         if (item2.imageUrls?.[0]) imagesToAnalyze.push(item2.imageUrls[0]);
 
+        // Tightened: same schema/scoring rules as before, less padding.
         const prompt = `
-           You are an expert Lost & Found Verification Specialist.
-           
-           CONTEXT:
-           We are trying to match a specific "Lost Item" (Item A) with a potential "Found Item" (Item B).
-           Your sole job is to determine if these two reports refer to the **SAME PHYSICAL OBJECT**.
-           
-           INPUT DATA (Includes User fields & AI generated descriptions):
-           [ITEM A - ${item1.type}]
-           - Title: "${item1.title}"
-           - Description: "${item1.description}"
-           - Category: "${item1.category}"
-           - Attributes & Specs: ${JSON.stringify(item1.specs || {})}
-           - Visual Tags: "${(item1.tags || []).join(', ')}"
-           
-           [ITEM B - ${item2.type}]
-           - Title: "${item2.title}"
-           - Description: "${item2.description}"
-           - Category: "${item2.category}"
-           - Attributes & Specs: ${JSON.stringify(item2.specs || {})}
-           - Visual Tags: "${(item2.tags || []).join(', ')}"
+           Lost & Found Verification Specialist. Determine if Item A (${item1.type}) and Item B (${item2.type}) are the SAME PHYSICAL OBJECT.
 
-           VISUAL EVIDENCE:
-           ${imagesToAnalyze.length} images provided.
+           [A] Title: "${item1.title}" | Desc: "${item1.description}" | Category: "${item1.category}" | Specs: ${JSON.stringify(item1.specs || {})} | Tags: "${(item1.tags || []).join(', ')}"
+           [B] Title: "${item2.title}" | Desc: "${item2.description}" | Category: "${item2.category}" | Specs: ${JSON.stringify(item2.specs || {})} | Tags: "${(item2.tags || []).join(', ')}"
+           ${imagesToAnalyze.length} image(s) attached.
 
-           ANALYSIS INSTRUCTIONS:
-           1. **ACCOUNT FOR CIRCUMSTANCE**: Lighting conditions, camera angles, and user description accuracy may vary. Do NOT treat minor lighting/angle differences as physical differences.
-           2. **LOOK FOR IDENTIFIERS**: Focus on Brands, Logos, Models, Unique Scratches, Stickers, or distinctive wear patterns.
-           3. **IDENTIFY DEAL-BREAKERS**: A mismatch is only valid if it proves they are different objects (e.g. Different Brand, Different number of buttons, clearly different shape).
-           4. **LOGICAL REASONING**: Deduce logically why it is a potential match (pros) and why it is not (cons), using all provided fields, attributes, and tags.
+           RULES:
+           - Don't treat lighting/angle/description-accuracy differences as physical mismatches.
+           - Focus on brands, logos, models, unique scratches/stickers/wear.
+           - A mismatch is only valid if it proves a DIFFERENT object (different brand/shape/feature count).
+           - Reason using all fields, not just images.
 
-           SCORING GUIDE:
-           - 95-100%: DEFINITIVE (Matching Serial # or unique wear/damage).
-           - 80-94%: HIGH PROBABILITY (Identical make/model/color, no contradictions).
-           - 50-79%: PLAUSIBLE (Same generic item type & color, but vague details).
-           - 0-49%: MISMATCH (Different brand, feature, or form factor).
+           SCORING: 95-100 definitive (matching serial/unique wear) · 80-94 high probability (identical make/model/color, no contradictions) · 50-79 plausible (same generic type+color, vague details) · 0-49 mismatch.
 
-           OUTPUT FORMAT (JSON ONLY):
-           { 
-              "confidence": number (Integer 0-100, representing match score), 
-              "explanation": "Write a verdict explaining the logical reasoning.", 
-              "similarities": ["List pros: why it is a potential match"], 
-              "differences": ["List cons: why it is not a match (e.g. contradictions)"] 
-           }
+           Return ONLY this JSON:
+           { "confidence": number(0-100), "explanation": "verdict + reasoning", "similarities": ["pros"], "differences": ["cons"] }
         `;
 
-        // Pass array of images (1 or 2 images) to the AI
-        const text = await callPuterAI(prompt, imagesToAnalyze.length > 0 ? imagesToAnalyze : undefined, undefined, 'VISION');
+        // Pass array of images (1 or 2 images) to the AI. Output is short (a verdict
+        // + a few list items), so a smaller token budget than generateSmartReport is enough.
+        const text = await callPuterAI(prompt, imagesToAnalyze.length > 0 ? imagesToAnalyze : undefined, undefined, 'VISION', 600);
 
         if (!text) throw new Error("No response");
         

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx server.ts",
     "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
-    "start": "node -e \"process.env.NODE_ENV='production'; require('./dist/server.cjs')\""
+    "start": "node -e \"process.env.NODE_ENV='production'; require('./dist/server.cjs')\"",
+    "test:ai": "tsx tests/ai-cascade.test.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",

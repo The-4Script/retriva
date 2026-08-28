@@ -109,12 +109,24 @@ npm install
 
 **3. Configure environment variables**
 
-Create a `.env` file in the project root:
+Copy `.env.example` to `.env` and fill it in. All variables are required unless noted:
 ```env
+FIREBASE_PROJECT_ID=your_project_id        # server-side (no VITE_ prefix) — MUST match VITE_FIREBASE_PROJECT_ID below
+FIREBASE_SERVICE_ACCOUNT_KEY=               # optional — unlocks persistent AI caching/rate-limit protection, see .env.example
 GROQ_API_KEY=your_groq_api_key
+VITE_CLOUDINARY_CLOUD_NAME=
+VITE_CLOUDINARY_UPLOAD_PRESET=
+VITE_FIREBASE_API_KEY=
+VITE_FIREBASE_APP_ID=
+VITE_FIREBASE_AUTH_DOMAIN=
+VITE_FIREBASE_MESSAGING_SENDER_ID=
+VITE_FIREBASE_PROJECT_ID=your_project_id   # client-side — MUST match FIREBASE_PROJECT_ID above
+VITE_FIREBASE_STORAGE_BUCKET=
 ```
 
-> Firebase and Cloudinary configs live in `src/services/firebase.ts` and `src/services/cloudinary.ts`.
+> **Important for Vercel deploys:** `FIREBASE_PROJECT_ID` and `VITE_FIREBASE_PROJECT_ID` are two separate env vars that must hold the *same* project ID. Setting only the `VITE_`-prefixed one is a common mistake — the backend falls back to a placeholder and every AI request will fail with 401 Unauthorized until both are set.
+>
+> Firebase and Cloudinary client configs live in `services/firebase.ts` and `services/cloudinary.ts`.
 
 **4. Start the dev server**
 ```bash
