@@ -70,13 +70,43 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onShowLegal, onShowFeatures }) => 
       const userDoc = await userDocRef.get();
 
       if (userDoc.exists) {
-        const existingData = userDoc.data() as User;
+        let existingData = userDoc.data() as User;
         
+        // FIX: If the doc is just a dummy shell (e.g. from loginAttempts), fill missing fields
+        let needsUpdate = false;
+        const updates: any = {};
+        
+        if (!existingData.email) {
+            existingData.email = firebaseUser.email || '';
+            updates.email = existingData.email;
+            needsUpdate = true;
+        }
+        if (!existingData.name) {
+            existingData.name = firebaseUser.displayName || name || 'Student';
+            updates.name = existingData.name;
+            needsUpdate = true;
+        }
+        if (!existingData.id) {
+            existingData.id = firebaseUser.uid;
+            updates.id = firebaseUser.uid;
+            needsUpdate = true;
+        }
+        if (existingData.isVerified === undefined) {
+            existingData.isVerified = false;
+            updates.isVerified = false;
+            needsUpdate = true;
+        }
+
         // BACKFILL: Check if existing user is missing a studentId (Legacy support)
         if (!existingData.studentId) {
             const newId = await generateUniqueStudentId();
-            await userDocRef.update({ studentId: newId });
+            updates.studentId = newId;
             existingData.studentId = newId;
+            needsUpdate = true;
+        }
+
+        if (needsUpdate) {
+            await userDocRef.update(updates).catch(() => {});
         }
         
         onLogin(existingData);
