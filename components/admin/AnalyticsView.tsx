@@ -9,7 +9,8 @@ const AnalyticsView = () => {
     reportsByCategory: [],
     avgResolveTime: 'N/A',
     totalResolved: 0,
-    totalReports: 0
+    totalReports: 0,
+    totalAiCalls: 0
   });
   
   const [loading, setLoading] = useState(true);
@@ -20,6 +21,12 @@ const AnalyticsView = () => {
        try {
            const reportsSnap = await db.collection('reports').get();
            const reports = reportsSnap.docs.map(d => ({ ...d.data(), id: d.id })) as any[];
+           
+           let totalAiCalls = 0;
+           try {
+              const aiSnap = await db.collection('aiUsage').get();
+              totalAiCalls = aiSnap.size;
+           } catch(e) {}
            
            // Category Data
            const catCount: Record<string, number> = {};
@@ -66,7 +73,8 @@ const AnalyticsView = () => {
               reportsByCategory,
               avgResolveTime: avgResolveTimeStr,
               totalResolved: resolved.length,
-              totalReports: reports.length
+              totalReports: reports.length,
+              totalAiCalls
            });
        } catch (e) {
            console.error("Failed to load analytics", e);
@@ -84,7 +92,7 @@ const AnalyticsView = () => {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
        
-       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
           <div className="bg-white dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
              <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
                 <FileText className="w-6 h-6" />
@@ -119,6 +127,15 @@ const AnalyticsView = () => {
              <div>
                 <p className="text-2xl font-black text-slate-800 dark:text-white">{stats.totalReports}</p>
                 <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">Total Reports</p>
+             </div>
+          </div>
+          <div className="bg-white dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+             <div className="w-12 h-12 rounded-xl bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
+                <Activity className="w-6 h-6" />
+             </div>
+             <div>
+                <p className="text-2xl font-black text-slate-800 dark:text-white">{stats.totalAiCalls}</p>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">AI Usage (Calls)</p>
              </div>
           </div>
        </div>

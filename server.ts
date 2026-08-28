@@ -153,11 +153,20 @@ const runGroq = async (modelName: string, prompt: string, images?: string[], sys
    
    if (cached && (Date.now() - cached.timestamp < 1000 * 60 * 60 * 24)) { // 24 hour cache for identical prompts
        console.log(`[Cache Hit] Serving from memory for ${modelName}`);
+       
+       try {
+           admin.firestore().collection('aiUsage').add({ timestamp: Date.now(), model: modelName, cached: true }).catch(() => {});
+       } catch (e) {}
+
        return cached.result;
    }
 
    const result = await groqQueue.add(() => runGroqTask(modelName, prompt, images, systemInstruction));
    
+   try {
+       admin.firestore().collection('aiUsage').add({ timestamp: Date.now(), model: modelName, cached: false }).catch(() => {});
+   } catch (e) {}
+
    // Keep cache size bounded
    if (requestCache.size > 200) {
        const oldest = requestCache.keys().next().value;
