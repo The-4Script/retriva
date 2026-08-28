@@ -239,7 +239,7 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
                                        scanResults.map(({ report: match, confidence }) => {
                                             const tier = getMatchTier(confidence);
                                             return (
-                                           <div key={match.id} className="p-3 bg-white dark:bg-[#302C2A] rounded-lg border border-[#E5E0D8] dark:border-[#49433F] flex items-center gap-3 shadow-sm hover:bg-[#FAF8F5] dark:hover:bg-[#F5F2ED] dark:bg-[#373230] transition-colors">
+                                           <div key={match.id} className="p-3 bg-white dark:bg-[#302C2A] rounded-lg border border-[#E5E0D8] dark:border-[#49433F] flex items-center gap-3 shadow-sm hover:bg-[#FAF8F5] dark:hover:bg-[#373230] dark:bg-[#373230] transition-colors">
                                                <div className="w-12 h-12 rounded-md bg-[#F5F2ED] dark:bg-[#373230] overflow-hidden shrink-0 relative">
                                                    {match.imageUrls[0] ? <img src={match.imageUrls[0]} className="w-full h-full object-cover" /> : <Box className="w-6 h-6 m-auto text-[#C8C0B8]" />}
                                                    {/* Tier Badge - Neutral "Review" Label */}
