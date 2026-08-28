@@ -227,7 +227,7 @@ app.use(express.text({ type: 'text/plain' }));
 app.post("/api/offline", async (req, res) => {
    try {
       let uid = req.body?.uid;
-      
+
       // Fallback for navigator.sendBeacon sending text/plain
       if (!uid && typeof req.body === 'string') {
           try {
@@ -285,8 +285,10 @@ app.post("/api/ai/chat", async (req, res) => {
 async function startServer() {
   const PORT = Number(process.env.PORT || 3000);
 
+  const isProd = process.env.NODE_ENV === "production" || !!(process.argv[1] && process.argv[1].endsWith('server.cjs'));
+
   // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+  if (!isProd) {
     const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true, allowedHosts: true },

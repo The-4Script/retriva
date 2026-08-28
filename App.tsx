@@ -122,10 +122,10 @@ const App: React.FC = () => {
            const userSnap = await userDocRef.get();
            if (userSnap.exists) {
               let userData = userSnap.data() as User;
-              
+
               let needsUpdate = false;
               const updates: any = {};
-              
+
               // FIX: Dummy shell repair
               if (!userData.email) {
                   userData.email = firebaseUser.email || '';
@@ -150,7 +150,7 @@ const App: React.FC = () => {
                   userData.studentId = uniqueId;
                   needsUpdate = true;
               }
-              
+
               if (needsUpdate) {
                   await userDocRef.update(updates).catch(e => console.warn("Backfill failed", e));
               }
@@ -724,7 +724,7 @@ const App: React.FC = () => {
     return (
       <div className="fixed inset-0 bg-off-white dark:bg-slate-950 flex items-center justify-center">
          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-10 h-10 text-brand-violet animate-spin" />
+            <Loader2 className="w-10 h-10 text-brand-teal animate-spin" />
             <p className="text-slate-500 font-bold animate-pulse">Initializing Retriva...</p>
          </div>
       </div>
@@ -735,8 +735,8 @@ const App: React.FC = () => {
   if (maintenanceMode.enabled && !isAdmin) {
     return (
       <div className="fixed inset-0 bg-slate-950 flex flex-col items-center justify-center p-6 text-center z-50">
-         <div className="w-20 h-20 rounded-full bg-indigo-500/10 flex items-center justify-center mb-6">
-             <Wrench className="w-10 h-10 text-indigo-400" />
+         <div className="w-20 h-20 rounded-full bg-teal-700/10 flex items-center justify-center mb-6">
+             <Wrench className="w-10 h-10 text-teal-500" />
          </div>
          <h1 className="text-3xl font-black text-white mb-2">We'll be right back</h1>
          <p className="text-slate-400 max-w-md">{maintenanceMode.message}</p>
@@ -822,7 +822,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-off-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300 flex flex-col">
+    <div className="min-h-screen bg-[#FDF9F4] dark:bg-[#1B1817] text-slate-900 dark:text-[#F5F1EA] font-sans transition-colors duration-300 flex flex-col">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       
       {/* GLOBAL MODALS */}
@@ -854,68 +854,44 @@ const App: React.FC = () => {
           The design prompt requested a "Brand New Page", implies fullscreen. 
           Let's conditionally hide the main nav if view === 'FEATURES' */}
       {user && (
-        <nav className="sticky top-0 z-40 bg-off-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6">
-            <div className="max-w-7xl mx-auto h-20 flex items-center justify-between py-3">
+        <nav className="sticky top-0 z-40 bg-[#FDF9F4]/90 dark:bg-[#1B1817]/90 backdrop-blur-xl border-b border-[#E5E0D8] dark:border-[#49433F] px-4 sm:px-6">
+            <div className="max-w-7xl mx-auto h-20 flex items-center justify-between py-4">
               <div className="flex items-center gap-10">
                 <div className="flex items-center gap-4 cursor-pointer group" onClick={() => { setView('DASHBOARD'); setEditingReport(null); }}>
-                  <div className="w-14 h-14 flex items-center justify-center group-hover:scale-110 transition-transform filter drop-shadow-lg relative z-10">
-                     <svg viewBox="0 0 200 200" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                          <linearGradient id="pinGradientNav" x1="100" y1="25" x2="100" y2="190" gradientUnits="userSpaceOnUse">
-                            <stop offset="0" stopColor="#6366f1" />
-                            <stop offset="1" stopColor="#a855f7" />
-                          </linearGradient>
-                        </defs>
-                        <g opacity="0.5">
-                           <circle cx="100" cy="100" r="85" stroke="url(#pinGradientNav)" strokeWidth="2" strokeDasharray="10 10" strokeLinecap="round" />
-                           <circle cx="100" cy="100" r="70" stroke="url(#pinGradientNav)" strokeWidth="2" strokeDasharray="5 5" strokeLinecap="round" />
-                           <circle cx="185" cy="100" r="3" fill="#a855f7" />
-                           <circle cx="15" cy="100" r="3" fill="#6366f1" />
-                        </g>
-                        <ellipse cx="100" cy="190" rx="20" ry="6" fill="#6366f1" opacity="0.3" />
-                        <ellipse cx="100" cy="190" rx="10" ry="3" fill="#6366f1" opacity="0.5" />
-                        <path fillRule="evenodd" clipRule="evenodd" d="M100 25 C60 25 25 60 25 100 C25 140 90 185 100 190 C110 185 175 140 175 100 C175 60 140 25 100 25 Z" fill="url(#pinGradientNav)" />
-                        <circle cx="100" cy="100" r="42" fill="white" />
-                        <g transform="translate(100 100)">
-                          <path d="M0 -24 V24 M-24 0 H24" stroke="#7c3aed" strokeWidth="6" strokeLinecap="round" />
-                          <path d="M-16 -16 L16 16 M16 -16 L-16 16" stroke="#7c3aed" strokeWidth="6" strokeLinecap="round" />
-                          <circle r="7" fill="#7c3aed" />
-                          <circle cx="0" cy="-30" r="4" fill="#7c3aed" />
-                          <circle cx="0" cy="30" r="4" fill="#7c3aed" />
-                          <circle cx="-30" cy="0" r="4" fill="#7c3aed" />
-                          <circle cx="30" cy="0" r="4" fill="#7c3aed" />
-                        </g>
+                  <div className="w-10 h-10 flex items-center justify-center group-hover:scale-105 transition-transform relative z-10">
+                     <svg viewBox="0 0 40 40" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="40" height="40" rx="8" fill="#B08D73"/>
+                        <text x="20" y="26" fontFamily="Inter, sans-serif" fontSize="18" fontWeight="600" fill="white" textAnchor="middle">C</text>
                      </svg>
                   </div>
                   <div className="flex flex-col">
-                     <span className="block font-black text-2xl tracking-tighter leading-none text-slate-900 dark:text-white">RETRIVA</span>
-                     <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">traces lead to retrival</span>
+                     <span className="block font-black text-xl tracking-tight leading-none text-[#2C2724] dark:text-[#F5F1EA]">RETRIVA</span>
+                     <span className="text-[9px] font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-widest mt-0.5">traces lead to retrieval</span>
                   </div>
                 </div>
               </div>
               
-              <div className="flex items-center gap-3">
-                 <button onClick={() => setDarkMode(!darkMode)} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500 transition-colors">
-                   {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              <div className="flex items-center gap-4">
+                 <button onClick={() => setDarkMode(!darkMode)} className="p-2 rounded-full hover:bg-[#F2ECE4] dark:hover:bg-[#373230] text-[#4A423C] dark:text-[#C8C0B8] transition-colors">
+                   {darkMode ? <Sun className="w-5 h-5 stroke-[1.5]" /> : <Moon className="w-5 h-5 stroke-[1.5]" />}
                  </button>
                  {isAdmin && (
-                   <button onClick={() => setView('ADMIN_DASHBOARD')} className={`relative p-2 rounded-full transition-all ${view === 'ADMIN_DASHBOARD' ? 'bg-indigo-50 dark:bg-slate-800 text-indigo-600' : 'hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500'}`} title="Admin Dashboard">
-                     <ShieldCheck className="w-5 h-5" />
+                   <button onClick={() => setView('ADMIN_DASHBOARD')} className={`relative p-2 rounded-full transition-all ${view === 'ADMIN_DASHBOARD' ? 'bg-[#F2ECE4] dark:bg-[#373230] text-[#2C2724] dark:text-[#F5F1EA]' : 'hover:bg-[#F2ECE4] dark:hover:bg-[#373230] text-[#4A423C] dark:text-[#C8C0B8] hover:scale-105'}`} title="Admin Dashboard">
+                     <ShieldCheck className="w-5 h-5 stroke-[1.5]" />
                    </button>
                  )}
-                 <button onClick={() => setView('MESSAGES')} className={`relative p-2 rounded-full transition-all ${view === 'MESSAGES' ? 'bg-indigo-50 dark:bg-slate-800 text-indigo-600' : 'hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500'}`} title="Messages">
-                   <MessageCircle className="w-5 h-5" />
-                   {unreadMessageCount > 0 && <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-950"></span>}
+                 <button onClick={() => setView('MESSAGES')} className={`relative p-2 rounded-full transition-all ${view === 'MESSAGES' ? 'bg-[#F2ECE4] dark:bg-[#373230] text-[#2C2724] dark:text-[#F5F1EA]' : 'hover:bg-[#F2ECE4] dark:hover:bg-[#373230] text-[#4A423C] dark:text-[#C8C0B8] hover:scale-105'}`} title="Messages">
+                   <MessageCircle className="w-5 h-5 stroke-[1.5]" />
+                   {unreadMessageCount > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#F97316] rounded-full"></span>}
                  </button>
-                 <button onClick={() => setShowNotificationCenter(!showNotificationCenter)} className={`relative p-2 rounded-full transition-all ${showNotificationCenter ? 'bg-indigo-50 dark:bg-slate-800 text-indigo-600' : 'hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-500'}`}>
-                   <Bell className="w-5 h-5" />
-                   {unreadCount > 0 && <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-950"></span>}
+                 <button onClick={() => setShowNotificationCenter(!showNotificationCenter)} className={`relative p-2 rounded-full transition-all ${showNotificationCenter ? 'bg-[#F2ECE4] dark:bg-[#373230] text-[#2C2724] dark:text-[#F5F1EA]' : 'hover:bg-[#F2ECE4] dark:hover:bg-[#373230] text-[#4A423C] dark:text-[#C8C0B8] hover:scale-105'}`}>
+                   <Bell className="w-5 h-5 stroke-[1.5]" />
+                   {unreadCount > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#F97316] rounded-full"></span>}
                  </button>
                  
-                 <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 mx-1"></div>
-                 <button onClick={() => setView('PROFILE')} className="flex items-center gap-3 pl-1 hover:opacity-80 transition-opacity">
-                    <div className="w-9 h-9 rounded-full bg-indigo-100 dark:bg-slate-800 overflow-hidden ring-2 ring-white dark:ring-slate-900 shadow-sm">
-                       {user.avatar && !avatarError ? <img src={user.avatar} className="w-full h-full object-cover" onError={() => setAvatarError(true)} /> : <UserIcon className="w-full h-full p-2 text-indigo-300" />}
+                 <button onClick={() => setView('PROFILE')} className="flex items-center gap-3 pl-2 hover:opacity-80 transition-opacity">
+                    <div className="w-9 h-9 rounded-full bg-[#2C2724] dark:bg-[#373230] overflow-hidden shadow-sm transition-transform hover:scale-105 flex items-center justify-center text-white">
+                       {user.avatar && !avatarError ? <img src={user.avatar} className="w-full h-full object-cover" onError={() => setAvatarError(true)} /> : <span className="text-sm font-bold text-[#F5F1EA]">{user.name?.charAt(0).toUpperCase() || 'C'}</span>}
                     </div>
                  </button>
               </div>
@@ -924,7 +900,7 @@ const App: React.FC = () => {
       )}
 
       {/* Main Container */}
-      <main className={`flex-grow w-full mx-auto relative ${'p-4 md:p-6 max-w-[1400px]'}`}>
+      <main className={`flex-grow w-full mx-auto relative ${'p-4 md:p-8 w-full max-w-[1600px]'}`}>
         {renderContent()}
 
         {/* FLOATING ACTION BUTTON (FAB) - Hide on Features Page */}
@@ -961,8 +937,8 @@ const App: React.FC = () => {
                 onClick={() => setShowFabMenu(!showFabMenu)}
                 className={`w-16 h-16 rounded-full flex items-center justify-center shadow-2xl transition-all transform hover:scale-110 active:scale-95 relative overflow-hidden group 
                   ${showFabMenu 
-                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-slate-900/40 dark:shadow-white/30 ring-8 ring-indigo-500/10' 
-                      : 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-indigo-600/40 hover:shadow-indigo-500/60 ring-8 ring-indigo-500/0 hover:ring-indigo-500/10'
+                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-slate-900/40 dark:shadow-white/30 ring-8 ring-teal-500/10'
+                      : 'bg-teal-700 text-white shadow-teal-700/40 hover:shadow-teal-600/60 ring-8 ring-teal-500/0 hover:ring-teal-500/10'
                   }
                 `}
              >
@@ -977,19 +953,19 @@ const App: React.FC = () => {
       </main>
 
       {(
-        <footer className="w-full relative bg-white dark:bg-slate-950 mt-auto border-t border-slate-100 dark:border-slate-800">
-            <div className="absolute top-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent opacity-60 shadow-[0_0_8px_rgba(99,102,241,0.6)]"></div>
-            <div className="max-w-7xl mx-auto px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] font-medium text-slate-400">
+        <footer className="w-full relative bg-white dark:bg-[#1B1817] mt-auto border-t border-slate-100 dark:border-[#49433F]">
+            <div className="absolute top-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-[#14B8A6] to-transparent opacity-60 shadow-[0_0_8px_rgba(20,184,166,0.6)]"></div>
+            <div className="max-w-7xl mx-auto px-6 py-3 flex flex-col md:flex-row items-center justify-between gap-3 text-[11px] font-medium text-slate-400 dark:text-[#918982]">
               <div className="flex items-center gap-4">
                  <span>&copy; 2026 RETRIVA</span>
                  <div className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></div>
                  <div className="flex gap-3">
-                    <button onClick={() => setShowLegal(true)} className="hover:text-indigo-500 transition-colors">Privacy & Terms</button>
+                    <button onClick={() => setShowLegal(true)} className="hover:text-teal-600 transition-colors">Privacy & Terms</button>
                  </div>
               </div>
               <div className="flex items-center gap-2">
                  <span className="opacity-60">Engineered by</span>
-                 <span className="font-cursive text-lg bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent hover:scale-105 transition-transform cursor-default">
+                 <span className="font-cursive text-lg bg-gradient-to-r from-teal-600 to-teal-400 bg-clip-text text-transparent hover:scale-105 transition-transform cursor-default">
                    FORGESCRIPT
                  </span>
               </div>

@@ -4,8 +4,8 @@
 
 @theme {
   --font-sans: 'Inter', sans-serif;
-  --color-brand-violet: #5E5CE6;
-  --color-off-white: #FDFBF7;
+  --color-brand-teal: #0F766E;
+  --color-off-white: #F8FAFC;
 
   --animate-fade-in: fadeIn 0.5s ease-out;
   --animate-slide-up: slideUp 0.5s ease-out;

@@ -27,7 +27,7 @@ const AnalyticsView = () => {
               const aiSnap = await db.collection('aiUsage').get();
               totalAiCalls = aiSnap.size;
            } catch(e) {}
-           
+
            // Category Data
            const catCount: Record<string, number> = {};
            reports.forEach(r => {
@@ -87,62 +87,62 @@ const AnalyticsView = () => {
 
   const COLORS = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'];
 
-  if (loading) return <div className="flex justify-center py-12"><div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div></div>;
+  if (loading) return <div className="flex justify-center py-12"><div className="w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div></div>;
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
        
        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <div className="bg-white dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
-             <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+          <div className="bg-white dark:bg-[#2A2625] p-5 rounded-2xl border border-[#E5E0D8] dark:border-[#49433F] shadow-sm flex items-center gap-4">
+             <div className="w-12 h-12 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 flex items-center justify-center">
                 <FileText className="w-6 h-6" />
              </div>
              <div>
-                <p className="text-2xl font-black text-slate-800 dark:text-white">{stats.reportsByDay.reduce((a:any, b:any) => a + b.count, 0)}</p>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">New Reports (7d)</p>
+                <p className="text-2xl font-black text-[#33261D] dark:text-[#F5F1EA]">{stats.reportsByDay.reduce((a:any, b:any) => a + b.count, 0)}</p>
+                <p className="text-xs font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-wide">New Reports (7d)</p>
              </div>
           </div>
-          <div className="bg-white dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+          <div className="bg-white dark:bg-[#2A2625] p-5 rounded-2xl border border-[#E5E0D8] dark:border-[#49433F] shadow-sm flex items-center gap-4">
              <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                 <CheckCircle className="w-6 h-6" />
              </div>
              <div>
-                <p className="text-2xl font-black text-slate-800 dark:text-white">{stats.totalResolved}</p>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">Total Resolved</p>
+                <p className="text-2xl font-black text-[#33261D] dark:text-[#F5F1EA]">{stats.totalResolved}</p>
+                <p className="text-xs font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-wide">Total Resolved</p>
              </div>
           </div>
-          <div className="bg-white dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+          <div className="bg-white dark:bg-[#2A2625] p-5 rounded-2xl border border-[#E5E0D8] dark:border-[#49433F] shadow-sm flex items-center gap-4">
              <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center">
                 <Clock className="w-6 h-6" />
              </div>
              <div>
-                <p className="text-2xl font-black text-slate-800 dark:text-white">{stats.avgResolveTime}</p>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">Avg Resolve Time</p>
+                <p className="text-2xl font-black text-[#33261D] dark:text-[#F5F1EA]">{stats.avgResolveTime}</p>
+                <p className="text-xs font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-wide">Avg Resolve Time</p>
              </div>
           </div>
-          <div className="bg-white dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+          <div className="bg-white dark:bg-[#2A2625] p-5 rounded-2xl border border-[#E5E0D8] dark:border-[#49433F] shadow-sm flex items-center gap-4">
              <div className="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 flex items-center justify-center">
                 <FileText className="w-6 h-6" />
              </div>
              <div>
-                <p className="text-2xl font-black text-slate-800 dark:text-white">{stats.totalReports}</p>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">Total Reports</p>
+                <p className="text-2xl font-black text-[#33261D] dark:text-[#F5F1EA]">{stats.totalReports}</p>
+                <p className="text-xs font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-wide">Total Reports</p>
              </div>
           </div>
-          <div className="bg-white dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+          <div className="bg-white dark:bg-[#2A2625] p-5 rounded-2xl border border-[#E5E0D8] dark:border-[#49433F] shadow-sm flex items-center gap-4">
              <div className="w-12 h-12 rounded-xl bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 flex items-center justify-center">
                 <Activity className="w-6 h-6" />
              </div>
              <div>
-                <p className="text-2xl font-black text-slate-800 dark:text-white">{stats.totalAiCalls}</p>
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wide">AI Usage (Calls)</p>
+                <p className="text-2xl font-black text-[#33261D] dark:text-[#F5F1EA]">{stats.totalAiCalls}</p>
+                <p className="text-xs font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-wide">AI Usage (Calls)</p>
              </div>
           </div>
        </div>
 
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white dark:bg-slate-950 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-             <h3 className="font-bold text-slate-800 dark:text-white mb-6">Reports per Day (Last 7 Days)</h3>
+          <div className="bg-white dark:bg-[#2A2625] p-6 rounded-2xl border border-[#E5E0D8] dark:border-[#49433F] shadow-sm">
+             <h3 className="font-bold text-[#33261D] dark:text-[#F5F1EA] dark:text-[#F5F1EA] mb-6">Reports per Day (Last 7 Days)</h3>
              <div className="h-64">
                <ResponsiveContainer width="100%" height="100%">
                  <LineChart data={stats.reportsByDay}>
@@ -155,8 +155,8 @@ const AnalyticsView = () => {
              </div>
           </div>
           
-          <div className="bg-white dark:bg-slate-950 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-             <h3 className="font-bold text-slate-800 dark:text-white mb-6">Reports by Category</h3>
+          <div className="bg-white dark:bg-[#2A2625] p-6 rounded-2xl border border-[#E5E0D8] dark:border-[#49433F] shadow-sm">
+             <h3 className="font-bold text-[#33261D] dark:text-[#F5F1EA] dark:text-[#F5F1EA] mb-6">Reports by Category</h3>
              <div className="h-64">
                <ResponsiveContainer width="100%" height="100%">
                  <PieChart>
@@ -179,7 +179,7 @@ const AnalyticsView = () => {
              </div>
              <div className="flex flex-wrap gap-2 justify-center mt-4">
                 {stats.reportsByCategory.map((entry: any, index: number) => (
-                   <div key={index} className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
+                   <div key={index} className="flex items-center gap-1.5 text-xs text-[#8C7A6B] dark:text-[#C8C0B8] dark:text-[#918982]">
                       <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
                       {entry.name} ({entry.value})
                    </div>
