@@ -77,7 +77,7 @@ const UserManagement = ({ user: currentUser }: { user: User }) => {
     return matchesSearch && matchesStatus;
   });
 
-  if (loading) return <div className="flex justify-center py-12"><div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div></div>;
+  if (loading) return <div className="flex justify-center py-12"><div className="w-8 h-8 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div></div>;
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -88,38 +88,38 @@ const UserManagement = ({ user: currentUser }: { user: User }) => {
           { label: 'Total Users', value: totalUsers, icon: Users, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
           { label: 'Verified Accounts', value: verifiedUsers, icon: CheckCircle, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
           { label: 'Restricted', value: suspendedBlockedUsers, icon: ShieldAlert, color: 'text-rose-500', bg: 'bg-rose-50 dark:bg-rose-900/20' },
-          { label: 'New (7 Days)', value: newSignups, icon: Activity, color: 'text-indigo-500', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
+          { label: 'New (7 Days)', value: newSignups, icon: Activity, color: 'text-teal-600', bg: 'bg-teal-50 dark:bg-teal-900/20' },
         ].map((stat, i) => (
-          <div key={i} className="bg-white dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
+          <div key={i} className="bg-white dark:bg-[#2A2625] p-4 rounded-2xl border border-[#E5E0D8] dark:border-[#49433F] flex items-center gap-4 shadow-sm">
              <div className={`w-12 h-12 rounded-xl ${stat.bg} flex items-center justify-center`}>
                 <stat.icon className={`w-6 h-6 ${stat.color}`} />
              </div>
              <div>
-                <p className="text-2xl font-black text-slate-800 dark:text-white leading-none">{stat.value}</p>
-                <p className="text-xs font-bold text-slate-500 mt-1 uppercase tracking-wide">{stat.label}</p>
+                <p className="text-2xl font-black text-[#33261D] dark:text-[#F5F1EA] dark:text-[#F5F1EA] leading-none">{stat.value}</p>
+                <p className="text-xs font-bold text-[#8C7A6B] dark:text-[#918982] mt-1 uppercase tracking-wide">{stat.label}</p>
              </div>
           </div>
         ))}
       </div>
 
       {/* TOOLBAR */}
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+      <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white dark:bg-[#2A2625] p-4 rounded-2xl border border-[#E5E0D8] dark:border-[#49433F] shadow-sm">
          <div className="relative w-full md:w-96">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A3978E] dark:text-[#918982]" />
             <input 
               type="text" 
               placeholder="Search by name, email, or ID..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full pl-9 pr-4 py-2 bg-[#FAF8F5] dark:bg-[#302C2A] border border-[#E5E0D8] dark:border-[#49433F] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
          </div>
          <div className="flex items-center gap-2 w-full md:w-auto">
-            <Filter className="w-4 h-4 text-slate-400 shrink-0" />
+            <Filter className="w-4 h-4 text-[#A3978E] dark:text-[#918982] shrink-0" />
             <select 
               value={statusFilter}
               onChange={(e: any) => setStatusFilter(e.target.value)}
-              className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-sm rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex-1 md:w-40"
+              className="bg-[#FAF8F5] dark:bg-[#302C2A] border border-[#E5E0D8] dark:border-[#49433F] text-[#5C4A3D] dark:text-[#C8C0B8] dark:text-[#C8C0B8] text-sm rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-teal-500 flex-1 md:w-40"
             >
                <option value="ALL">All Status</option>
                <option value="ACTIVE">Active</option>
@@ -130,38 +130,38 @@ const UserManagement = ({ user: currentUser }: { user: User }) => {
       </div>
 
       {/* TABLE */}
-      <div className="bg-white dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-[#2A2625] rounded-2xl border border-[#E5E0D8] dark:border-[#49433F] shadow-sm overflow-hidden">
          <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
                <thead>
-                  <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
-                     <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">User</th>
-                     <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Contact</th>
-                     <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                     <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Verified</th>
-                     <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                  <tr className="bg-[#FAF8F5] dark:bg-[#302C2A] border-b border-[#E5E0D8] dark:border-[#49433F]">
+                     <th className="p-4 text-xs font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-wider">User</th>
+                     <th className="p-4 text-xs font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-wider">Contact</th>
+                     <th className="p-4 text-xs font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-wider">Status</th>
+                     <th className="p-4 text-xs font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-wider">Verified</th>
+                     <th className="p-4 text-xs font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-wider text-right">Actions</th>
                   </tr>
                </thead>
                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                   {filteredUsers.map(u => (
-                     <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                     <tr key={u.id} className="hover:bg-[#FAF8F5] dark:hover:bg-white dark:bg-[#302C2A] transition-colors">
                         <td className="p-4">
                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-slate-800 flex items-center justify-center shrink-0 overflow-hidden">
-                                 {u.avatar ? <img src={u.avatar} className="w-full h-full object-cover" /> : <span className="font-bold text-indigo-500">{u.name.charAt(0)}</span>}
+                              <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-[#373230] flex items-center justify-center shrink-0 overflow-hidden">
+                                 {u.avatar ? <img src={u.avatar} className="w-full h-full object-cover" /> : <span className="font-bold text-teal-600">{u.name.charAt(0)}</span>}
                               </div>
                               <div>
-                                 <p className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                 <p className="text-sm font-bold text-[#2C2724] dark:text-[#F5F1EA] flex items-center gap-2">
                                     {u.name}
-                                    {u.id === currentUser.id && <span className="px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 text-[9px] uppercase tracking-wider">You</span>}
+                                    {u.id === currentUser.id && <span className="px-1.5 py-0.5 rounded bg-teal-100 dark:bg-teal-900 text-teal-700 dark:text-teal-300 text-[9px] uppercase tracking-wider">You</span>}
                                  </p>
-                                 <p className="text-xs text-slate-500 font-mono mt-0.5">{u.studentId || 'No ID'}</p>
+                                 <p className="text-xs text-[#8C7A6B] dark:text-[#918982] font-mono mt-0.5">{u.studentId || 'No ID'}</p>
                               </div>
                            </div>
                         </td>
                         <td className="p-4">
-                           <p className="text-sm text-slate-600 dark:text-slate-300">{u.email}</p>
-                           {u.department && <p className="text-xs text-slate-500 mt-0.5">{u.department}</p>}
+                           <p className="text-sm text-[#8C7A6B] dark:text-[#C8C0B8] dark:text-[#C8C0B8]">{u.email}</p>
+                           {u.department && <p className="text-xs text-[#8C7A6B] dark:text-[#918982] mt-0.5">{u.department}</p>}
                         </td>
                         <td className="p-4">
                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider
@@ -176,7 +176,7 @@ const UserManagement = ({ user: currentUser }: { user: User }) => {
                         <td className="p-4">
                            <button 
                              onClick={() => handleVerifyToggle(u)}
-                             className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${u.isVerified ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'}`}
+                             className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${u.isVerified ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-[#F5F2ED] text-[#8C7A6B] dark:text-[#C8C0B8] dark:bg-[#373230] dark:text-[#918982] hover:bg-[#E5E0D8] dark:hover:bg-[#E5E0D8] dark:bg-[#49433F]'}`}
                            >
                              {u.isVerified ? 'Verified' : 'Unverified'}
                            </button>
@@ -212,7 +212,7 @@ const UserManagement = ({ user: currentUser }: { user: User }) => {
             </table>
             
             {filteredUsers.length === 0 && (
-               <div className="p-12 text-center text-slate-500">
+               <div className="p-12 text-center text-[#8C7A6B] dark:text-[#918982]">
                   No users found matching your criteria.
                </div>
             )}

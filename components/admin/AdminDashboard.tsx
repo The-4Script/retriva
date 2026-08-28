@@ -58,7 +58,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
        {/* Sidebar */}
        <div className={`flex flex-col bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'}`}>
           <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
-             {isSidebarOpen && <span className="font-bold text-lg text-indigo-600 dark:text-indigo-400">Admin Control</span>}
+             {isSidebarOpen && <span className="font-bold text-lg text-teal-600 dark:text-teal-400">Admin Control</span>}
              <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
                 <Menu className="w-5 h-5" />
              </button>
@@ -69,7 +69,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
                  <button 
                    key={tab.id}
                    onClick={() => setActiveTab(tab.id as AdminTab)}
-                   className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${activeTab === tab.id ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                   className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${activeTab === tab.id ? 'bg-teal-50 dark:bg-teal-900/20 text-teal-600 dark:text-teal-400 font-bold' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                    title={!isSidebarOpen ? tab.label : ''}
                  >
                     <tab.icon className="w-5 h-5 shrink-0" />
@@ -93,7 +93,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
                 {TABS.find(t => t.id === activeTab)?.label}
              </h2>
              <div className="flex items-center gap-4">
-                <div className="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold overflow-hidden ring-2 ring-white dark:ring-slate-950">
+                <div className="h-8 w-8 rounded-full bg-teal-100 dark:bg-teal-900/50 flex items-center justify-center text-teal-600 dark:text-teal-400 font-bold overflow-hidden ring-2 ring-white dark:ring-slate-950">
                     {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : user.name.charAt(0)}
                 </div>
              </div>
