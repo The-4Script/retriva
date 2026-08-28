@@ -1,10 +1,12 @@
 import "dotenv/config";
 import express from "express";
 import path from "path";
-import * as admin from "firebase-admin";
+import { initializeApp } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
+import { getFirestore } from "firebase-admin/firestore";
 
 // Initialize Firebase Admin for token verification
-admin.initializeApp({
+initializeApp({
   projectId: process.env.FIREBASE_PROJECT_ID || "gen-lang-client-0746267232"
 });
 
@@ -205,7 +207,7 @@ export const runWithCascade = async (prompt: string, images?: string[], systemIn
    const errMessage = lastError?.message || 'Unknown';
    
    try {
-       await admin.firestore().collection('aiIncidents').add({
+       await getFirestore().collection('aiIncidents').add({
            timestamp: Date.now(),
            mode: mode,
            message: "All Groq models failed. Last error: " + errMessage
@@ -219,14 +221,23 @@ export const runWithCascade = async (prompt: string, images?: string[], systemIn
 
 export const app = express();
 app.use(express.json({ limit: '50mb' }));
+app.use(express.text({ type: 'text/plain' }));
 
 // API Routes
 app.post("/api/offline", async (req, res) => {
    try {
-      const { uid } = req.body;
+      let uid = req.body?.uid;
+      
+      // Fallback for navigator.sendBeacon sending text/plain
+      if (!uid && typeof req.body === 'string') {
+          try {
+              uid = JSON.parse(req.body).uid;
+          } catch(e) {}
+      }
+
       if (!uid) return res.status(400).json({ error: "Missing uid" });
       
-      const adminDb = admin.firestore();
+      const adminDb = getFirestore();
       await adminDb.collection('users').doc(uid).set({
          isOnline: false,
          lastSeen: Date.now()
@@ -249,7 +260,7 @@ app.post("/api/ai/chat", async (req, res) => {
     
     const idToken = authHeader.split("Bearer ")[1];
     try {
-       await admin.auth().verifyIdToken(idToken);
+       await getAuth().verifyIdToken(idToken);
     } catch (authError: any) {
        console.warn("[Auth Warning] Token validation issue on serverless", authError.message);
        return res.status(401).json({ error: "Unauthorized / Invalid Token" });
