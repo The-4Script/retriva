@@ -291,7 +291,7 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
   );
 
   return (
-    <div className="h-[calc(100vh-160px)] bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl shadow-slate-200/50 dark:shadow-none overflow-hidden border border-slate-100 dark:border-slate-800 flex relative">
+    <div className="h-[calc(100vh-160px)] bg-white dark:bg-[#302C2A] rounded-[2rem] shadow-xl shadow-[#E5E0D8]/50 dark:shadow-none overflow-hidden border border-[#E5E0D8] dark:border-[#49433F] flex relative">
       
       {/* Lightbox */}
       {lightboxImg && (
@@ -302,22 +302,22 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
       )}
 
       {/* --- SIDEBAR: CHAT LIST --- */}
-      <div className={`w-full md:w-80 border-r border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col ${activeChatId ? 'hidden md:flex' : 'flex'}`}>
-        <div className="p-5 border-b border-slate-100 dark:border-slate-800 z-10">
+      <div className={`w-full md:w-80 border-r border-[#E5E0D8] dark:border-[#49433F] bg-white dark:bg-[#302C2A] flex flex-col ${activeChatId ? 'hidden md:flex' : 'flex'}`}>
+        <div className="p-5 border-b border-[#E5E0D8] dark:border-[#49433F] z-10">
           <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">Messages</h2>
-              <button onClick={onBack} className="p-2 text-slate-400 hover:text-brand-violet transition-colors rounded-full hover:bg-off-white dark:hover:bg-slate-800">
+              <h2 className="text-xl font-bold text-[#2C2724] dark:text-[#F5F1EA]">Messages</h2>
+              <button onClick={onBack} className="p-2 text-[#A3978E] dark:text-[#918982] hover:text-brand-teal transition-colors rounded-full hover:bg-off-white dark:hover:bg-[#F5F2ED] dark:bg-[#373230]">
                  <Home className="w-5 h-5" />
               </button>
           </div>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A3978E] dark:text-[#918982]" />
             <input 
               type="text" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search chats..." 
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border-none outline-none focus:ring-1 focus:ring-brand-violet text-sm font-medium transition-all"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#FAF8F5] dark:bg-[#2A2625] border-none outline-none focus:ring-1 focus:ring-brand-teal text-sm font-medium transition-all"
             />
           </div>
         </div>
@@ -334,8 +334,8 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                   onClick={() => onSelectChat(chat.id)}
                   className={`relative p-3 rounded-2xl cursor-pointer transition-all duration-200 border border-transparent ${
                       isActive 
-                      ? 'bg-indigo-50 dark:bg-slate-800 border-indigo-100 dark:border-slate-700 shadow-sm' 
-                      : 'hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                      ? 'bg-teal-50 dark:bg-[#373230] border-teal-100 dark:border-[#49433F] shadow-sm'
+                      : 'hover:bg-[#FAF8F5] dark:hover:bg-[#F5F2ED] dark:bg-[#373230]50'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -343,8 +343,8 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                       <div className="relative shrink-0">
                           <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm overflow-hidden ${
                               chat.type === 'global' 
-                              ? 'bg-gradient-to-br from-indigo-500 to-cyan-500' 
-                              : 'bg-gradient-to-br from-indigo-400 to-purple-500'
+                              ? 'bg-gradient-to-br from-teal-600 to-teal-700'
+                              : 'bg-gradient-to-br from-teal-500 to-teal-700'
                           }`}>
                               {chat.itemImage ? (
                                   <img src={chat.itemImage} className="w-full h-full object-cover" />
@@ -370,23 +370,23 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
 
                       <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-center mb-0.5">
-                              <h3 className={`font-bold text-sm truncate ${isActive ? 'text-indigo-900 dark:text-white' : 'text-slate-700 dark:text-slate-200'}`}>
+                              <h3 className={`font-bold text-sm truncate ${isActive ? 'text-teal-900 dark:text-[#F5F1EA]' : 'text-[#5C4A3D] dark:text-[#C8C0B8] dark:text-[#F5F1EA]'}`}>
                                   {chat.itemTitle}
                               </h3>
-                              <span className={`text-[10px] font-bold ${hasUnread ? 'text-brand-violet' : 'text-slate-400'}`}>
+                              <span className={`text-[10px] font-bold ${hasUnread ? 'text-brand-teal' : 'text-[#A3978E] dark:text-[#918982]'}`}>
                                   {formatTime(chat.lastMessageTime)}
                               </span>
                           </div>
                           
                           <div className="flex justify-between items-center">
-                              <p className={`text-xs truncate font-medium max-w-[80%] ${hasUnread ? 'text-slate-900 dark:text-white font-bold' : 'text-slate-500'}`}>
-                                  {chat.lastSenderId === user.id && <span className="text-slate-400 mr-1">You:</span>}
+                              <p className={`text-xs truncate font-medium max-w-[80%] ${hasUnread ? 'text-[#2C2724] dark:text-[#F5F1EA] font-bold' : 'text-[#8C7A6B] dark:text-[#918982]'}`}>
+                                  {chat.lastSenderId === user.id && <span className="text-[#A3978E] dark:text-[#918982] mr-1">You:</span>}
                                   {chat.isBlocked ? <span className="text-red-500 italic">Blocked</span> : chat.lastMessage}
                               </p>
                               
                               {/* Unread Badge - Visual Indicator Fix */}
                               {hasUnread && (
-                                  <span className="w-5 h-5 flex items-center justify-center bg-brand-violet text-white text-[10px] font-bold rounded-full shadow-md shadow-indigo-500/30 animate-in zoom-in">
+                                  <span className="w-5 h-5 flex items-center justify-center bg-brand-teal text-white text-[10px] font-bold rounded-full shadow-md shadow-teal-600/30 animate-in zoom-in">
                                       {chat.unreadCount}
                                   </span>
                               )}
@@ -400,19 +400,19 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
       </div>
 
       {/* --- MAIN CHAT AREA --- */}
-      <div className={`flex-1 flex flex-col bg-slate-50/50 dark:bg-slate-950/50 ${!activeChatId ? 'hidden md:flex' : 'flex'} relative`}>
+      <div className={`flex-1 flex flex-col bg-[#FAF8F5] dark:bg-[#2A2625] ${!activeChatId ? 'hidden md:flex' : 'flex'} relative`}>
         {selectedChat ? (
           <>
             {/* Chat Header */}
-            <div className="px-6 py-3 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center shadow-sm z-20 shrink-0">
+            <div className="px-6 py-3 bg-white dark:bg-[#302C2A] border-b border-[#E5E0D8] dark:border-[#49433F] flex justify-between items-center shadow-sm z-20 shrink-0">
                <div className="flex items-center gap-3">
-                 <button onClick={() => onSelectChat(null)} className="md:hidden p-2 -ml-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
+                 <button onClick={() => onSelectChat(null)} className="md:hidden p-2 -ml-2 text-[#8C7A6B] dark:text-[#918982] dark:text-[#918982] hover:bg-[#F5F2ED] dark:hover:bg-[#F5F2ED] dark:bg-[#373230] rounded-full">
                    <ArrowLeft className="w-5 h-5" />
                  </button>
                  
                  <div className="relative">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold overflow-hidden ${
-                        isGlobal ? 'bg-indigo-500' : 'bg-gradient-to-br from-indigo-400 to-purple-600'
+                        isGlobal ? 'bg-teal-600' : 'bg-gradient-to-br from-teal-500 to-teal-700'
                     }`}>
                         {selectedChat.itemImage ? (
                             <img src={selectedChat.itemImage} className="w-full h-full object-cover" />
@@ -427,7 +427,7 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                  </div>
 
                  <div>
-                   <h3 className="font-bold text-slate-900 dark:text-white text-sm leading-tight flex items-center gap-2">
+                   <h3 className="font-bold text-[#2C2724] dark:text-[#F5F1EA] text-sm leading-tight flex items-center gap-2">
                        {selectedChat.itemTitle}
                        {isBlocked && <ShieldBan className="w-3 h-3 text-red-500" />}
                    </h3>
@@ -438,12 +438,12 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                        </span>
                      ) : (
                        isGlobal ? (
-                          <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-wide flex items-center gap-1">
+                          <span className="text-[10px] font-bold text-teal-600 uppercase tracking-wide flex items-center gap-1">
                              <Users className="w-3 h-3" /> Community Channel
                           </span>
                        ) : (
                           <>
-                           <span className={`text-[10px] font-bold ${otherUserOnline ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}`}>
+                           <span className={`text-[10px] font-bold ${otherUserOnline ? 'text-emerald-600 dark:text-emerald-400' : 'text-[#A3978E] dark:text-[#918982]'}`}>
                              {otherUserOnline ? 'Active Now' : (otherUserLastSeen ? `Last seen ${formatLastSeen(otherUserLastSeen)}` : 'Offline')}
                            </span>
                           </>
@@ -461,7 +461,7 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                             className={`p-2 rounded-xl transition-all ${
                                 iBlockedThem 
                                 ? 'bg-red-50 dark:bg-red-900/20 text-red-600' 
-                                : 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-red-500'
+                                : 'hover:bg-[#F5F2ED] dark:hover:bg-[#F5F2ED] dark:bg-[#373230] text-[#A3978E] dark:text-[#918982] hover:text-red-500'
                             }`}
                             title={iBlockedThem ? "Unblock User" : "Block User"}
                         >
@@ -472,7 +472,7 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                                 if(window.confirm("Delete this conversation?")) 
                                 onDeleteChat(selectedChat.id);
                             }}
-                            className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-red-500 transition-colors"
+                            className="p-2 rounded-xl hover:bg-[#F5F2ED] dark:hover:bg-[#F5F2ED] dark:bg-[#373230] text-[#A3978E] dark:text-[#918982] hover:text-red-500 transition-colors"
                         >
                             <Trash2 className="w-5 h-5" />
                         </button>
@@ -496,16 +496,16 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
               {/* Pinned Message */}
               {pinnedMessage && (
                   <div className="sticky top-2 z-20 mb-4 flex justify-center">
-                     <div className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-indigo-200 dark:border-indigo-900/50 p-3 rounded-xl max-w-sm w-full shadow-lg flex flex-col gap-1">
+                     <div className="bg-white/90 dark:bg-[#302C2A] backdrop-blur-md border border-teal-200 dark:border-teal-900/50 p-3 rounded-xl max-w-sm w-full shadow-lg flex flex-col gap-1">
                         <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-1.5"><Pin className="w-3 h-3" /> Pinned Announcement</span>
+                            <span className="text-[10px] font-bold text-teal-700 dark:text-teal-400 uppercase tracking-wider flex items-center gap-1.5"><Pin className="w-3 h-3" /> Pinned Announcement</span>
                             {isAdmin && (
-                                <button onClick={() => handlePinMessage('')} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                                <button onClick={() => handlePinMessage('')} className="text-[#A3978E] dark:text-[#918982] hover:text-[#8C7A6B] dark:text-[#C8C0B8] dark:hover:text-[#F5F1EA] transition-colors">
                                    <X className="w-3.5 h-3.5" />
                                 </button>
                             )}
                         </div>
-                        <p className="text-sm text-slate-800 dark:text-slate-200 line-clamp-2">{pinnedMessage.text}</p>
+                        <p className="text-sm text-[#33261D] dark:text-[#F5F1EA] dark:text-[#F5F1EA] line-clamp-2">{pinnedMessage.text}</p>
                      </div>
                   </div>
               )}
@@ -527,7 +527,7 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                   <React.Fragment key={msg.id || idx}>
                     {showDateSeparator && (
                        <div className="flex justify-center my-6 sticky top-2 z-10">
-                          <span className="px-3 py-1 bg-slate-200/80 dark:bg-slate-800/80 backdrop-blur-md rounded-full text-[10px] font-bold text-slate-500 dark:text-slate-400 shadow-sm">
+                          <span className="px-3 py-1 bg-[#E5E0D8]/80 dark:bg-[#373230] backdrop-blur-md rounded-full text-[10px] font-bold text-[#8C7A6B] dark:text-[#918982] dark:text-[#918982] shadow-sm">
                              {new Date(msg.timestamp).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                           </span>
                        </div>
@@ -540,9 +540,9 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                           {/* Sender Name in Global Chat */}
                           {(isGlobal && !isMe && isGroupStart) && (
                             <div className="flex items-center gap-2 mb-1 ml-1">
-                               <span className="text-[10px] font-bold text-slate-400">{msg.senderName || 'Student'}</span>
+                               <span className="text-[10px] font-bold text-[#A3978E] dark:text-[#918982]">{msg.senderName || 'Student'}</span>
                                {adminIds.includes(msg.senderId) && (
-                                  <span className="px-1.5 py-0.5 rounded bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 text-[8px] uppercase tracking-wider font-bold flex items-center gap-0.5">
+                                  <span className="px-1.5 py-0.5 rounded bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-400 text-[8px] uppercase tracking-wider font-bold flex items-center gap-0.5">
                                      <ShieldCheck className="w-2.5 h-2.5" /> Admin
                                   </span>
                                )}
@@ -553,7 +553,7 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                           {msg.attachment && (
                             <div className={`mb-1 rounded-2xl overflow-hidden border shadow-sm cursor-pointer transition-transform hover:scale-[1.02] ${
                                 isMe ? 'rounded-br-sm' : 'rounded-bl-sm'
-                            } ${isBlocked ? 'opacity-50 grayscale' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'}`} 
+                            } ${isBlocked ? 'opacity-50 grayscale' : 'bg-white dark:bg-[#373230] border-[#E5E0D8] dark:border-[#49433F]'}`}
                             onClick={() => msg.attachment?.type === 'image' && setLightboxImg(msg.attachment.url)}>
                                 {msg.attachment.type === 'image' ? (
                                   <img 
@@ -562,13 +562,13 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                                      onLoad={() => scrollToBottom()} 
                                   />
                                 ) : (
-                                  <div className="p-4 bg-white dark:bg-slate-800 flex items-center gap-3 min-w-[200px]">
-                                    <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg">
-                                        <File className="w-6 h-6 text-brand-violet" />
+                                  <div className="p-4 bg-white dark:bg-[#373230] flex items-center gap-3 min-w-[200px]">
+                                    <div className="p-2 bg-teal-50 dark:bg-teal-900/30 rounded-lg">
+                                        <File className="w-6 h-6 text-brand-teal" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-bold text-slate-700 dark:text-slate-200">Attachment</p>
-                                        <p className="text-[10px] text-slate-400">Click to view</p>
+                                        <p className="text-xs font-bold text-[#5C4A3D] dark:text-[#C8C0B8] dark:text-[#F5F1EA]">Attachment</p>
+                                        <p className="text-[10px] text-[#A3978E] dark:text-[#918982]">Click to view</p>
                                     </div>
                                   </div>
                                 )}
@@ -579,8 +579,8 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                           {msg.text && (
                             <div className={`px-4 py-2 text-sm font-medium leading-relaxed shadow-sm relative break-words 
                               ${isMe 
-                                ? `bg-brand-violet text-white rounded-2xl rounded-tr-sm ${isGroupEnd ? 'rounded-br-xl' : 'rounded-br-sm'}`
-                                : `bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-800 rounded-2xl rounded-tl-sm ${isGroupEnd ? 'rounded-bl-xl' : 'rounded-bl-sm'}`
+                                ? `bg-brand-teal text-white rounded-2xl rounded-tr-sm ${isGroupEnd ? 'rounded-br-xl' : 'rounded-br-sm'}`
+                                : `bg-white dark:bg-[#302C2A] text-[#5C4A3D] dark:text-[#C8C0B8] dark:text-[#F5F1EA] border border-[#E5E0D8] dark:border-[#49433F] rounded-2xl rounded-tl-sm ${isGroupEnd ? 'rounded-bl-xl' : 'rounded-bl-sm'}`
                               }
                             `}>
                               {msg.text}
@@ -589,7 +589,7 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                           
                           {/* Status/Time Footer - Improved Indicators */}
                           <div className={`flex items-center gap-1 mt-0.5 px-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
-                              <span className="text-[9px] font-bold text-slate-400 opacity-70">
+                              <span className="text-[9px] font-bold text-[#A3978E] dark:text-[#918982] opacity-70">
                                   {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </span>
                               
@@ -598,7 +598,7 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                                       {msg.status === 'read' ? (
                                           <CheckCheck className="w-3 h-3 text-blue-500" /> 
                                       ) : (
-                                          <Check className="w-3 h-3 text-slate-400" />
+                                          <Check className="w-3 h-3 text-[#A3978E] dark:text-[#918982]" />
                                       )}
                                   </span>
                               )}
@@ -609,14 +609,14 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                             <div className={`opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 ${isMe ? 'flex-row-reverse' : 'flex-row'}`}>
                                <button 
                                   onClick={() => handlePinMessage(msg.id)}
-                                  className="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-500 hover:text-indigo-600 transition-colors"
+                                  className="p-1.5 bg-[#F5F2ED] dark:bg-[#373230] rounded-lg text-[#8C7A6B] dark:text-[#918982] hover:text-teal-600 transition-colors"
                                   title="Pin Message"
                                >
                                   <Pin className="w-3.5 h-3.5" />
                                </button>
                                <button 
                                   onClick={() => handleDeleteMessage(msg.id)}
-                                  className="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-500 hover:text-rose-600 transition-colors"
+                                  className="p-1.5 bg-[#F5F2ED] dark:bg-[#373230] rounded-lg text-[#8C7A6B] dark:text-[#918982] hover:text-rose-600 transition-colors"
                                   title="Delete Message"
                                >
                                   <Trash2 className="w-3.5 h-3.5" />
@@ -634,7 +634,7 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
               {showScrollButton && (
                   <button 
                     onClick={scrollToBottom}
-                    className="fixed bottom-24 right-6 md:absolute md:bottom-6 md:right-6 p-2 bg-slate-900/80 dark:bg-white/90 text-white dark:text-slate-900 rounded-full shadow-xl hover:scale-110 transition-transform z-20 backdrop-blur-md animate-in slide-in-from-bottom-2"
+                    className="fixed bottom-24 right-6 md:absolute md:bottom-6 md:right-6 p-2 bg-white dark:bg-[#302C2A] dark:bg-white/90 text-white dark:text-[#2C2724] dark:text-[#F5F1EA] rounded-full shadow-xl hover:scale-110 transition-transform z-20 backdrop-blur-md animate-in slide-in-from-bottom-2"
                   >
                      <ChevronDown className="w-5 h-5" />
                   </button>
@@ -643,25 +643,25 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
 
             {/* Input Area */}
             {theyBlockedMe ? (
-              <div className="p-6 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 text-center shrink-0">
-                 <p className="text-xs font-bold text-slate-400">You cannot reply to this conversation.</p>
+              <div className="p-6 bg-[#FAF8F5] dark:bg-[#2A2625] border-t border-[#E5E0D8] dark:border-[#49433F] text-center shrink-0">
+                 <p className="text-xs font-bold text-[#A3978E] dark:text-[#918982]">You cannot reply to this conversation.</p>
               </div>
             ) : (
-              <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 shrink-0">
+              <div className="p-4 bg-white dark:bg-[#302C2A] border-t border-[#E5E0D8] dark:border-[#49433F] shrink-0">
                   <form onSubmit={(e) => handleSendMessage(e)} className="flex items-end gap-3 max-w-4xl mx-auto">
                     <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} />
-                    <button type="button" onClick={() => fileInputRef.current?.click()} className="p-3 text-slate-400 hover:text-brand-violet transition-colors rounded-full hover:bg-slate-50 dark:hover:bg-slate-800">
+                    <button type="button" onClick={() => fileInputRef.current?.click()} className="p-3 text-[#A3978E] dark:text-[#918982] hover:text-brand-teal transition-colors rounded-full hover:bg-[#FAF8F5] dark:hover:bg-[#F5F2ED] dark:bg-[#373230]">
                       <Paperclip className="w-5 h-5" />
                     </button>
                     
-                    <div className="flex-1 bg-slate-50 dark:bg-slate-950 rounded-2xl flex items-center border border-transparent focus-within:border-brand-violet/30 focus-within:ring-4 focus-within:ring-brand-violet/10 transition-all">
+                    <div className="flex-1 bg-[#FAF8F5] dark:bg-[#2A2625] rounded-2xl flex items-center border border-transparent focus-within:border-brand-teal/30 focus-within:ring-4 focus-within:ring-brand-teal/10 transition-all">
                        <textarea
                         value={newMessage}
                         onChange={handleTyping}
                         onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage(e)}
                         placeholder={iBlockedThem ? "Unblock to send message..." : "Type a message..."}
                         disabled={iBlockedThem}
-                        className="w-full max-h-32 px-4 py-3.5 bg-transparent border-none focus:ring-0 outline-none text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full max-h-32 px-4 py-3.5 bg-transparent border-none focus:ring-0 outline-none text-sm font-medium text-[#2C2724] dark:text-[#F5F1EA] placeholder-slate-400 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                         rows={1}
                       />
                     </div>
@@ -670,7 +670,7 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                         <button 
                             type="button"
                             onClick={() => onBlockChat(selectedChat.id)}
-                            className="p-3.5 bg-slate-200 dark:bg-slate-800 text-slate-500 rounded-2xl font-bold text-xs"
+                            className="p-3.5 bg-[#E5E0D8] dark:bg-[#373230] text-[#8C7A6B] dark:text-[#918982] rounded-2xl font-bold text-xs"
                         >
                             Unblock
                         </button>
@@ -678,7 +678,7 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
                         <button 
                             type="submit"
                             disabled={!newMessage.trim()}
-                            className="p-3.5 bg-brand-violet text-white rounded-2xl hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-brand-violet/30 transform active:scale-95"
+                            className="p-3.5 bg-brand-teal text-white rounded-2xl hover:bg-teal-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-brand-teal/30 transform active:scale-95"
                         >
                             <Send className="w-5 h-5" />
                         </button>
@@ -688,12 +688,12 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
             )}
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-slate-300 dark:text-slate-700 p-8">
-            <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6 ring-4 ring-white dark:ring-slate-900 shadow-sm">
-              <MessageCircle className="w-10 h-10 text-slate-300 dark:text-slate-600" />
+          <div className="flex-1 flex flex-col items-center justify-center text-[#C8C0B8] dark:text-[#5C4A3D] dark:text-[#C8C0B8] p-8">
+            <div className="w-20 h-20 bg-[#F5F2ED] dark:bg-[#373230] rounded-full flex items-center justify-center mb-6 ring-4 ring-white dark:ring-slate-900 shadow-sm">
+              <MessageCircle className="w-10 h-10 text-[#C8C0B8] dark:text-[#8C7A6B] dark:text-[#C8C0B8]" />
             </div>
-            <h3 className="font-bold text-lg text-slate-400 dark:text-slate-500 mb-1">Your Messages</h3>
-            <p className="text-xs font-medium text-slate-400 dark:text-slate-600">Select a chat to start messaging</p>
+            <h3 className="font-bold text-lg text-[#A3978E] dark:text-[#918982] dark:text-[#8C7A6B] dark:text-[#918982] mb-1">Your Messages</h3>
+            <p className="text-xs font-medium text-[#A3978E] dark:text-[#918982] dark:text-[#8C7A6B] dark:text-[#C8C0B8]">Select a chat to start messaging</p>
           </div>
         )}
       </div>
