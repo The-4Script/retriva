@@ -28,7 +28,7 @@ const SafeImage = ({ src, alt }: { src?: string, alt?: string }) => {
     return <img src={src} className="w-full h-full object-contain bg-black/20 transition-transform duration-700 hover:scale-105" onError={() => setError(true)} alt={alt} />;
   }
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900/50 text-slate-500 border border-slate-800 border-dashed rounded-xl">
+    <div className="w-full h-full flex flex-col items-center justify-center bg-white dark:bg-[#302C2A] text-[#8C7A6B] dark:text-[#918982] border border-[#E5E0D8] dark:border-[#49433F] border-dashed rounded-xl">
       <ScanLine className="w-8 h-8 mb-2 opacity-50" />
       <span className="font-bold text-[10px] uppercase tracking-widest">No Visuals</span>
     </div>
@@ -39,18 +39,18 @@ const ComparisonRow = ({ label, val1, val2, icon: Icon }: { label: string, val1:
   const isMatch = val1 === val2;
   return (
     <div className="grid grid-cols-[1fr_auto_1fr] gap-2 sm:gap-4 py-2 sm:py-3 border-b border-white/5 last:border-0 items-center group">
-      <div className={`flex items-center gap-2 text-xs font-medium min-w-0 ${isMatch ? 'text-emerald-400' : 'text-slate-400'}`}>
+      <div className={`flex items-center gap-2 text-xs font-medium min-w-0 ${isMatch ? 'text-emerald-400' : 'text-[#A3978E] dark:text-[#918982]'}`}>
          <div className="hidden sm:block p-1.5 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors shrink-0">
            <Icon className="w-3 h-3" />
          </div>
          <span className="truncate">{val1}</span>
       </div>
       
-      <div className="px-1.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-[8px] sm:text-[9px] font-black text-slate-500 uppercase tracking-widest shadow-sm whitespace-nowrap">
+      <div className="px-1.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-[8px] sm:text-[9px] font-black text-[#8C7A6B] dark:text-[#918982] uppercase tracking-widest shadow-sm whitespace-nowrap">
         {label}
       </div>
 
-      <div className={`flex items-center justify-end gap-2 text-xs font-medium min-w-0 text-right ${isMatch ? 'text-emerald-400' : 'text-slate-400'}`}>
+      <div className={`flex items-center justify-end gap-2 text-xs font-medium min-w-0 text-right ${isMatch ? 'text-emerald-400' : 'text-[#A3978E] dark:text-[#918982]'}`}>
          <span className="truncate">{val2}</span>
          <div className="hidden sm:block p-1.5 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors shrink-0">
            <Icon className="w-3 h-3" />
@@ -129,7 +129,7 @@ const MatchComparator: React.FC<MatchComparatorProps> = ({ item1, item2, onClose
           {/* Close Button */}
           <button 
             onClick={onClose} 
-            className="absolute top-4 right-4 z-50 p-2 bg-black/50 hover:bg-white/10 rounded-full text-slate-400 hover:text-white transition-all backdrop-blur-md border border-white/5"
+            className="absolute top-4 right-4 z-50 p-2 bg-black/50 hover:bg-white/10 rounded-full text-[#A3978E] dark:text-[#918982] hover:text-white transition-all backdrop-blur-md border border-white/5"
           >
              <X className="w-5 h-5" />
           </button>
@@ -150,7 +150,7 @@ const MatchComparator: React.FC<MatchComparatorProps> = ({ item1, item2, onClose
                    Groq Vision <span className="text-[#4285F4]">Processing</span>
                 </h2>
                 <div className="h-6 overflow-hidden flex justify-center items-center gap-2">
-                   <p className="text-sm font-medium text-slate-400 animate-slide-up key={loadingStep}">
+                   <p className="text-sm font-medium text-[#A3978E] dark:text-[#918982] animate-slide-up key={loadingStep}">
                       {LOADING_STEPS[loadingStep]}
                    </p>
                 </div>
@@ -167,7 +167,7 @@ const MatchComparator: React.FC<MatchComparatorProps> = ({ item1, item2, onClose
                       </div>
                       <div>
                          <h2 className="text-base font-bold text-white leading-none mb-1">Visual Comparison</h2>
-                         <p className="text-[10px] font-medium text-slate-500">Side-by-side artifact analysis</p>
+                         <p className="text-[10px] font-medium text-[#8C7A6B] dark:text-[#918982]">Side-by-side artifact analysis</p>
                       </div>
                    </div>
 
@@ -178,7 +178,7 @@ const MatchComparator: React.FC<MatchComparatorProps> = ({ item1, item2, onClose
                       <div className="flex gap-4 mb-6 relative">
                          {[item1, item2].map((item, idx) => (
                             <div key={idx} className="flex-1 flex flex-col gap-2 group">
-                               <div className="relative aspect-square rounded-xl overflow-hidden bg-slate-900 border border-white/10 shadow-xl">
+                               <div className="relative aspect-square rounded-xl overflow-hidden bg-white dark:bg-[#302C2A] border border-white/10 shadow-xl">
                                   <SafeImage src={item.imageUrls[0]} alt={item.title} />
                                   
                                   {/* Badge */}
@@ -188,22 +188,22 @@ const MatchComparator: React.FC<MatchComparatorProps> = ({ item1, item2, onClose
                                </div>
                                <div className="px-1">
                                   <h3 className="text-xs font-bold text-white line-clamp-1">{item.title}</h3>
-                                  <p className="text-[10px] text-slate-500 line-clamp-1">{item.category}</p>
+                                  <p className="text-[10px] text-[#8C7A6B] dark:text-[#918982] line-clamp-1">{item.category}</p>
                                </div>
                             </div>
                          ))}
                          
                          {/* VS Badge in Center */}
                          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#1A1A1A] border border-white/20 flex items-center justify-center z-20 shadow-xl">
-                            <span className="text-[8px] font-black text-slate-400">VS</span>
+                            <span className="text-[8px] font-black text-[#A3978E] dark:text-[#918982]">VS</span>
                          </div>
                       </div>
 
                       {/* Data Table */}
                       <div className="bg-[#141414] rounded-xl border border-white/5 overflow-hidden p-1">
                          <div className="px-3 py-2 bg-white/5 border-b border-white/5 flex items-center justify-between">
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Metadata Match</span>
-                            <Info className="w-3 h-3 text-slate-600" />
+                            <span className="text-[9px] font-bold text-[#A3978E] dark:text-[#918982] uppercase tracking-widest">Metadata Match</span>
+                            <Info className="w-3 h-3 text-[#8C7A6B] dark:text-[#C8C0B8]" />
                          </div>
                          <div className="px-3">
                             <ComparisonRow label="CATEGORY" icon={Tag} val1={item1.category} val2={item2.category} />
@@ -262,7 +262,7 @@ const MatchComparator: React.FC<MatchComparatorProps> = ({ item1, item2, onClose
                                   
                                   {/* Secondary Label - Technical Font */}
                                   {tier.label.split(' ')[1] && (
-                                    <span className="text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em]">
+                                    <span className="text-[8px] font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-[0.2em]">
                                         {tier.label.split(' ')[1]}
                                     </span>
                                   )}
@@ -271,7 +271,7 @@ const MatchComparator: React.FC<MatchComparatorProps> = ({ item1, item2, onClose
                          </div>
                          
                          <div className="text-center mt-1">
-                             <h3 className="text-sm font-bold text-slate-300">
+                             <h3 className="text-sm font-bold text-[#C8C0B8]">
                                 AI Confidence Analysis
                              </h3>
                          </div>
@@ -285,7 +285,7 @@ const MatchComparator: React.FC<MatchComparatorProps> = ({ item1, item2, onClose
                              <Bot className="w-3.5 h-3.5 text-[#4285F4]" />
                              <span className="text-[10px] font-bold text-white uppercase tracking-widest">{analysis?.explanation.includes('AI Unavailable') ? 'Local Semantic Match' : 'Groq Analysis'}</span>
                           </div>
-                          <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                          <p className="text-xs text-[#C8C0B8] leading-relaxed font-medium">
                              {analysis?.explanation}
                           </p>
                       </div>
@@ -293,7 +293,7 @@ const MatchComparator: React.FC<MatchComparatorProps> = ({ item1, item2, onClose
                       {/* Key Features List */}
                       <div className="space-y-4">
                          <div>
-                            <h4 className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                            <h4 className="text-[9px] font-black text-[#8C7A6B] dark:text-[#918982] uppercase tracking-widest mb-2 flex items-center gap-2">
                                <Check className="w-3 h-3 text-[#34A853]" /> Matching Features
                             </h4>
                             <div className="space-y-1.5">
@@ -308,7 +308,7 @@ const MatchComparator: React.FC<MatchComparatorProps> = ({ item1, item2, onClose
 
                          {analysis?.differences && analysis.differences.length > 0 && (
                             <div>
-                               <h4 className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+                               <h4 className="text-[9px] font-black text-[#8C7A6B] dark:text-[#918982] uppercase tracking-widest mb-2 flex items-center gap-2">
                                   <AlertTriangle className="w-3 h-3 text-[#EA4335]" /> Discrepancies
                                </h4>
                                <div className="space-y-1.5">
