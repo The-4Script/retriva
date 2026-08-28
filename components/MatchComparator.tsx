@@ -11,15 +11,12 @@ interface MatchComparatorProps {
 }
 
 const LOADING_STEPS = [
-  "Initializing secure handshake with Groq...",
-  "Vectorizing visual artifacts (4096-dim)...",
-  "Segmenting object foreground from noise...",
-  "Analyzing micro-features (scratches, wear)...",
-  "Extracting semantic text markers (OCR)...",
-  "Computing cosine similarity in latent space...",
-  "Cross-referencing spatio-temporal data...",
-  "Validating category taxonomy alignment...",
-  "Synthesizing match confidence probability..."
+  "Connecting to AI service...",
+  "Preparing images for analysis...",
+  "Analyzing visual features...",
+  "Comparing item characteristics...",
+  "Evaluating similarity...",
+  "Generating match confidence..."
 ];
 
 const SafeImage = ({ src, alt }: { src?: string, alt?: string }) => {
@@ -111,8 +108,6 @@ const MatchComparator: React.FC<MatchComparatorProps> = ({ item1, item2, onClose
   };
 
   const strokeColor = getScoreColor(score);
-  const circumference = 2 * Math.PI * 52; // Radius 52
-  const strokeDashoffset = circumference - (score / 100) * circumference;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#050505]/90 backdrop-blur-xl animate-fade-in font-sans">

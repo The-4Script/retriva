@@ -3,11 +3,11 @@ import { User, ViewState } from '../../types';
 import { Users, FileText, Settings, Wrench, MessageCircle, Shield, Activity, Bell, Menu, X, ChevronLeft } from 'lucide-react';
 import UserManagement from './UserManagement';
 import ReportsManagement from './ReportsManagement';
-import ApiConfigManagement from './ApiConfigManagement';
 import MaintenanceManagement from './MaintenanceManagement';
 import AdminManagement from './AdminManagement';
 import AuditLogView from './AuditLogView';
 import AnalyticsView from './AnalyticsView';
+
 // We'll import other modules as we build them
 
 interface AdminDashboardProps {
@@ -15,7 +15,7 @@ interface AdminDashboardProps {
   onNavigate: (view: ViewState) => void;
 }
 
-type AdminTab = 'USERS' | 'REPORTS' | 'API_CONFIG' | 'MAINTENANCE' | 'COMMUNITY' | 'ADMINS' | 'AUDIT_LOG' | 'ANALYTICS';
+type AdminTab = 'USERS' | 'REPORTS' | 'MAINTENANCE' | 'ADMINS' | 'AUDIT_LOG' | 'ANALYTICS';
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => {
   const [activeTab, setActiveTab] = useState<AdminTab>('USERS');
@@ -24,9 +24,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
   const TABS = [
     { id: 'USERS', label: 'User Management', icon: Users },
     { id: 'REPORTS', label: 'Reports', icon: FileText },
-    { id: 'API_CONFIG', label: 'AI Configuration', icon: Settings },
     { id: 'MAINTENANCE', label: 'Maintenance Mode', icon: Wrench },
-    { id: 'COMMUNITY', label: 'Community Settings', icon: MessageCircle },
     { id: 'ADMINS', label: 'Manage Admins', icon: Shield },
     { id: 'AUDIT_LOG', label: 'Audit Log', icon: Activity },
     { id: 'ANALYTICS', label: 'Analytics', icon: Activity }, // Will change icon
@@ -38,8 +36,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
         return <UserManagement user={user} />;
       case 'REPORTS':
         return <ReportsManagement />;
-      case 'API_CONFIG':
-        return <ApiConfigManagement />;
       case 'MAINTENANCE':
         return <MaintenanceManagement />;
       case 'ADMINS':
@@ -94,7 +90,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ user, onNavigate }) => 
              </h2>
              <div className="flex items-center gap-4">
                 <div className="h-8 w-8 rounded-full bg-teal-100 dark:bg-teal-900/50 flex items-center justify-center text-teal-600 dark:text-teal-400 font-bold overflow-hidden ring-2 ring-white dark:ring-slate-950">
-                    {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : user.name.charAt(0)}
+                    {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" /> : (user.name || '?').charAt(0)}
                 </div>
              </div>
           </header>

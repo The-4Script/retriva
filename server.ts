@@ -1,10 +1,12 @@
 import "dotenv/config";
 import express from "express";
 import path from "path";
-import * as admin from "firebase-admin";
+import { initializeApp } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
+import { getFirestore } from "firebase-admin/firestore";
 
 // Initialize Firebase Admin for token verification
-admin.initializeApp({
+initializeApp({
   projectId: process.env.FIREBASE_PROJECT_ID || "gen-lang-client-0746267232"
 });
 
@@ -148,7 +150,9 @@ const runGroqTask = async (modelName: string, prompt: string, images?: string[],
 
 const runGroq = async (modelName: string, prompt: string, images?: string[], systemInstruction?: string) => {
    // Caching layer to save tokens for identical requests
-   const cacheKey = JSON.stringify({ modelName, prompt, images: images?.length || 0, systemInstruction });
+   // Hash image content instead of just length to avoid false cache hits
+   const imageSig = images?.map(i => i.length + '_' + i.substring(i.length - 100)) || [];
+   const cacheKey = JSON.stringify({ modelName, prompt, images: imageSig, systemInstruction });
    const cached = requestCache.get(cacheKey);
    
    if (cached && (Date.now() - cached.timestamp < 1000 * 60 * 60 * 24)) { // 24 hour cache for identical prompts
@@ -175,7 +179,8 @@ export const runWithCascade = async (prompt: string, images?: string[], systemIn
    
    if (mode === 'VISION') {
       modelsToTry = [
-         'qwen/qwen3.8-27b'
+         'qwen/qwen3.8-27b',
+         'qwen/qwen3.6-27b'
       ];
    } else {
       modelsToTry = [
@@ -202,7 +207,7 @@ export const runWithCascade = async (prompt: string, images?: string[], systemIn
    const errMessage = lastError?.message || 'Unknown';
    
    try {
-       await admin.firestore().collection('aiIncidents').add({
+       await getFirestore().collection('aiIncidents').add({
            timestamp: Date.now(),
            mode: mode,
            message: "All Groq models failed. Last error: " + errMessage
@@ -216,14 +221,23 @@ export const runWithCascade = async (prompt: string, images?: string[], systemIn
 
 export const app = express();
 app.use(express.json({ limit: '50mb' }));
+app.use(express.text({ type: 'text/plain' }));
 
 // API Routes
 app.post("/api/offline", async (req, res) => {
    try {
-      const { uid } = req.body;
+      let uid = req.body?.uid;
+
+      // Fallback for navigator.sendBeacon sending text/plain
+      if (!uid && typeof req.body === 'string') {
+          try {
+              uid = JSON.parse(req.body).uid;
+          } catch(e) {}
+      }
+
       if (!uid) return res.status(400).json({ error: "Missing uid" });
       
-      const adminDb = admin.firestore();
+      const adminDb = getFirestore();
       await adminDb.collection('users').doc(uid).set({
          isOnline: false,
          lastSeen: Date.now()
@@ -245,22 +259,8 @@ app.post("/api/ai/chat", async (req, res) => {
     }
     
     const idToken = authHeader.split("Bearer ")[1];
-    const apiKey = process.env.VITE_FIREBASE_API_KEY;
-    
-    if (!apiKey) {
-       console.error("VITE_FIREBASE_API_KEY is not defined");
-       return res.status(500).json({ error: "Server Configuration Error" });
-    }
-
     try {
-       const verifyRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`, {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({ idToken })
-       });
-       if (!verifyRes.ok) {
-           throw new Error("Invalid Token");
-       }
+       await getAuth().verifyIdToken(idToken);
     } catch (authError: any) {
        console.warn("[Auth Warning] Token validation issue on serverless", authError.message);
        return res.status(401).json({ error: "Unauthorized / Invalid Token" });

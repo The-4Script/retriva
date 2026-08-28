@@ -121,13 +121,38 @@ const App: React.FC = () => {
         try {
            const userSnap = await userDocRef.get();
            if (userSnap.exists) {
-              const userData = userSnap.data() as User;
+              let userData = userSnap.data() as User;
+
+              let needsUpdate = false;
+              const updates: any = {};
+
+              // FIX: Dummy shell repair
+              if (!userData.email) {
+                  userData.email = firebaseUser.email || '';
+                  updates.email = userData.email;
+                  needsUpdate = true;
+              }
+              if (!userData.name) {
+                  userData.name = firebaseUser.displayName || 'User';
+                  updates.name = userData.name;
+                  needsUpdate = true;
+              }
+              if (!userData.id) {
+                  userData.id = firebaseUser.uid;
+                  updates.id = firebaseUser.uid;
+                  needsUpdate = true;
+              }
               
               // BACKFILL: Ensure existing users have a unique Student ID
               if (!userData.studentId) {
                   const uniqueId = await generateUniqueStudentId();
-                  await userDocRef.update({ studentId: uniqueId }).catch(e => console.warn("Backfill failed", e));
+                  updates.studentId = uniqueId;
                   userData.studentId = uniqueId;
+                  needsUpdate = true;
+              }
+
+              if (needsUpdate) {
+                  await userDocRef.update(updates).catch(e => console.warn("Backfill failed", e));
               }
 
               setUser(userData);

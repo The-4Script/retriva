@@ -22,13 +22,28 @@ const UserManagement = ({ user: currentUser }: { user: User }) => {
   const newSignups = users.filter(u => u.createdAt > Date.now() - 7 * 24 * 60 * 60 * 1000).length;
 
   useEffect(() => {
-    const unsub = db.collection('users').orderBy('createdAt', 'desc').limit(100).onSnapshot(snap => {
-      const fetched = snap.docs.map(doc => ({
+    const unsub = db.collection('users').limit(100).onSnapshot(snap => {
+      let fetched = snap.docs.map(doc => ({
         ...doc.data(),
         id: doc.id,
         status: doc.data().status || 'ACTIVE',
         createdAt: doc.data().createdAt || Date.now()
       })) as AdminUser[];
+
+      // Filter out dummy or incomplete users (e.g. login attempt shells)
+      fetched = fetched.filter(u => u.email && u.name);
+
+      // Deduplicate by email to avoid UI glitches
+      const seen = new Set();
+      fetched = fetched.filter(u => {
+          if (seen.has(u.email.toLowerCase())) return false;
+          seen.add(u.email.toLowerCase());
+          return true;
+      });
+
+      // Sort in memory to avoid missing index errors
+      fetched.sort((a, b) => b.createdAt - a.createdAt);
+
       setUsers(fetched);
       setLoading(false);
     });
@@ -70,8 +85,8 @@ const UserManagement = ({ user: currentUser }: { user: User }) => {
   };
 
   const filteredUsers = users.filter(u => {
-    const matchesSearch = u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchesSearch = (u.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          (u.email || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
                           (u.studentId && u.studentId.includes(searchQuery));
     const matchesStatus = statusFilter === 'ALL' || u.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -142,13 +157,13 @@ const UserManagement = ({ user: currentUser }: { user: User }) => {
                      <th className="p-4 text-xs font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-wider text-right">Actions</th>
                   </tr>
                </thead>
-               <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+               <tbody className="divide-y divide-[#E5E0D8] dark:divide-[#49433F]">
                   {filteredUsers.map(u => (
-                     <tr key={u.id} className="hover:bg-[#FAF8F5] dark:hover:bg-white dark:bg-[#302C2A] transition-colors">
+                     <tr key={u.id} className="hover:bg-[#FAF8F5] dark:hover:bg-[#373230] transition-colors">
                         <td className="p-4">
                            <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-[#373230] flex items-center justify-center shrink-0 overflow-hidden">
-                                 {u.avatar ? <img src={u.avatar} className="w-full h-full object-cover" /> : <span className="font-bold text-teal-600">{u.name.charAt(0)}</span>}
+                                 {u.avatar ? <img src={u.avatar} className="w-full h-full object-cover" /> : <span className="font-bold text-teal-600">{(u.name || '?').charAt(0)}</span>}
                               </div>
                               <div>
                                  <p className="text-sm font-bold text-[#2C2724] dark:text-[#F5F1EA] flex items-center gap-2">
@@ -160,7 +175,7 @@ const UserManagement = ({ user: currentUser }: { user: User }) => {
                            </div>
                         </td>
                         <td className="p-4">
-                           <p className="text-sm text-[#8C7A6B] dark:text-[#C8C0B8] dark:text-[#C8C0B8]">{u.email}</p>
+                           <p className="text-sm text-[#8C7A6B] dark:text-[#C8C0B8]">{u.email}</p>
                            {u.department && <p className="text-xs text-[#8C7A6B] dark:text-[#918982] mt-0.5">{u.department}</p>}
                         </td>
                         <td className="p-4">
@@ -176,7 +191,7 @@ const UserManagement = ({ user: currentUser }: { user: User }) => {
                         <td className="p-4">
                            <button 
                              onClick={() => handleVerifyToggle(u)}
-                             className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${u.isVerified ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-[#F5F2ED] text-[#8C7A6B] dark:text-[#C8C0B8] dark:bg-[#373230] dark:text-[#918982] hover:bg-[#E5E0D8] dark:hover:bg-[#E5E0D8] dark:bg-[#49433F]'}`}
+                             className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors ${u.isVerified ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-[#F5F2ED] text-[#8C7A6B] dark:bg-[#373230] dark:text-[#918982] hover:bg-[#E5E0D8] dark:hover:bg-[#49433F]'}`}
                            >
                              {u.isVerified ? 'Verified' : 'Unverified'}
                            </button>

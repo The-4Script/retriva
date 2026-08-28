@@ -21,10 +21,20 @@ const AdminManagement = ({ currentUser }: { currentUser: User }) => {
 
   useEffect(() => {
     const unsub = db.collection('admins').onSnapshot(snap => {
-      const fetched = snap.docs.map(doc => ({
+      let fetched = snap.docs.map(doc => ({
         ...doc.data(),
         id: doc.id
       })) as AdminRecord[];
+
+      // Deduplicate by email to avoid UI glitches
+      const seen = new Set();
+      fetched = fetched.filter(u => {
+          if (!u.email) return false;
+          if (seen.has(u.email.toLowerCase())) return false;
+          seen.add(u.email.toLowerCase());
+          return true;
+      });
+
       setAdmins(fetched);
       setLoading(false);
     });
