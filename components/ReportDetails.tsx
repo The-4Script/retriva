@@ -68,7 +68,7 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
   };
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-0 sm:p-4 md:p-6 bg-slate-900/80 backdrop-blur-sm animate-fade-in">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-0 sm:p-4 md:p-6 bg-white dark:bg-[#302C2A] backdrop-blur-sm animate-fade-in">
       
       {/* FULLSCREEN LIGHTBOX */}
       {showLightbox && (
@@ -95,7 +95,7 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
                  <button 
                   key={idx} 
                   onClick={(e) => { e.stopPropagation(); setActiveImg(idx); }}
-                  className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-all shrink-0 ${activeImg === idx ? 'border-brand-violet scale-110' : 'border-white/20 opacity-50'}`}
+                  className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-all shrink-0 ${activeImg === idx ? 'border-brand-teal scale-110' : 'border-white/20 opacity-50'}`}
                  >
                     <img src={url} className="w-full h-full object-cover" />
                  </button>
@@ -107,7 +107,7 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
 
       {/* Main Modal Container */}
       <div 
-        className="relative w-full max-w-5xl h-[100dvh] sm:h-[85vh] bg-white dark:bg-slate-950 rounded-none sm:rounded-[2rem] shadow-2xl flex flex-col md:flex-row overflow-hidden border-0 sm:border border-slate-200 dark:border-slate-800" 
+        className="relative w-full max-w-5xl h-[100dvh] sm:h-[85vh] bg-white dark:bg-[#2A2625] rounded-none sm:rounded-[2rem] shadow-2xl flex flex-col md:flex-row overflow-hidden border-0 sm:border border-[#E5E0D8] dark:border-[#49433F]"
         onClick={e => e.stopPropagation()}
       >
         
@@ -120,8 +120,8 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
         </button>
 
         {/* LEFT PANEL: IMAGES */}
-        <div className="w-full md:w-[40%] h-[40dvh] md:h-full bg-slate-100 dark:bg-slate-900 relative shrink-0">
-           <div className="w-full h-full relative group bg-slate-200 dark:bg-slate-800">
+        <div className="w-full md:w-[40%] h-[40dvh] md:h-full bg-[#F5F2ED] dark:bg-[#302C2A] relative shrink-0">
+           <div className="w-full h-full relative group bg-[#E5E0D8] dark:bg-[#373230]">
               {report.imageUrls.length > 0 && !imgError ? (
                 <div className="w-full h-full relative cursor-zoom-in" onClick={() => setShowLightbox(true)}>
                   <img 
@@ -158,7 +158,7 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
                   )}
                 </div>
               ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 p-8 text-center">
+                <div className="w-full h-full flex flex-col items-center justify-center text-[#A3978E] dark:text-[#918982] p-8 text-center">
                     <Box className="w-16 h-16 mb-4 opacity-30" />
                     <p className="font-bold text-sm">No Images</p>
                 </div>
@@ -174,7 +174,7 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
         </div>
 
         {/* RIGHT PANEL: CONTENT */}
-        <div className="flex-1 flex flex-col h-[60dvh] md:h-full bg-white dark:bg-slate-950 min-w-0 relative">
+        <div className="flex-1 flex flex-col h-[60dvh] md:h-full bg-white dark:bg-[#2A2625] min-w-0 relative">
            
            {/* SCROLLABLE CONTENT AREA */}
            <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
@@ -182,15 +182,15 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
               {/* Header Info */}
               <div className="space-y-4">
                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="px-2.5 py-1 bg-indigo-50 dark:bg-indigo-900/30 rounded-md text-[10px] font-bold uppercase tracking-wider text-brand-violet border border-indigo-100 dark:border-indigo-800 flex items-center gap-1">
+                    <span className="px-2.5 py-1 bg-teal-50 dark:bg-teal-900/30 rounded-md text-[10px] font-bold uppercase tracking-wider text-brand-teal border border-teal-100 dark:border-teal-800 flex items-center gap-1">
                       <Tag className="w-3 h-3" /> {report.category}
                     </span>
-                    <span className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 rounded-md text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                    <span className="px-2.5 py-1 bg-[#F5F2ED] dark:bg-[#373230] rounded-md text-[10px] font-bold uppercase tracking-wider text-[#8C7A6B] dark:text-[#918982] dark:text-[#918982] flex items-center gap-1">
                       <Calendar className="w-3 h-3" /> {report.date}
                     </span>
                  </div>
 
-                 <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+                 <h1 className="text-2xl md:text-3xl font-black tracking-tight text-[#2C2724] dark:text-[#F5F1EA] leading-tight">
                    {report.title}
                  </h1>
 
@@ -201,37 +201,37 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
                             <button 
                                 onClick={handleScanNow}
                                 disabled={isScanning}
-                                className="w-full p-4 bg-gradient-to-r from-brand-violet/10 to-purple-600/10 dark:from-brand-violet/20 dark:to-purple-900/20 border border-brand-violet/20 rounded-xl flex items-center justify-between group transition-all hover:bg-brand-violet/15 disabled:opacity-70 disabled:cursor-not-allowed"
+                                className="w-full p-4 bg-gradient-to-r from-brand-teal/10 to-teal-700/10 dark:from-brand-teal/20 dark:to-teal-900/20 border border-brand-teal/20 rounded-xl flex items-center justify-between group transition-all hover:bg-brand-teal/15 disabled:opacity-70 disabled:cursor-not-allowed"
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-brand-violet rounded-lg shadow-sm group-hover:scale-110 transition-transform">
+                                    <div className="p-3 bg-brand-teal rounded-lg shadow-sm group-hover:scale-110 transition-transform">
                                         {isScanning ? <Loader2 className="w-5 h-5 text-white animate-spin" /> : <ScanSearch className="w-5 h-5 text-white" />}
                                     </div>
                                     <div className="text-left">
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-brand-violet mb-0.5">AI Match Center</p>
-                                        <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-brand-teal mb-0.5">AI Match Center</p>
+                                        <p className="text-sm font-bold text-[#33261D] dark:text-[#F5F1EA] dark:text-[#F5F1EA]">
                                             {isScanning ? "Scanning campus database..." : "Scan for similar items"}
                                         </p>
                                     </div>
                                 </div>
                                 {!isScanning && (
-                                    <div className="flex items-center gap-2 text-xs font-bold text-brand-violet">
+                                    <div className="flex items-center gap-2 text-xs font-bold text-brand-teal">
                                         Scan Now <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                     </div>
                                 )}
                             </button>
                        ) : (
-                           <div className="rounded-xl border border-indigo-100 dark:border-indigo-900 overflow-hidden bg-indigo-50/50 dark:bg-indigo-950/20 animate-in fade-in slide-in-from-top-4">
-                               <div className="px-4 py-3 border-b border-indigo-100 dark:border-indigo-900 flex justify-between items-center bg-indigo-50 dark:bg-indigo-900/30">
-                                   <h4 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-2">
+                           <div className="rounded-xl border border-teal-100 dark:border-teal-900 overflow-hidden bg-teal-50/50 dark:bg-teal-950/20 animate-in fade-in slide-in-from-top-4">
+                               <div className="px-4 py-3 border-b border-teal-100 dark:border-teal-900 flex justify-between items-center bg-teal-50 dark:bg-teal-900/30">
+                                   <h4 className="text-[10px] font-black text-teal-600 uppercase tracking-widest flex items-center gap-2">
                                        <Sparkles className="w-3.5 h-3.5" /> {scanResults.length} Matches Found
                                    </h4>
-                                   <button onClick={() => setScanResults(null)} className="text-indigo-400 hover:text-indigo-600"><X className="w-4 h-4" /></button>
+                                   <button onClick={() => setScanResults(null)} className="text-teal-500 hover:text-teal-700"><X className="w-4 h-4" /></button>
                                </div>
                                
                                <div className="p-2 space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
                                    {scanResults.length === 0 ? (
-                                       <div className="text-center py-6 text-slate-400">
+                                       <div className="text-center py-6 text-[#A3978E] dark:text-[#918982]">
                                            <AlertCircle className="w-6 h-6 mx-auto mb-2 opacity-50" />
                                            <p className="text-xs font-bold">No matches found yet.</p>
                                        </div>
@@ -239,25 +239,25 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
                                        scanResults.map(({ report: match, confidence }) => {
                                             const tier = getMatchTier(confidence);
                                             return (
-                                           <div key={match.id} className="p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800 flex items-center gap-3 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800/80 transition-colors">
-                                               <div className="w-12 h-12 rounded-md bg-slate-100 dark:bg-slate-800 overflow-hidden shrink-0 relative">
-                                                   {match.imageUrls[0] ? <img src={match.imageUrls[0]} className="w-full h-full object-cover" /> : <Box className="w-6 h-6 m-auto text-slate-300" />}
+                                           <div key={match.id} className="p-3 bg-white dark:bg-[#302C2A] rounded-lg border border-[#E5E0D8] dark:border-[#49433F] flex items-center gap-3 shadow-sm hover:bg-[#FAF8F5] dark:hover:bg-[#F5F2ED] dark:bg-[#373230] transition-colors">
+                                               <div className="w-12 h-12 rounded-md bg-[#F5F2ED] dark:bg-[#373230] overflow-hidden shrink-0 relative">
+                                                   {match.imageUrls[0] ? <img src={match.imageUrls[0]} className="w-full h-full object-cover" /> : <Box className="w-6 h-6 m-auto text-[#C8C0B8]" />}
                                                    {/* Tier Badge - Neutral "Review" Label */}
-                                                   <div className="absolute bottom-0 left-0 right-0 bg-slate-900/80 text-white text-[7px] font-bold text-center py-0.5 backdrop-blur-md">
+                                                   <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-[#302C2A] text-white text-[7px] font-bold text-center py-0.5 backdrop-blur-md">
                                                       Review Candidate
                                                    </div>
                                                </div>
                                                <div className="flex-1 min-w-0">
                                                    <div className="flex items-center gap-2">
-                                                     <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{match.title}</p>
+                                                     <p className="text-xs font-bold text-[#33261D] dark:text-[#F5F1EA] dark:text-[#F5F1EA] truncate">{match.title}</p>
                                                    </div>
-                                                   <p className="text-[10px] text-slate-500 truncate flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> {match.location}</p>
+                                                   <p className="text-[10px] text-[#8C7A6B] dark:text-[#918982] truncate flex items-center gap-1"><MapPin className="w-2.5 h-2.5" /> {match.location}</p>
                                                </div>
                                                <div className="flex gap-2">
                                                    {onCompare && (
                                                        <button 
                                                             onClick={() => onCompare(report, match)}
-                                                            className="p-2 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-lg hover:bg-indigo-200 dark:hover:bg-indigo-900 transition-colors"
+                                                            className="p-2 bg-teal-100 dark:bg-teal-900/50 text-teal-700 dark:text-teal-400 rounded-lg hover:bg-teal-200 dark:hover:bg-teal-900 transition-colors"
                                                             title="Compare"
                                                        >
                                                             <ArrowLeftRight className="w-4 h-4" />
@@ -265,7 +265,7 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
                                                    )}
                                                    <button 
                                                         onClick={() => onViewMatch(match)}
-                                                        className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                                                        className="p-2 bg-[#F5F2ED] dark:bg-[#373230] text-[#8C7A6B] dark:text-[#C8C0B8] dark:text-[#C8C0B8] rounded-lg hover:bg-[#E5E0D8] dark:hover:bg-[#E5E0D8] dark:bg-[#49433F] transition-colors"
                                                         title="View Item"
                                                    >
                                                         <ExternalLink className="w-4 h-4" />
@@ -283,15 +283,15 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
 
               {/* TECHNICAL SPECS */}
               {report.specs && Object.keys(report.specs).length > 0 && (
-                <div className="p-5 rounded-2xl bg-indigo-50/20 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900 space-y-3">
-                   <h3 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest flex items-center gap-1.5">
+                <div className="p-5 rounded-2xl bg-teal-50/20 dark:bg-teal-900/10 border border-teal-100 dark:border-teal-900 space-y-3">
+                   <h3 className="text-[10px] font-black text-teal-600 uppercase tracking-widest flex items-center gap-1.5">
                      <Cpu className="w-3 h-3" /> Technical Specs
                    </h3>
                    <div className="grid grid-cols-2 gap-4">
                       {Object.entries(report.specs).map(([key, value]) => (
                          <div key={key}>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase">{key}</p>
-                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{value}</p>
+                            <p className="text-[10px] font-bold text-[#A3978E] dark:text-[#918982] uppercase">{key}</p>
+                            <p className="text-sm font-semibold text-[#33261D] dark:text-[#F5F1EA] dark:text-[#F5F1EA]">{value}</p>
                          </div>
                       ))}
                    </div>
@@ -299,29 +299,29 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
               )}
 
               {/* Description */}
-              <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 space-y-2">
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+              <div className="p-5 rounded-2xl bg-[#FAF8F5] dark:bg-[#302C2A] border border-[#E5E0D8] dark:border-[#49433F] space-y-2">
+                <h3 className="text-[10px] font-black text-[#A3978E] dark:text-[#918982] uppercase tracking-widest flex items-center gap-1.5">
                   <FileText className="w-3 h-3" /> Description
                 </h3>
-                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-medium whitespace-pre-wrap">
+                <p className="text-sm text-[#5C4A3D] dark:text-[#C8C0B8] dark:text-[#C8C0B8] leading-relaxed font-medium whitespace-pre-wrap">
                    {report.description}
                 </p>
               </div>
 
               {/* Features & Location Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                 <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-start gap-3">
-                    <div className="p-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg"><MapPin className="w-4 h-4 text-slate-400" /></div>
+                 <div className="p-4 rounded-2xl bg-white dark:bg-[#302C2A] border border-[#E5E0D8] dark:border-[#49433F] flex items-start gap-3">
+                    <div className="p-1.5 bg-[#FAF8F5] dark:bg-[#373230] rounded-lg"><MapPin className="w-4 h-4 text-[#A3978E] dark:text-[#918982]" /></div>
                     <div>
-                       <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Location</h4>
-                       <p className="text-sm font-bold text-slate-900 dark:text-white leading-snug">{report.location}</p>
+                       <h4 className="text-[10px] font-bold text-[#A3978E] dark:text-[#918982] uppercase tracking-widest">Location</h4>
+                       <p className="text-sm font-bold text-[#2C2724] dark:text-[#F5F1EA] leading-snug">{report.location}</p>
                     </div>
                  </div>
-                 <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-start gap-3">
-                    <div className="p-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg"><Clock className="w-4 h-4 text-slate-400" /></div>
+                 <div className="p-4 rounded-2xl bg-white dark:bg-[#302C2A] border border-[#E5E0D8] dark:border-[#49433F] flex items-start gap-3">
+                    <div className="p-1.5 bg-[#FAF8F5] dark:bg-[#373230] rounded-lg"><Clock className="w-4 h-4 text-[#A3978E] dark:text-[#918982]" /></div>
                     <div>
-                       <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Time</h4>
-                       <p className="text-sm font-bold text-slate-900 dark:text-white leading-snug">{report.time}</p>
+                       <h4 className="text-[10px] font-bold text-[#A3978E] dark:text-[#918982] uppercase tracking-widest">Time</h4>
+                       <p className="text-sm font-bold text-[#2C2724] dark:text-[#F5F1EA] leading-snug">{report.time}</p>
                     </div>
                  </div>
               </div>
@@ -329,12 +329,12 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
               {/* AI Features */}
               {displayFeatures.length > 0 && (
                 <div>
-                   <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                   <h3 className="text-[10px] font-bold text-[#A3978E] dark:text-[#918982] uppercase tracking-widest mb-3 flex items-center gap-1.5">
                      <Fingerprint className="w-3 h-3" /> Key Features
                    </h3>
                    <div className="flex flex-wrap gap-2 pb-6">
                       {displayFeatures.map((f, i) => (
-                         <span key={i} className="px-2.5 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-bold text-slate-600 dark:text-slate-300">
+                         <span key={i} className="px-2.5 py-1.5 bg-white dark:bg-[#373230] border border-[#E5E0D8] dark:border-[#49433F] rounded-lg text-[10px] font-bold text-[#8C7A6B] dark:text-[#C8C0B8] dark:text-[#C8C0B8]">
                            {f}
                          </span>
                       ))}
@@ -344,7 +344,7 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
            </div>
 
            {/* Sticky Footer */}
-           <div className="p-4 md:p-6 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 shrink-0 z-20">
+           <div className="p-4 md:p-6 border-t border-[#E5E0D8] dark:border-[#49433F] bg-white dark:bg-[#2A2625] shrink-0 z-20">
               {isOwner ? (
                 <div className="space-y-3">
                    {report.status === 'OPEN' ? (
@@ -355,7 +355,7 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
                          <Check className="w-5 h-5" /> Mark Resolved
                       </button>
                    ) : (
-                      <div className="w-full py-3 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-xl font-bold text-center text-xs uppercase tracking-widest">
+                      <div className="w-full py-3 bg-[#F5F2ED] dark:bg-[#373230] text-[#A3978E] dark:text-[#918982] rounded-xl font-bold text-center text-xs uppercase tracking-widest">
                          Resolved
                       </div>
                    )}
@@ -363,7 +363,7 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
                    <div className="grid grid-cols-2 gap-3">
                       <button 
                          onClick={() => onEdit(report)}
-                         className="py-3 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl font-bold text-xs border border-slate-200 dark:border-slate-700 hover:bg-slate-100 transition-colors"
+                         className="py-3 bg-[#FAF8F5] dark:bg-[#373230] text-[#8C7A6B] dark:text-[#C8C0B8] dark:text-[#C8C0B8] rounded-xl font-bold text-xs border border-[#E5E0D8] dark:border-[#49433F] hover:bg-[#F5F2ED] transition-colors"
                       >
                          Edit
                       </button>
@@ -387,7 +387,7 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
               ) : (
                 <button 
                   onClick={() => onNavigateToChat(report)} 
-                  className="w-full py-4 bg-brand-violet hover:bg-[#4f4dbd] text-white rounded-xl font-bold text-sm shadow-xl shadow-brand-violet/25 transition-all flex items-center justify-center gap-2 active:scale-95"
+                  className="w-full py-4 bg-brand-teal hover:bg-teal-800 text-white rounded-xl font-bold text-sm shadow-xl shadow-brand-teal/25 transition-all flex items-center justify-center gap-2 active:scale-95"
                 >
                   <MessageCircle className="w-5 h-5" /> 
                   Contact {isLost ? 'Owner' : 'Finder'}

@@ -78,11 +78,11 @@ const Profile: React.FC<ProfileProps> = ({ user, onUpdate, onBack, onDeleteAccou
 
   return (
     <div className="max-w-3xl mx-auto pb-24 animate-in slide-in-from-bottom-4 duration-500">
-      <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white mb-6 font-bold text-xs uppercase tracking-widest transition-colors">
+      <button onClick={onBack} className="flex items-center gap-2 text-[#8C7A6B] dark:text-[#918982] hover:text-teal-700 dark:text-[#918982] dark:hover:text-white mb-6 font-bold text-xs uppercase tracking-widest transition-colors">
         <ArrowLeft className="w-4 h-4" /> Back to Home
       </button>
 
-      <div className="bg-white dark:bg-slate-900 rounded-[2rem] shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 overflow-hidden">
+      <div className="bg-white dark:bg-[#302C2A] rounded-[2rem] shadow-xl shadow-[#E5E0D8]/50 dark:shadow-none border border-[#E5E0D8] dark:border-[#49433F] overflow-hidden">
         {/* Header Banner - Smart/Deep Gradient */}
         <div className="h-40 bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 relative overflow-hidden">
            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
@@ -93,11 +93,11 @@ const Profile: React.FC<ProfileProps> = ({ user, onUpdate, onBack, onDeleteAccou
            {/* Avatar Section */}
            <div className="relative -mt-16 mb-6 flex flex-col items-center sm:items-start sm:flex-row sm:justify-between">
               <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                 <div className="w-32 h-32 rounded-full bg-white dark:bg-slate-900 border-[6px] border-white dark:border-slate-900 shadow-xl overflow-hidden flex items-center justify-center relative">
+                 <div className="w-32 h-32 rounded-full bg-white dark:bg-[#302C2A] border-[6px] border-white dark:border-slate-900 shadow-xl overflow-hidden flex items-center justify-center relative">
                    {avatar && !avatarError ? (
                      <img src={avatar} className="w-full h-full object-cover" onError={() => setAvatarError(true)} />
                    ) : (
-                     <UserIcon className="w-12 h-12 text-slate-300 dark:text-slate-600" />
+                     <UserIcon className="w-12 h-12 text-[#C8C0B8] dark:text-[#8C7A6B] dark:text-[#C8C0B8]" />
                    )}
                    {/* Overlay */}
                    <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-[1px]">
@@ -122,13 +122,13 @@ const Profile: React.FC<ProfileProps> = ({ user, onUpdate, onBack, onDeleteAccou
               )}
            </div>
 
-           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-slate-100 dark:border-slate-800 pb-8">
+           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 border-b border-[#E5E0D8] dark:border-[#49433F] pb-8">
               <div>
-                <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white mb-1">{name}</h1>
-                <p className="text-slate-500 text-sm font-medium flex items-center gap-2">
+                <h1 className="text-3xl font-extrabold text-[#2C2724] dark:text-[#F5F1EA] mb-1">{name}</h1>
+                <p className="text-[#8C7A6B] dark:text-[#918982] text-sm font-medium flex items-center gap-2">
                    {user.studentId ? `Student ID: ${user.studentId}` : 'No Student ID Set'}
-                   <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700"></span>
-                   <span className="text-indigo-600 dark:text-indigo-400">{user.email}</span>
+                   <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-[#49433F]"></span>
+                   <span className="text-teal-700 dark:text-teal-400">{user.email}</span>
                 </p>
               </div>
            </div>
@@ -137,34 +137,34 @@ const Profile: React.FC<ProfileProps> = ({ user, onUpdate, onBack, onDeleteAccou
               
               <div className="grid grid-cols-1 gap-6">
                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide ml-1">Full Name</label>
+                    <label className="text-xs font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-wide ml-1">Full Name</label>
                     <div className="relative">
-                       <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full pl-4 pr-10 py-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
-                       <Edit3 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                       <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full pl-4 pr-10 py-3.5 bg-[#FAF8F5] dark:bg-[#2A2625] border border-[#E5E0D8] dark:border-[#49433F] rounded-xl text-sm font-semibold outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all" />
+                       <Edit3 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A3978E] dark:text-[#918982] pointer-events-none" />
                     </div>
                  </div>
                  
                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide ml-1">Major / Department</label>
+                    <label className="text-xs font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-wide ml-1">Major / Department</label>
                     <div className="relative">
-                       <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                       <input type="text" value={department} onChange={e => setDepartment(e.target.value)} placeholder="e.g. Computer Science" className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-semibold outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all" />
+                       <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A3978E] dark:text-[#918982]" />
+                       <input type="text" value={department} onChange={e => setDepartment(e.target.value)} placeholder="e.g. Computer Science" className="w-full pl-11 pr-4 py-3.5 bg-[#FAF8F5] dark:bg-[#2A2625] border border-[#E5E0D8] dark:border-[#49433F] rounded-xl text-sm font-semibold outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all" />
                     </div>
                  </div>
 
                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide ml-1">Email Address</label>
+                    <label className="text-xs font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-wide ml-1">Email Address</label>
                     <div className="relative">
-                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                       <input type="email" value={user.email} disabled className="w-full pl-11 pr-4 py-3.5 bg-slate-100 dark:bg-slate-800/30 border border-transparent rounded-xl text-sm font-semibold text-slate-500 cursor-not-allowed" />
+                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A3978E] dark:text-[#918982]" />
+                       <input type="email" value={user.email} disabled className="w-full pl-11 pr-4 py-3.5 bg-[#F5F2ED] dark:bg-[#373230]30 border border-transparent rounded-xl text-sm font-semibold text-[#8C7A6B] dark:text-[#918982] cursor-not-allowed" />
                     </div>
-                    <p className="text-[10px] text-slate-400 ml-1">Email address cannot be changed as it is linked to your university ID.</p>
+                    <p className="text-[10px] text-[#A3978E] dark:text-[#918982] ml-1">Email address cannot be changed as it is linked to your university ID.</p>
                  </div>
               </div>
 
               {/* Form Footer Action */}
-              <div className="pt-6 mt-6 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-                 <button type="submit" disabled={isSaving} className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl flex items-center gap-2 hover:shadow-lg hover:shadow-indigo-500/30 transition-all text-sm transform active:scale-95 disabled:opacity-70 disabled:transform-none">
+              <div className="pt-6 mt-6 border-t border-[#E5E0D8] dark:border-[#49433F] flex justify-end">
+                 <button type="submit" disabled={isSaving} className="px-8 py-3 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded-xl flex items-center gap-2 hover:shadow-lg hover:shadow-teal-600/30 transition-all text-sm transform active:scale-95 disabled:opacity-70 disabled:transform-none">
                     {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     Save Changes
                  </button>
@@ -173,21 +173,21 @@ const Profile: React.FC<ProfileProps> = ({ user, onUpdate, onBack, onDeleteAccou
            </form>
            
            {/* Account Actions */}
-           <div className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
-               <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+           <div className="mt-12 pt-8 border-t border-[#E5E0D8] dark:border-[#49433F]">
+               <h3 className="text-xs font-black text-[#A3978E] dark:text-[#918982] uppercase tracking-widest mb-4 flex items-center gap-2">
                    <AlertTriangle className="w-4 h-4" /> Account Actions
                </h3>
                
                <div className="space-y-4">
                   {/* Logout Row */}
-                  <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800">
+                  <div className="flex items-center justify-between p-4 bg-[#FAF8F5] dark:bg-[#373230]50 rounded-2xl border border-[#E5E0D8] dark:border-[#49433F]">
                      <div>
-                        <h4 className="font-bold text-slate-900 dark:text-white text-sm">Sign Out</h4>
-                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Securely log out of your account on this device.</p>
+                        <h4 className="font-bold text-[#2C2724] dark:text-[#F5F1EA] text-sm">Sign Out</h4>
+                        <p className="text-xs text-[#8C7A6B] dark:text-[#918982] dark:text-[#918982] mt-0.5">Securely log out of your account on this device.</p>
                      </div>
                      <button 
                        onClick={onLogout}
-                       className="px-5 py-2.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shadow-sm flex items-center gap-2"
+                       className="px-5 py-2.5 bg-white dark:bg-[#373230] text-[#5C4A3D] dark:text-[#C8C0B8] dark:text-[#F5F1EA] text-xs font-bold rounded-xl border border-[#E5E0D8] dark:border-[#49433F] hover:bg-[#F5F2ED] dark:hover:bg-[#E5E0D8] dark:bg-[#49433F] transition-colors shadow-sm flex items-center gap-2"
                      >
                         <LogOut className="w-4 h-4" /> Sign Out
                      </button>
@@ -215,7 +215,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onUpdate, onBack, onDeleteAccou
                                       <AlertTriangle className="w-5 h-5" />
                                   </div>
                                   <div>
-                                      <h4 className="font-bold text-red-900 dark:text-white text-sm">Are you absolutely sure?</h4>
+                                      <h4 className="font-bold text-red-900 dark:text-[#F5F1EA] text-sm">Are you absolutely sure?</h4>
                                       <p className="text-xs text-red-700 dark:text-red-300 mt-1 leading-relaxed max-w-md">
                                           This action cannot be undone. It will permanently delete your account, 
                                           remove all your reported items (Lost/Found), and erase your chat history 
@@ -226,7 +226,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onUpdate, onBack, onDeleteAccou
                               <div className="flex items-center gap-3 justify-end">
                                   <button 
                                       onClick={() => setShowDeleteConfirm(false)}
-                                      className="px-4 py-2 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-colors"
+                                      className="px-4 py-2 bg-white dark:bg-[#373230] text-[#8C7A6B] dark:text-[#C8C0B8] dark:text-[#C8C0B8] text-xs font-bold rounded-lg border border-[#E5E0D8] dark:border-[#49433F] hover:bg-[#FAF8F5] transition-colors"
                                   >
                                       Cancel
                                   </button>
