@@ -148,25 +148,18 @@ const runGroqTask = async (modelName: string, prompt: string, images?: string[],
 
 const runGroq = async (modelName: string, prompt: string, images?: string[], systemInstruction?: string) => {
    // Caching layer to save tokens for identical requests
-   const cacheKey = JSON.stringify({ modelName, prompt, images: images?.length || 0, systemInstruction });
+   // Hash image content instead of just length to avoid false cache hits
+   const imageSig = images?.map(i => i.length + '_' + i.substring(i.length - 100)) || [];
+   const cacheKey = JSON.stringify({ modelName, prompt, images: imageSig, systemInstruction });
    const cached = requestCache.get(cacheKey);
    
    if (cached && (Date.now() - cached.timestamp < 1000 * 60 * 60 * 24)) { // 24 hour cache for identical prompts
        console.log(`[Cache Hit] Serving from memory for ${modelName}`);
-       
-       try {
-           admin.firestore().collection('aiUsage').add({ timestamp: Date.now(), model: modelName, cached: true }).catch(() => {});
-       } catch (e) {}
-
        return cached.result;
    }
 
    const result = await groqQueue.add(() => runGroqTask(modelName, prompt, images, systemInstruction));
    
-   try {
-       admin.firestore().collection('aiUsage').add({ timestamp: Date.now(), model: modelName, cached: false }).catch(() => {});
-   } catch (e) {}
-
    // Keep cache size bounded
    if (requestCache.size > 200) {
        const oldest = requestCache.keys().next().value;
@@ -184,7 +177,8 @@ export const runWithCascade = async (prompt: string, images?: string[], systemIn
    
    if (mode === 'VISION') {
       modelsToTry = [
-         'qwen/qwen3.8-27b'
+         'qwen/qwen3.8-27b',
+         'qwen/qwen3.6-27b'
       ];
    } else {
       modelsToTry = [
@@ -254,22 +248,8 @@ app.post("/api/ai/chat", async (req, res) => {
     }
     
     const idToken = authHeader.split("Bearer ")[1];
-    const apiKey = process.env.VITE_FIREBASE_API_KEY;
-    
-    if (!apiKey) {
-       console.error("VITE_FIREBASE_API_KEY is not defined");
-       return res.status(500).json({ error: "Server Configuration Error" });
-    }
-
     try {
-       const verifyRes = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${apiKey}`, {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({ idToken })
-       });
-       if (!verifyRes.ok) {
-           throw new Error("Invalid Token");
-       }
+       await admin.auth().verifyIdToken(idToken);
     } catch (authError: any) {
        console.warn("[Auth Warning] Token validation issue on serverless", authError.message);
        return res.status(401).json({ error: "Unauthorized / Invalid Token" });

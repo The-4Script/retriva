@@ -442,28 +442,17 @@ export const compareItems = async (item1: ItemReport, item2: ItemReport): Promis
         // --- SCORE NORMALIZATION LOGIC ---
         let conf = result.confidence;
         
-        // Fix: Some models output "1" to mean "100% / True". 
-        // If score is exactly 1, and the explanation is positive, treat as 100%.
-        if (conf === 1) {
-             conf = 100;
-        } else if (conf < 1 && conf > 0) {
-             // Handle decimal (0.95 -> 95)
+        // Handle decimal (0.95 -> 95) just in case
+        if (conf > 0 && conf < 1) {
              conf = conf * 100;
         }
         
         // Ensure integer
         conf = Math.round(conf);
         
-        // --- LOGIC SAFETY NET ---
-        // If texts are highly similar (Jaccard > 0.8), don't let AI hallucinate a very low score.
-        const textSim = calculateTextSimilarity(item1.title, item2.title);
-        if (textSim > 0.8 && conf < 60) {
-            conf = 75; // Boost to "Plausible" if title is identical but AI was unsure visually
-            result.explanation += " (Score boosted due to exact title match).";
-        }
-        
         // Safety cap
         if (conf > 100) conf = 100;
+        if (conf < 0) conf = 0;
 
         return {
             ...result,
