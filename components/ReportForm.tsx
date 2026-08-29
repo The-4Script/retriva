@@ -37,11 +37,6 @@ const CATEGORY_SCHEMAS: Record<ItemCategory, { key: string; label: string; place
     { key: 'serial', label: 'Serial Number / IMEI', placeholder: 'Found in settings or on back' },
     { key: 'color', label: 'Device Color', placeholder: 'e.g. Space Grey' },
   ],
-  [ItemCategory.ID_CARDS]: [
-    { key: 'issuer', label: 'Issuer', placeholder: 'e.g. University, Government', required: true },
-    { key: 'nameOnCard', label: 'Name on Card', placeholder: 'Full Name' },
-    { key: 'type', label: 'Card Type', placeholder: 'e.g. Student ID, Driver License' },
-  ],
   [ItemCategory.CLOTHING]: [
     { key: 'type', label: 'Type', placeholder: 'e.g. Jacket, Hoodie', required: true },
     { key: 'brand', label: 'Brand', placeholder: 'e.g. Nike, H&M' },
