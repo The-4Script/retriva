@@ -971,7 +971,7 @@ const App: React.FC = () => {
                   </div>
                   <div className="flex flex-col min-w-0">
                      <span className="block font-black text-base sm:text-xl tracking-tight leading-none text-[#2C2724] dark:text-[#F5F1EA]">RETRIVA</span>
-                     <span className="hidden sm:block text-[7px] sm:text-[9px] font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-widest mt-0.5 truncate">traces lead to retrieval</span>
+                     <span className="block text-[7px] sm:text-[9px] font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-widest mt-0.5 truncate">traces lead to retrieval</span>
                   </div>
                 </div>
               </div>
