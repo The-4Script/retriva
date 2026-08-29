@@ -194,8 +194,12 @@ const runGroqTask = async (
       if (url.startsWith("http")) {
         // Aggressively downscale for the AI payload specifically (display quality
         // elsewhere in the app is untouched — this transform only applies here).
+        // f_jpg is load-bearing, not cosmetic: iPhone uploads land in Cloudinary as
+        // HEIC, and Groq's vision decoder 400s on HEIC ("invalid image data") — this
+        // forces a JPEG re-encode so Groq always gets a format it can decode,
+        // regardless of what the client originally uploaded.
         if (url.includes("res.cloudinary.com") && url.includes("/upload/")) {
-          url = url.replace("/upload/", "/upload/w_384,c_limit,q_50/");
+          url = url.replace("/upload/", "/upload/w_384,c_limit,q_50,f_jpg/");
         }
       }
       contentPayload.push({ type: "image_url", image_url: { url } });
@@ -206,13 +210,31 @@ const runGroqTask = async (
   if (systemInstruction) messages.push({ role: "system", content: systemInstruction });
   messages.push({ role: "user", content: contentPayload });
 
-  const body = {
+  // Every caller in this app (generateSmartReport, compareItems, parseSearchQuery)
+  // asks for a JSON object back and parses it — so json_object mode is safe to force
+  // unconditionally rather than per-call-site.
+  const isQwen = modelName.startsWith("qwen/");
+
+  const body: Record<string, any> = {
     model: modelName,
     messages,
     stream: false,
     temperature: 0.6,
-    max_tokens: maxTokens,
+    // Groq's field is max_completion_tokens, not max_tokens — the old key was
+    // silently ignored, so every call ran with Groq's (much larger) model default
+    // instead of the budget we thought we were setting.
+    max_completion_tokens: maxTokens,
     top_p: 0.95,
+    response_format: { type: "json_object" },
+    // Qwen and GPT-OSS expose reasoning control under different, mutually-exclusive
+    // fields (Groq docs: reasoning_format is unsupported on GPT-OSS; include_reasoning
+    // is unsupported on Qwen). Both families get reasoning turned off/minimal here
+    // since we only ever consume the final JSON, never the reasoning trace — this is
+    // the main token-efficiency win, since reasoning tokens count against the same
+    // per-minute budget as everything else.
+    ...(isQwen
+      ? { reasoning_effort: "none", reasoning_format: "hidden" }
+      : { reasoning_effort: "low", include_reasoning: false }),
   };
 
   console.log(`[Groq] -> ${modelName} | prompt=${prompt.length}ch images=${images?.length || 0} maxTokens=${maxTokens}`);
