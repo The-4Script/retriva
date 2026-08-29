@@ -182,7 +182,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onUpdate, onBack, onDeleteAccou
                   {/* Logout Row */}
                   <div className="flex items-center justify-between p-4 bg-[#FAF8F5] dark:bg-[#373230]50 rounded-2xl border border-[#E5E0D8] dark:border-[#49433F]">
                      <div>
-                        <h4 className="font-bold text-[#2C2724] dark:text-[#F5F1EA] text-sm">Sign Out</h4>
+                        <h4 className="font-bold text-[#2C2724] dark:text-[#918982] text-sm">Sign Out</h4>
                         <p className="text-xs text-[#8C7A6B] dark:text-[#918982] dark:text-[#918982] mt-0.5">Securely log out of your account on this device.</p>
                      </div>
                      <button 
