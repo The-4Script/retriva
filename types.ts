@@ -4,7 +4,6 @@ export enum ItemCategory {
   STATIONERY = 'Stationery',
   CLOTHING = 'Clothing',
   ACCESSORIES = 'Accessories',
-  ID_CARDS = 'ID Cards',
   BOOKS = 'Books',
   BAGS = 'Bags & Wallets',
   KEYS = 'Keys & Tools',
