@@ -11,7 +11,7 @@
 
 <b>Intelligent Campus Lost & Found System</b>
 
-<i>Trace Lead to Retrieval</i>
+<i>Traces Lead to Retrieval</i>
 
 <br/>
 
@@ -300,7 +300,6 @@ The following directions are potential extensions and are **not yet implemented*
 - Integration with campus security or administrative systems for verified handovers.
 - Expanded analytics dashboards for institutional reporting.
 - Multi-campus or multi-institution deployment support.
-- Push notifications across web and mobile platforms.
 
 <br/>
 
