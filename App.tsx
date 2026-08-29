@@ -857,12 +857,9 @@ const App: React.FC = () => {
         <nav className="sticky top-0 z-40 bg-[#FDF9F4]/90 dark:bg-[#1B1817]/90 backdrop-blur-xl border-b border-[#E5E0D8] dark:border-[#49433F] px-4 sm:px-6">
             <div className="max-w-7xl mx-auto h-20 flex items-center justify-between py-4">
               <div className="flex items-center gap-10">
-                <div className="flex items-center gap-4 cursor-pointer group" onClick={() => { setView('DASHBOARD'); setEditingReport(null); }}>
-                  <div className="w-10 h-10 flex items-center justify-center group-hover:scale-105 transition-transform relative z-10">
-                     <svg viewBox="0 0 40 40" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="40" height="40" rx="8" fill="#B08D73"/>
-                        <text x="20" y="26" fontFamily="Inter, sans-serif" fontSize="18" fontWeight="600" fill="white" textAnchor="middle">C</text>
-                     </svg>
+                <div className="flex items-center gap-2 cursor-pointer group" onClick={() => { setView('DASHBOARD'); setEditingReport(null); }}>
+                  <div className="w-14 h-14 -ml-2 flex items-center justify-center group-hover:scale-105 transition-transform relative z-10">
+                     <img src="/logo-icon.png" alt="Retriva Icon" className="w-full h-full object-contain drop-shadow-sm" />
                   </div>
                   <div className="flex flex-col">
                      <span className="block font-black text-xl tracking-tight leading-none text-[#2C2724] dark:text-[#F5F1EA]">RETRIVA</span>

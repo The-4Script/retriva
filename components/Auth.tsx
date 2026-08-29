@@ -311,36 +311,19 @@ const Auth: React.FC<AuthProps> = ({ onLogin, onShowLegal, onShowFeatures }) => 
            <div className="relative z-10 flex flex-col h-full justify-between">
               
               <div className="flex-1 flex flex-col justify-center">
-                  {/* Logo Area */}
-                  <div className="mb-10 text-center lg:text-left">
-                    <div className="w-16 h-16 mb-4 filter drop-shadow-xl mx-auto lg:mx-0">
-                      <svg viewBox="0 0 200 200" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <defs>
-                            <linearGradient id="pinGradientAuth" x1="100" y1="25" x2="100" y2="190" gradientUnits="userSpaceOnUse">
-                              <stop offset="0" stopColor="#ffffff" />
-                              <stop offset="1" stopColor="#e0e7ff" />
-                            </linearGradient>
-                          </defs>
-                          <g>
-                            <circle cx="100" cy="100" r="35" stroke="url(#pinGradientAuth)" strokeWidth="1.5" fill="none" opacity="0.6" className="animate-signal" style={{ transformBox: 'fill-box', transformOrigin: 'center' }} />
-                            <circle cx="100" cy="100" r="35" stroke="url(#pinGradientAuth)" strokeWidth="1.5" fill="none" opacity="0.6" className="animate-signal" style={{ animationDelay: '1s', transformBox: 'fill-box', transformOrigin: 'center' }} />
-                          </g>
-                          <path fillRule="evenodd" clipRule="evenodd" d="M100 25 C60 25 25 60 25 100 C25 140 90 185 100 190 C110 185 175 140 175 100 C175 60 140 25 100 25 Z" fill="url(#pinGradientAuth)" />
-                          <circle cx="100" cy="100" r="42" fill="#0F766E" />
-                          <g transform="translate(100 100)">
-                            <path d="M0 -24 V24 M-24 0 H24" stroke="white" strokeWidth="6" strokeLinecap="round" />
-                            <path d="M-16 -16 L16 16 M16 -16 L-16 16" stroke="white" strokeWidth="6" strokeLinecap="round" />
-                          </g>
-                      </svg>
-                    </div>
-                    
-                    <h1 className="text-3xl lg:text-4xl font-black tracking-tighter mb-3 leading-tight bg-gradient-to-br from-white via-slate-200 to-slate-500 bg-clip-text text-transparent">
-                      RETRIVA
-                    </h1>
-                    <p className="text-sm text-[#A3978E] dark:text-[#918982] font-medium leading-relaxed max-w-sm mx-auto lg:mx-0">
-                      The intelligent campus recovery network powered by Groq Qwen Vision.
-                    </p>
-                  </div>
+                   {/* Logo Area */}
+                   <div className="mb-10 text-center lg:text-left">
+                     <div className="w-20 h-20 mb-4 filter drop-shadow-xl mx-auto lg:mx-0">
+                       <img src="/logo-icon.png" alt="Retriva Icon" className="w-full h-full object-contain" />
+                     </div>
+                     
+                     <h1 className="text-3xl lg:text-4xl font-black tracking-tighter mb-3 leading-tight bg-gradient-to-br from-white via-slate-200 to-slate-500 bg-clip-text text-transparent">
+                       RETRIVA
+                     </h1>
+                     <p className="text-sm text-[#A3978E] dark:text-[#918982] font-medium leading-relaxed max-w-sm mx-auto lg:mx-0">
+                       The intelligent campus recovery network powered by Groq Qwen Vision.
+                     </p>
+                   </div>
 
                   {/* Features List */}
                   <div className="space-y-6 w-full max-w-sm lg:max-w-none mx-auto lg:mx-0 mt-2 hidden sm:block">
