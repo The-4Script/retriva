@@ -239,7 +239,6 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, chats, activeChatId, 
         lastMessage: attachment ? (attachment.type === 'image' ? 'Sent a photo' : 'Sent a file') : textToSend,
         lastMessageTime: timestamp,
         lastSenderId: user.id, 
-        lastSenderName: user.name,
         deletedIds: [],
         unreadCount: FieldValue.increment(1) 
       });

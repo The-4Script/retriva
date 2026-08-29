@@ -142,22 +142,28 @@ const lastNotifiedCountByChat = new Map<string, number>();
  * Shows (or updates, WhatsApp-style) a single grouped notification for a
  * chat. Multiple messages from the same chat coalesce into one OS
  * notification via a stable tag instead of piling up.
+ *
+ * Deliberately takes no sender identity: chats in this app are anonymous by
+ * design (participants are only ever identified by the item they're
+ * discussing), and an OS-level notification is visible to anyone glancing at
+ * the lock screen or notification shade — not just the logged-in user. So
+ * unlike the in-app chat bubble, this surface must never show a real name.
+ * Only the chat/item title and the message text are shown.
  */
 export const notifyNewMessage = (opts: {
   chatId: string;
   chatTitle: string;
-  senderName: string;
   messageText: string;
   unreadCount: number;
 }): void => {
-  const { chatId, chatTitle, senderName, messageText, unreadCount } = opts;
+  const { chatId, chatTitle, messageText, unreadCount } = opts;
 
   const already = lastNotifiedCountByChat.get(chatId) || 0;
   if (unreadCount <= already) return; // Nothing new to surface.
   lastNotifiedCountByChat.set(chatId, unreadCount);
 
   const preview = truncate(messageText || 'Sent a new message');
-  const body = unreadCount > 1 ? `${unreadCount} new messages · ${senderName}: ${preview}` : `${senderName}: ${preview}`;
+  const body = unreadCount > 1 ? `${unreadCount} new messages · ${preview}` : preview;
 
   showViaBestAvailableChannel({
     tag: `retriva-chat-${chatId}`,

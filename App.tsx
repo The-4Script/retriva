@@ -559,7 +559,6 @@ const App: React.FC = () => {
           notifyNewMessage({
             chatId: chat.id,
             chatTitle: chat.type === 'global' ? 'Campus Community' : (chat.itemTitle || 'New message'),
-            senderName: chat.lastSenderName || 'Someone',
             messageText: chat.lastMessage || 'Sent a new message',
             unreadCount: chat.unreadCount || 1,
           });
