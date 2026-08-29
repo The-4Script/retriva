@@ -479,7 +479,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
                                         value={specs[field.key] || ''}
                                         onChange={(e) => handleSpecChange(field.key, e.target.value)}
                                         placeholder={field.placeholder}
-                                        className={`${inputClass} bg-teal-50/30 dark:bg-teal-900/10 focus:bg-white dark:focus:bg-white dark:bg-[#302C2A]`}
+                                        className={`${inputClass} bg-teal-50/30 dark:bg-teal-900/10 focus:bg-white dark:focus:bg-[#2A2625] dark:bg-[#302C2A]`}
                                     />
                                 </div>
                             ))}
