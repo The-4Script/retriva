@@ -243,7 +243,7 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
                                                <div className="w-12 h-12 rounded-md bg-[#F5F2ED] dark:bg-[#373230] overflow-hidden shrink-0 relative">
                                                    {match.imageUrls[0] ? <img src={match.imageUrls[0]} className="w-full h-full object-cover" /> : <Box className="w-6 h-6 m-auto text-[#C8C0B8]" />}
                                                    {/* Tier Badge - Neutral "Review" Label */}
-                                                   <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-[#302C2A] text-white text-[7px] font-bold text-center py-0.5 backdrop-blur-md">
+                                                   <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-[#302C2A] text-[#918982] text-[7px] font-bold text-center py-0.5 backdrop-blur-md">
                                                       Review Candidate
                                                    </div>
                                                </div>
