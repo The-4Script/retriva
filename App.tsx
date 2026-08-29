@@ -966,12 +966,12 @@ const App: React.FC = () => {
             <div className="max-w-7xl mx-auto h-20 flex items-center justify-between py-4">
               <div className="flex items-center gap-2 sm:gap-10">
                 <div className="flex items-center gap-1 sm:gap-2 cursor-pointer group" onClick={() => { setView('DASHBOARD'); setEditingReport(null); }}>
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 -ml-2 flex items-center justify-center group-hover:scale-105 transition-transform relative z-10">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 -ml-2 flex items-center justify-center group-hover:scale-105 transition-transform relative z-10 shrink-0">
                      <img src="/logo-icon.png" alt="Retriva Icon" className="w-full h-full object-contain drop-shadow-sm" />
                   </div>
-                  <div className="hidden sm:flex flex-col">
-                     <span className="block font-black text-lg sm:text-xl tracking-tight leading-none text-[#2C2724] dark:text-[#F5F1EA]">RETRIVA</span>
-                     <span className="text-[7px] sm:text-[9px] font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-widest mt-0.5">traces lead to retrieval</span>
+                  <div className="flex flex-col min-w-0">
+                     <span className="block font-black text-base sm:text-xl tracking-tight leading-none text-[#2C2724] dark:text-[#F5F1EA]">RETRIVA</span>
+                     <span className="hidden sm:block text-[7px] sm:text-[9px] font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-widest mt-0.5 truncate">traces lead to retrieval</span>
                   </div>
                 </div>
               </div>
