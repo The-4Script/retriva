@@ -489,8 +489,8 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
                        <h3 className="text-xs font-bold text-[#A3978E] dark:text-[#918982] uppercase tracking-widest">Where & When</h3>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-4">
-                       <div className="col-span-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                       <div className="sm:col-span-2">
                           <label className="text-[11px] font-bold text-[#8C7A6B] dark:text-[#918982] uppercase ml-1 mb-1.5 block">Location</label>
                           <input type="text" value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. Student Center" className={inputClass} required />
                        </div>
@@ -499,7 +499,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
                           <input type="time" value={time} onChange={e => setTime(e.target.value)} className={inputClass} required />
                        </div>
                     </div>
-                    <div className="col-span-3">
+                    <div className="sm:col-span-3">
                         <label className="text-[11px] font-bold text-[#8C7A6B] dark:text-[#918982] uppercase ml-1 mb-1.5 block">Date</label>
                         <input type="date" value={date} onChange={e => setDate(e.target.value)} className={inputClass} required />
                     </div>

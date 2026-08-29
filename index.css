@@ -63,3 +63,11 @@
 }
 
 /* Custom base styles handled in index.html, this file exists to satisfy build/import requirements */
+
+@utility scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

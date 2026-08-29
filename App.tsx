@@ -964,19 +964,19 @@ const App: React.FC = () => {
       {user && (
         <nav className="sticky top-0 z-40 bg-[#FDF9F4]/90 dark:bg-[#1B1817]/90 backdrop-blur-xl border-b border-[#E5E0D8] dark:border-[#49433F] px-4 sm:px-6">
             <div className="max-w-7xl mx-auto h-20 flex items-center justify-between py-4">
-              <div className="flex items-center gap-10">
-                <div className="flex items-center gap-2 cursor-pointer group" onClick={() => { setView('DASHBOARD'); setEditingReport(null); }}>
-                  <div className="w-14 h-14 -ml-2 flex items-center justify-center group-hover:scale-105 transition-transform relative z-10">
+              <div className="flex items-center gap-2 sm:gap-10">
+                <div className="flex items-center gap-1 sm:gap-2 cursor-pointer group" onClick={() => { setView('DASHBOARD'); setEditingReport(null); }}>
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 -ml-2 flex items-center justify-center group-hover:scale-105 transition-transform relative z-10">
                      <img src="/logo-icon.png" alt="Retriva Icon" className="w-full h-full object-contain drop-shadow-sm" />
                   </div>
-                  <div className="flex flex-col">
-                     <span className="block font-black text-xl tracking-tight leading-none text-[#2C2724] dark:text-[#F5F1EA]">RETRIVA</span>
-                     <span className="text-[9px] font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-widest mt-0.5">traces lead to retrieval</span>
+                  <div className="hidden sm:flex flex-col">
+                     <span className="block font-black text-lg sm:text-xl tracking-tight leading-none text-[#2C2724] dark:text-[#F5F1EA]">RETRIVA</span>
+                     <span className="text-[7px] sm:text-[9px] font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-widest mt-0.5">traces lead to retrieval</span>
                   </div>
                 </div>
               </div>
               
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1 sm:gap-4">
                  <button onClick={() => setDarkMode(!darkMode)} className="p-2 rounded-full hover:bg-[#F2ECE4] dark:hover:bg-[#373230] text-[#4A423C] dark:text-[#C8C0B8] transition-colors">
                    {darkMode ? <Sun className="w-5 h-5 stroke-[1.5]" /> : <Moon className="w-5 h-5 stroke-[1.5]" />}
                  </button>

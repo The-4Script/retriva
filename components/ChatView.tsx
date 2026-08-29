@@ -290,7 +290,7 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, chats, activeChatId, 
   );
 
   return (
-    <div className="h-[calc(100vh-160px)] bg-white dark:bg-[#302C2A] rounded-[2rem] shadow-xl shadow-[#E5E0D8]/50 dark:shadow-none overflow-hidden border border-[#E5E0D8] dark:border-[#49433F] flex relative">
+    <div className="h-[calc(100dvh-160px)] md:h-[calc(100vh-160px)] bg-white dark:bg-[#302C2A] rounded-none sm:rounded-[2rem] shadow-xl shadow-[#E5E0D8]/50 dark:shadow-none overflow-hidden border-0 sm:border border-[#E5E0D8] dark:border-[#49433F] flex relative">
       
       {/* Lightbox */}
       {lightboxImg && (
@@ -301,7 +301,7 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, chats, activeChatId, 
       )}
 
       {/* --- SIDEBAR: CHAT LIST --- */}
-      <div className={`w-full md:w-80 border-r border-[#E5E0D8] dark:border-[#49433F] bg-white dark:bg-[#302C2A] flex flex-col ${activeChatId ? 'hidden md:flex' : 'flex'}`}>
+      <div className={`w-full md:w-80 border-r-0 md:border-r border-[#E5E0D8] dark:border-[#49433F] bg-white dark:bg-[#302C2A] flex flex-col ${activeChatId ? 'hidden md:flex' : 'flex'}`}>
         <div className="p-5 border-b border-[#E5E0D8] dark:border-[#49433F] z-10">
           <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-[#2C2724] dark:text-[#F5F1EA]">Messages</h2>
@@ -642,7 +642,7 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, chats, activeChatId, 
 
             {/* Input Area */}
             {theyBlockedMe ? (
-              <div className="p-6 bg-[#FAF8F5] dark:bg-[#2A2625] border-t border-[#E5E0D8] dark:border-[#49433F] text-center shrink-0">
+              <div className="p-4 sm:p-6 bg-[#FAF8F5] dark:bg-[#2A2625] border-t border-[#E5E0D8] dark:border-[#49433F] text-center shrink-0">
                  <p className="text-xs font-bold text-[#A3978E] dark:text-[#918982]">You cannot reply to this conversation.</p>
               </div>
             ) : (

@@ -46,7 +46,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onClick }) => {
 
       <div className="h-56 bg-[#FAF8F5] dark:bg-[#2A2625] relative overflow-hidden border-b border-[#E5E0D8] dark:border-[#49433F] transition-colors">
           {!imgError && report.imageUrls[0] ? (
-            <img src={report.imageUrls[0]} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={() => setImgError(true)} alt={report.title} loading="lazy" />
+            <img src={report.imageUrls[0]} className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500" onError={() => setImgError(true)} alt={report.title} loading="lazy" />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-[#B08D73] dark:text-[#C8C0B8]">
               <Box className="w-12 h-12 mb-3 opacity-20" />
@@ -228,10 +228,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, reports, onNavigate, onReso
 
                <div className="flex items-center gap-2 w-full md:w-auto">
                    {/* Segmented Control */}
-                   <div className="flex p-1 bg-[#F5F2ED] dark:bg-[#2A2625] rounded-xl shrink-0 transition-colors">
-                      <button onClick={() => { setActiveTab(ReportType.LOST); setViewStatus('OPEN'); }} className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${activeTab === ReportType.LOST && viewStatus === 'OPEN' ? 'bg-[#F97316] text-white shadow-sm' : 'text-[#8C7A6B] dark:text-[#918982] hover:text-[#2C2724] dark:hover:text-[#F5F1EA]'}`}>Lost Items</button>
-                      <button onClick={() => { setActiveTab(ReportType.FOUND); setViewStatus('OPEN'); }} className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${activeTab === ReportType.FOUND && viewStatus === 'OPEN' ? 'bg-white dark:bg-[#373230] text-[#2C2724] dark:text-[#F5F1EA] shadow-sm' : 'text-[#8C7A6B] dark:text-[#918982] hover:text-[#2C2724] dark:hover:text-[#F5F1EA]'}`}>Found Items</button>
-                      <button onClick={() => setViewStatus('RESOLVED')} className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${viewStatus === 'RESOLVED' ? 'bg-[#16A34A] text-white shadow-sm' : 'text-[#8C7A6B] dark:text-[#918982] hover:text-[#2C2724] dark:hover:text-[#F5F1EA]'}`}>Resolved Items</button>
+                   <div className="flex w-full md:w-auto p-1 bg-[#F5F2ED] dark:bg-[#2A2625] rounded-xl shrink-0 transition-colors">
+                      <button onClick={() => { setActiveTab(ReportType.LOST); setViewStatus('OPEN'); }} className={`flex-1 px-2 sm:px-6 py-2.5 rounded-lg text-[11px] sm:text-sm font-bold transition-all duration-300 ${activeTab === ReportType.LOST && viewStatus === 'OPEN' ? 'bg-[#F97316] text-white shadow-sm' : 'text-[#8C7A6B] dark:text-[#918982] hover:text-[#2C2724] dark:hover:text-[#F5F1EA]'}`}>Lost Items</button>
+                      <button onClick={() => { setActiveTab(ReportType.FOUND); setViewStatus('OPEN'); }} className={`flex-1 px-2 sm:px-6 py-2.5 rounded-lg text-[11px] sm:text-sm font-bold transition-all duration-300 ${activeTab === ReportType.FOUND && viewStatus === 'OPEN' ? 'bg-white dark:bg-[#373230] text-[#2C2724] dark:text-[#F5F1EA] shadow-sm' : 'text-[#8C7A6B] dark:text-[#918982] hover:text-[#2C2724] dark:hover:text-[#F5F1EA]'}`}>Found Items</button>
+                      <button onClick={() => setViewStatus('RESOLVED')} className={`flex-1 px-2 sm:px-6 py-2.5 rounded-lg text-[11px] sm:text-sm font-bold transition-all duration-300 ${viewStatus === 'RESOLVED' ? 'bg-[#16A34A] text-white shadow-sm' : 'text-[#8C7A6B] dark:text-[#918982] hover:text-[#2C2724] dark:hover:text-[#F5F1EA]'}`}>Resolved</button>
                    </div>
 
                    {/* My Reports Icon Button */}

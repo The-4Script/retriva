@@ -180,7 +180,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onUpdate, onBack, onDeleteAccou
                
                <div className="space-y-4">
                   {/* Logout Row */}
-                  <div className="flex items-center justify-between p-4 bg-[#FAF8F5] dark:bg-[#373230]50 rounded-2xl border border-[#E5E0D8] dark:border-[#49433F]">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 p-4 bg-[#FAF8F5] dark:bg-[#373230]50 rounded-2xl border border-[#E5E0D8] dark:border-[#49433F]">
                      <div>
                         <h4 className="font-bold text-[#2C2724] dark:text-[#918982] text-sm">Sign Out</h4>
                         <p className="text-xs text-[#8C7A6B] dark:text-[#918982] dark:text-[#918982] mt-0.5">Securely log out of your account on this device.</p>
@@ -196,7 +196,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onUpdate, onBack, onDeleteAccou
                   {/* Delete Account Row with Confirmation */}
                   <div className={`flex flex-col p-4 rounded-2xl border transition-all duration-300 ${showDeleteConfirm ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' : 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-900/20'}`}>
                       {!showDeleteConfirm ? (
-                          <div className="flex items-center justify-between">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                               <div>
                                   <h4 className="font-bold text-red-900 dark:text-red-200 text-sm">Delete Account</h4>
                                   <p className="text-xs text-red-700/70 dark:text-red-300/60 mt-0.5">Permanently remove your profile and data.</p>

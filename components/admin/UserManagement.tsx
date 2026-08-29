@@ -147,7 +147,7 @@ const UserManagement = ({ user: currentUser }: { user: User }) => {
       {/* TABLE */}
       <div className="bg-white dark:bg-[#2A2625] rounded-2xl border border-[#E5E0D8] dark:border-[#49433F] shadow-sm overflow-hidden">
          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full min-w-[700px] text-left border-collapse">
                <thead>
                   <tr className="bg-[#FAF8F5] dark:bg-[#302C2A] border-b border-[#E5E0D8] dark:border-[#49433F]">
                      <th className="p-4 text-xs font-bold text-[#8C7A6B] dark:text-[#918982] uppercase tracking-wider">User</th>

@@ -126,7 +126,7 @@ const ReportDetails: React.FC<ReportDetailsProps> = ({ report, allReports, curre
                 <div className="w-full h-full relative cursor-zoom-in" onClick={() => setShowLightbox(true)}>
                   <img 
                     src={report.imageUrls[activeImg]} 
-                    className="w-full h-full object-cover" 
+                    className="w-full h-full object-contain" 
                     onError={() => setImgError(true)}
                     alt={report.title}
                   />
