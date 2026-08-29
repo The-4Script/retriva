@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
 import ReportForm from './components/ReportForm';
@@ -6,12 +6,22 @@ import ChatView from './components/ChatView';
 import Profile from './components/Profile';
 import Toast from './components/Toast';
 import NotificationCenter from './components/NotificationCenter';
+import NotificationPermissionBanner from './components/NotificationPermissionBanner';
 import MatchComparator from './components/MatchComparator';
 import AIDisclaimerModal from './components/AIDisclaimerModal';
 import AdminDashboard from './components/admin/AdminDashboard';
 import { User, ViewState, ItemReport, ReportType, ItemCategory, AppNotification, Chat, Message } from './types';
 import { MessageCircle, Bell, Moon, Sun, User as UserIcon, Plus, SearchX, Box, Loader2, ShieldCheck, Wrench } from 'lucide-react';
 import { findSmartMatches } from './services/aiService';
+import {
+  initNotificationService,
+  getPermission,
+  requestNotificationPermission,
+  notifyNewMessage,
+  notifyMatch,
+  clearChatNotificationState,
+  onNotificationClick,
+} from './services/notificationService';
 
 // FIREBASE IMPORTS
 import { auth, db, FieldValue, generateUniqueStudentId } from './services/firebase';
@@ -33,6 +43,18 @@ const App: React.FC = () => {
   
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [showNotificationCenter, setShowNotificationCenter] = useState(false);
+
+  // Browser/OS push-style notifications (outside the tab)
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission | 'unsupported'>(() => getPermission());
+  const [notifBannerDismissed, setNotifBannerDismissed] = useState(() => {
+    try {
+      return localStorage.getItem('retriva_notif_prompt_dismissed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const prevChatSignaturesRef = useRef<Map<string, number>>(new Map());
+  const chatNotificationsReadyRef = useRef(false);
   const [showFabMenu, setShowFabMenu] = useState(false);
   const [showLegal, setShowLegal] = useState(false);
   
@@ -42,6 +64,24 @@ const App: React.FC = () => {
   const [avatarError, setAvatarError] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [maintenanceMode, setMaintenanceMode] = useState<{enabled: boolean, message: string}>({enabled: false, message: 'Under Maintenance'});
+
+  // OS-LEVEL NOTIFICATIONS: register the service worker once, and route a
+  // click on a notification back to the relevant chat/view. Purely
+  // client-side presentation — doesn't touch Firestore or the API.
+  useEffect(() => {
+    initNotificationService();
+
+    const unsubscribe = onNotificationClick((payload) => {
+      if (payload?.type === 'message' && payload.chatId) {
+        setActiveChatId(payload.chatId);
+        setView('MESSAGES');
+      } else if (payload?.type === 'match') {
+        setView('DASHBOARD');
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   // NEW: Listen for system-wide Toast Events (e.g. from aiService)
   useEffect(() => {
@@ -399,14 +439,25 @@ const App: React.FC = () => {
     setToast({ message: message, type: type === 'match' ? 'alert' : type === 'message' ? 'info' : 'success' });
   }, []);
 
+  const handleEnableNotifications = async () => {
+    const result = await requestNotificationPermission();
+    setNotifPermission(result);
+    // Whatever the outcome (granted or denied), the user has made a choice —
+    // don't keep asking every session.
+    if (result !== 'default') {
+      try { localStorage.setItem('retriva_notif_prompt_dismissed', 'true'); } catch {}
+      setNotifBannerDismissed(true);
+    }
+  };
+
+  const handleDismissNotifBanner = () => {
+    try { localStorage.setItem('retriva_notif_prompt_dismissed', 'true'); } catch {}
+    setNotifBannerDismissed(true);
+  };
+
   // PROACTIVE SCAN & ALERT SYSTEM (Client-Side Simulation of Cron Job)
   useEffect(() => {
     if (!user || !user.id) return;
-
-    // Request Notification Permission on login/mount
-    if (Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
 
     const runProactiveScan = async () => {
        // Only scan if we have reports and user is logged in
@@ -438,16 +489,11 @@ const App: React.FC = () => {
                      // TRIGGER ALERT
                      const msg = `Found ${match.confidence}% match for your ${lostItem.title}!`;
                      
-                     // 1. In-App Notification
+                     // 1. In-App Notification (Activity center + toast)
                      addNotification('Proactive Match Alert', msg, 'match', 'DASHBOARD');
                      
-                     // 2. Browser Push Notification
-                     if (Notification.permission === 'granted') {
-                         new Notification('Retriva Match Found', {
-                             body: msg,
-                             icon: '/icon.png' // Fallback to default if missing
-                         });
-                     }
+                     // 2. OS-level Notification (grouped/deduped per match, no-op if permission isn't granted)
+                     notifyMatch({ matchKey: uniqueMatchId, title: 'Potential Match Found', body: msg });
 
                      notified.add(uniqueMatchId);
                      hasNewNotifications = true;
@@ -475,6 +521,62 @@ const App: React.FC = () => {
         clearInterval(cronInterval);
     };
   }, [user, reports, addNotification]);
+
+  // MESSAGE NOTIFICATIONS: warm-up window. The chats listeners deliver a
+  // full batch of pre-existing chats right after login/reload — we don't
+  // want to fire a notification for every one of those. Give them a few
+  // seconds to settle before treating further changes as "new".
+  useEffect(() => {
+    chatNotificationsReadyRef.current = false;
+    prevChatSignaturesRef.current = new Map();
+    if (!user) return;
+
+    const readyTimer = setTimeout(() => {
+      chatNotificationsReadyRef.current = true;
+    }, 4000);
+
+    return () => clearTimeout(readyTimer);
+  }, [user?.id]);
+
+  // MESSAGE NOTIFICATIONS: watch the live chats list for genuinely new
+  // incoming messages (from someone else) and pop a single, grouped OS
+  // notification per chat — repeated messages from the same chat update
+  // that one notification (via a stable tag) instead of piling up.
+  useEffect(() => {
+    if (!user) return;
+    const prevSignatures = prevChatSignaturesRef.current;
+
+    chats.forEach((chat) => {
+      const prevTime = prevSignatures.get(chat.id);
+      const isNewerMessage = prevTime !== undefined && chat.lastMessageTime > prevTime;
+      const isFromSomeoneElse = !!chat.lastSenderId && chat.lastSenderId !== user.id;
+
+      if (chatNotificationsReadyRef.current && isNewerMessage && isFromSomeoneElse) {
+        const isViewingThisChatNow =
+          view === 'MESSAGES' && activeChatId === chat.id && document.visibilityState === 'visible';
+
+        if (!isViewingThisChatNow) {
+          notifyNewMessage({
+            chatId: chat.id,
+            chatTitle: chat.type === 'global' ? 'Campus Community' : (chat.itemTitle || 'New message'),
+            senderName: chat.lastSenderName || 'Someone',
+            messageText: chat.lastMessage || 'Sent a new message',
+            unreadCount: chat.unreadCount || 1,
+          });
+        }
+      }
+
+      prevSignatures.set(chat.id, chat.lastMessageTime);
+    });
+  }, [chats, user, view, activeChatId]);
+
+  // Dismiss the grouped OS notification for a chat as soon as the user
+  // actually opens it.
+  useEffect(() => {
+    if (view === 'MESSAGES' && activeChatId) {
+      clearChatNotificationState(activeChatId);
+    }
+  }, [view, activeChatId]);
 
   const handleLogin = (loggedInUser: User) => {
     setUser(loggedInUser);
@@ -796,7 +898,6 @@ const App: React.FC = () => {
         <ChatView 
           user={user!} 
           onBack={() => setView('DASHBOARD')} 
-          onNotification={(t, b) => addNotification(t, b, 'message', 'MESSAGES')}
           chats={chats}
           activeChatId={activeChatId}
           onSelectChat={setActiveChatId}
@@ -838,6 +939,14 @@ const App: React.FC = () => {
           />
       )}
 
+      {/* OS NOTIFICATION PERMISSION PROMPT */}
+      {user && notifPermission === 'default' && !notifBannerDismissed && (
+        <NotificationPermissionBanner
+          onEnable={handleEnableNotifications}
+          onDismiss={handleDismissNotifBanner}
+        />
+      )}
+
       {/* NOTIFICATION CENTER OVERLAY (Root Level to fix stacking context) */}
       {showNotificationCenter && (
         <NotificationCenter 
@@ -857,12 +966,9 @@ const App: React.FC = () => {
         <nav className="sticky top-0 z-40 bg-[#FDF9F4]/90 dark:bg-[#1B1817]/90 backdrop-blur-xl border-b border-[#E5E0D8] dark:border-[#49433F] px-4 sm:px-6">
             <div className="max-w-7xl mx-auto h-20 flex items-center justify-between py-4">
               <div className="flex items-center gap-10">
-                <div className="flex items-center gap-4 cursor-pointer group" onClick={() => { setView('DASHBOARD'); setEditingReport(null); }}>
-                  <div className="w-10 h-10 flex items-center justify-center group-hover:scale-105 transition-transform relative z-10">
-                     <svg viewBox="0 0 40 40" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="40" height="40" rx="8" fill="#B08D73"/>
-                        <text x="20" y="26" fontFamily="Inter, sans-serif" fontSize="18" fontWeight="600" fill="white" textAnchor="middle">C</text>
-                     </svg>
+                <div className="flex items-center gap-2 cursor-pointer group" onClick={() => { setView('DASHBOARD'); setEditingReport(null); }}>
+                  <div className="w-14 h-14 -ml-2 flex items-center justify-center group-hover:scale-105 transition-transform relative z-10">
+                     <img src="/logo-icon.png" alt="Retriva Icon" className="w-full h-full object-contain drop-shadow-sm" />
                   </div>
                   <div className="flex flex-col">
                      <span className="block font-black text-xl tracking-tight leading-none text-[#2C2724] dark:text-[#F5F1EA]">RETRIVA</span>

@@ -92,7 +92,7 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({
                         onNavigate(notification.link);
                     }
                   }}
-                  className={`relative p-6 flex gap-4 cursor-pointer transition-all hover:bg-[#FAF8F5] dark:hover:bg-[#F5F2ED] dark:bg-[#373230]50 group ${
+                  className={`relative p-6 flex gap-4 cursor-pointer transition-all hover:bg-[#FAF8F5] dark:hover:bg-[#373230] dark:bg-[#373230]50 group ${
                     !notification.isRead ? 'bg-brand-teal/5 dark:bg-brand-teal/10' : ''
                   }`}
                 >

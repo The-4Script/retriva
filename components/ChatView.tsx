@@ -8,7 +8,6 @@ import { uploadImage } from '../services/cloudinary';
 interface ChatViewProps {
   user: User;
   onBack: () => void;
-  onNotification: (title: string, body: string) => void;
   chats: Chat[];
   activeChatId: string | null;
   onSelectChat: (id: string | null) => void;
@@ -17,7 +16,7 @@ interface ChatViewProps {
   isAdmin?: boolean;
 }
 
-const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats, activeChatId, onSelectChat, onBlockChat, onDeleteChat, isAdmin }) => {
+const ChatView: React.FC<ChatViewProps> = ({ user, onBack, chats, activeChatId, onSelectChat, onBlockChat, onDeleteChat, isAdmin }) => {
   const [newMessage, setNewMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
@@ -240,6 +239,7 @@ const ChatView: React.FC<ChatViewProps> = ({ user, onBack, onNotification, chats
         lastMessage: attachment ? (attachment.type === 'image' ? 'Sent a photo' : 'Sent a file') : textToSend,
         lastMessageTime: timestamp,
         lastSenderId: user.id, 
+        lastSenderName: user.name,
         deletedIds: [],
         unreadCount: FieldValue.increment(1) 
       });

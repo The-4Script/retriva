@@ -37,11 +37,6 @@ const CATEGORY_SCHEMAS: Record<ItemCategory, { key: string; label: string; place
     { key: 'serial', label: 'Serial Number / IMEI', placeholder: 'Found in settings or on back' },
     { key: 'color', label: 'Device Color', placeholder: 'e.g. Space Grey' },
   ],
-  [ItemCategory.ID_CARDS]: [
-    { key: 'issuer', label: 'Issuer', placeholder: 'e.g. University, Government', required: true },
-    { key: 'nameOnCard', label: 'Name on Card', placeholder: 'Full Name' },
-    { key: 'type', label: 'Card Type', placeholder: 'e.g. Student ID, Driver License' },
-  ],
   [ItemCategory.CLOTHING]: [
     { key: 'type', label: 'Type', placeholder: 'e.g. Jacket, Hoodie', required: true },
     { key: 'brand', label: 'Brand', placeholder: 'e.g. Nike, H&M' },
@@ -479,7 +474,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ type: initialType, user, initia
                                         value={specs[field.key] || ''}
                                         onChange={(e) => handleSpecChange(field.key, e.target.value)}
                                         placeholder={field.placeholder}
-                                        className={`${inputClass} bg-teal-50/30 dark:bg-teal-900/10 focus:bg-white dark:focus:bg-white dark:bg-[#302C2A]`}
+                                        className={`${inputClass} bg-teal-50/30 dark:bg-teal-900/10 focus:bg-white dark:focus:bg-[#2A2625] dark:bg-[#302C2A]`}
                                     />
                                 </div>
                             ))}

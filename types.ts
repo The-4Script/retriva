@@ -4,7 +4,6 @@ export enum ItemCategory {
   STATIONERY = 'Stationery',
   CLOTHING = 'Clothing',
   ACCESSORIES = 'Accessories',
-  ID_CARDS = 'ID Cards',
   BOOKS = 'Books',
   BAGS = 'Bags & Wallets',
   KEYS = 'Keys & Tools',
@@ -113,6 +112,7 @@ export interface Chat {
   lastMessage: string;
   lastMessageTime: number;
   lastSenderId?: string; // Added to track who sent the last message for notifications
+  lastSenderName?: string; // Display name of lastSenderId, for notification previews
   unreadCount: number;
   isBlocked?: boolean;
   blockedBy?: string;

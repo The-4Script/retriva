@@ -74,7 +74,6 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onClick }) => {
           </div>
       </div>
 
-      {/* Very minimal View Details button to satisfy requirement while staying clean */}
       <div className="px-5 pb-5 pt-0">
          <div className={`w-full py-2.5 rounded-xl text-[11px] font-bold transition-colors flex items-center justify-center gap-2
             ${isResolved 
@@ -99,6 +98,19 @@ const Dashboard: React.FC<DashboardProps> = ({ user, reports, onNavigate, onReso
   const [isProcessingSearch, setIsProcessingSearch] = useState(false);
   const [selectedReport, setSelectedReport] = useState<ItemReport | null>(null);
 
+  // New Filter state variables
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+
+  // Dynamically extract unique categories from reports
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    reports.forEach((r) => {
+      if (r.category) set.add(r.category);
+    });
+    return Array.from(set);
+  }, [reports]);
+
   const filteredReports = useMemo(() => {
     let result = reports.filter(r => r.type === activeTab && r.status === viewStatus);
     
@@ -106,12 +118,17 @@ const Dashboard: React.FC<DashboardProps> = ({ user, reports, onNavigate, onReso
         result = result.filter(r => r.reporterId === user.id);
     }
 
+    // Category filtering
+    if (selectedCategory !== 'ALL') {
+        result = result.filter(r => r.category.toLowerCase() === selectedCategory.toLowerCase());
+    }
+
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       result = result.filter(r => r.title.toLowerCase().includes(q) || r.location.toLowerCase().includes(q));
     }
     return result.sort((a, b) => b.createdAt - a.createdAt);
-  }, [reports, activeTab, viewStatus, searchQuery, showMyReports, user.id]);
+  }, [reports, activeTab, viewStatus, searchQuery, showMyReports, selectedCategory, user.id]);
 
   const handleSmartSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -200,16 +217,13 @@ const Dashboard: React.FC<DashboardProps> = ({ user, reports, onNavigate, onReso
           </div>
       </section>
 
-      {/* AI DISCOVERY HUB - Always Visible with Empty State logic */}
-
-
-      {/* Main Content Feed - Wrapped in large white container */}
+      {/* Main Content Feed */}
       <section className="bg-white dark:bg-[#302C2A] w-full rounded-[2.5rem] p-6 md:p-10 shadow-sm border border-[#E5E0D8] dark:border-[#49433F] space-y-10 transition-colors">
 
          <div className="space-y-4">
             <h2 className="text-2xl font-bold text-[#33261D] dark:text-[#F5F1EA]">Find what you're looking for</h2>
 
-            {/* ACTION BAR: Redesigned for Warm Neutral minimal look */}
+            {/* ACTION BAR */}
             <div className="flex flex-col md:flex-row items-center gap-4">
 
                <div className="flex items-center gap-2 w-full md:w-auto">
@@ -220,11 +234,68 @@ const Dashboard: React.FC<DashboardProps> = ({ user, reports, onNavigate, onReso
                       <button onClick={() => setViewStatus('RESOLVED')} className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${viewStatus === 'RESOLVED' ? 'bg-[#16A34A] text-white shadow-sm' : 'text-[#8C7A6B] dark:text-[#918982] hover:text-[#2C2724] dark:hover:text-[#F5F1EA]'}`}>Resolved Items</button>
                    </div>
 
-                   {/* Minimal Filter Button */}
-                   <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-[#2A2625] border border-[#E5E0D8] dark:border-[#49433F] text-[#2C2724] dark:text-[#F5F1EA] hover:bg-[#F5F2ED] dark:hover:bg-[#373230] transition-colors ml-auto md:ml-0 font-semibold text-sm">
-                      <Filter className="w-4 h-4" />
-                      <span>Filters</span>
+                   {/* My Reports Icon Button */}
+                   <button 
+                      onClick={() => setShowMyReports(!showMyReports)}
+                      title="My Reports"
+                      aria-label="My Reports"
+                      className={`p-2.5 rounded-xl border transition-colors font-semibold text-sm flex items-center justify-center ${
+                        showMyReports
+                          ? 'bg-[#F97316] text-white border-[#F97316]'
+                          : 'bg-white dark:bg-[#2A2625] border-[#E5E0D8] dark:border-[#49433F] text-[#2C2724] dark:text-[#F5F1EA] hover:bg-[#F5F2ED] dark:hover:bg-[#373230]'
+                      }`}
+                   >
+                      <UserIcon className="w-5 h-5" />
                    </button>
+
+                   {/* Filter Icon Button & Popup Panel */}
+                   <div className="relative ml-auto md:ml-0">
+                      <button 
+                         onClick={() => setShowFilterPanel(!showFilterPanel)}
+                         title="Filter Categories"
+                         aria-label="Filter Categories"
+                         className={`p-2.5 rounded-xl border transition-colors font-semibold text-sm flex items-center justify-center relative ${
+                           selectedCategory !== 'ALL'
+                             ? 'bg-[#F97316] text-white border-[#F97316]'
+                             : 'bg-white dark:bg-[#2A2625] border-[#E5E0D8] dark:border-[#49433F] text-[#2C2724] dark:text-[#F5F1EA] hover:bg-[#F5F2ED] dark:hover:bg-[#373230]'
+                         }`}
+                      >
+                         <Filter className="w-5 h-5" />
+                         {selectedCategory !== 'ALL' && (
+                           <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-white"></span>
+                         )}
+                      </button>
+
+                      {showFilterPanel && (
+                         <div className="absolute right-0 mt-2 w-60 p-4 bg-white dark:bg-[#2A2625] border border-[#E5E0D8] dark:border-[#49433F] rounded-2xl shadow-xl z-30 space-y-3">
+                            <div className="flex items-center justify-between">
+                               <span className="text-xs font-bold uppercase tracking-wider text-[#8C7A6B] dark:text-[#918982]">
+                                  Filter by Category
+                               </span>
+                               {selectedCategory !== 'ALL' && (
+                                  <button 
+                                     onClick={() => setSelectedCategory('ALL')} 
+                                     className="text-xs text-[#F97316] hover:underline font-medium"
+                                  >
+                                     Reset
+                                  </button>
+                               )}
+                            </div>
+                            <select 
+                               value={selectedCategory} 
+                               onChange={(e) => setSelectedCategory(e.target.value)}
+                               className="w-full p-2.5 text-sm bg-[#FAF8F5] dark:bg-[#302C2A] border border-[#E5E0D8] dark:border-[#49433F] rounded-xl outline-none text-[#2C2724] dark:text-[#F5F1EA] font-medium"
+                            >
+                               <option value="ALL">All Categories</option>
+                               {categories.map((cat) => (
+                                  <option key={cat} value={cat}>
+                                     {cat}
+                                  </option>
+                               ))}
+                            </select>
+                         </div>
+                      )}
+                   </div>
                </div>
 
                {/* Search Input */}
