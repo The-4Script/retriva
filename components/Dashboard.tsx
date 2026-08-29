@@ -234,20 +234,35 @@ const Dashboard: React.FC<DashboardProps> = ({ user, reports, onNavigate, onReso
                       <button onClick={() => setViewStatus('RESOLVED')} className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${viewStatus === 'RESOLVED' ? 'bg-[#16A34A] text-white shadow-sm' : 'text-[#8C7A6B] dark:text-[#918982] hover:text-[#2C2724] dark:hover:text-[#F5F1EA]'}`}>Resolved Items</button>
                    </div>
 
-                   {/* Filter Button & Popup Panel */}
+                   {/* My Reports Icon Button */}
+                   <button 
+                      onClick={() => setShowMyReports(!showMyReports)}
+                      title="My Reports"
+                      aria-label="My Reports"
+                      className={`p-2.5 rounded-xl border transition-colors font-semibold text-sm flex items-center justify-center ${
+                        showMyReports
+                          ? 'bg-[#F97316] text-white border-[#F97316]'
+                          : 'bg-white dark:bg-[#2A2625] border-[#E5E0D8] dark:border-[#49433F] text-[#2C2724] dark:text-[#F5F1EA] hover:bg-[#F5F2ED] dark:hover:bg-[#373230]'
+                      }`}
+                   >
+                      <UserIcon className="w-5 h-5" />
+                   </button>
+
+                   {/* Filter Icon Button & Popup Panel */}
                    <div className="relative ml-auto md:ml-0">
                       <button 
                          onClick={() => setShowFilterPanel(!showFilterPanel)}
-                         className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-colors font-semibold text-sm ${
+                         title="Filter Categories"
+                         aria-label="Filter Categories"
+                         className={`p-2.5 rounded-xl border transition-colors font-semibold text-sm flex items-center justify-center relative ${
                            selectedCategory !== 'ALL'
                              ? 'bg-[#F97316] text-white border-[#F97316]'
                              : 'bg-white dark:bg-[#2A2625] border-[#E5E0D8] dark:border-[#49433F] text-[#2C2724] dark:text-[#F5F1EA] hover:bg-[#F5F2ED] dark:hover:bg-[#373230]'
                          }`}
                       >
-                         <Filter className="w-4 h-4" />
-                         <span>Filters</span>
+                         <Filter className="w-5 h-5" />
                          {selectedCategory !== 'ALL' && (
-                           <span className="w-2 h-2 rounded-full bg-white ml-0.5"></span>
+                           <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-white"></span>
                          )}
                       </button>
 
