@@ -224,94 +224,98 @@ const Dashboard: React.FC<DashboardProps> = ({ user, reports, onNavigate, onReso
             <h2 className="text-2xl font-bold text-[#33261D] dark:text-[#F5F1EA]">Find what you're looking for</h2>
 
             {/* ACTION BAR */}
-            <div className="flex flex-col md:flex-row items-center gap-4">
+            <div className="flex flex-col gap-3">
 
-               <div className="flex items-center gap-2 w-full md:w-auto">
-                   {/* Segmented Control */}
-                   <div className="flex w-full md:w-auto p-1 bg-[#F5F2ED] dark:bg-[#2A2625] rounded-xl shrink-0 transition-colors">
-                      <button onClick={() => { setActiveTab(ReportType.LOST); setViewStatus('OPEN'); }} className={`flex-1 px-2 sm:px-6 py-2.5 rounded-lg text-[11px] sm:text-sm font-bold transition-all duration-300 ${activeTab === ReportType.LOST && viewStatus === 'OPEN' ? 'bg-[#F97316] text-white shadow-sm' : 'text-[#8C7A6B] dark:text-[#918982] hover:text-[#2C2724] dark:hover:text-[#F5F1EA]'}`}>Lost Items</button>
-                      <button onClick={() => { setActiveTab(ReportType.FOUND); setViewStatus('OPEN'); }} className={`flex-1 px-2 sm:px-6 py-2.5 rounded-lg text-[11px] sm:text-sm font-bold transition-all duration-300 ${activeTab === ReportType.FOUND && viewStatus === 'OPEN' ? 'bg-white dark:bg-[#373230] text-[#2C2724] dark:text-[#F5F1EA] shadow-sm' : 'text-[#8C7A6B] dark:text-[#918982] hover:text-[#2C2724] dark:hover:text-[#F5F1EA]'}`}>Found Items</button>
-                      <button onClick={() => setViewStatus('RESOLVED')} className={`flex-1 px-2 sm:px-6 py-2.5 rounded-lg text-[11px] sm:text-sm font-bold transition-all duration-300 ${viewStatus === 'RESOLVED' ? 'bg-[#16A34A] text-white shadow-sm' : 'text-[#8C7A6B] dark:text-[#918982] hover:text-[#2C2724] dark:hover:text-[#F5F1EA]'}`}>Resolved</button>
+               {/* Row 1: Tabs + Icon Buttons */}
+               <div className="flex items-center gap-2 w-full">
+                   {/* Scrollable Tabs Wrapper */}
+                   <div className="flex-1 min-w-0 overflow-x-auto scrollbar-hide">
+                       <div className="flex p-1 bg-[#F5F2ED] dark:bg-[#2A2625] rounded-xl transition-colors w-max min-w-full">
+                          <button onClick={() => { setActiveTab(ReportType.LOST); setViewStatus('OPEN'); }} className={`flex-1 whitespace-nowrap px-3 sm:px-6 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all duration-300 ${activeTab === ReportType.LOST && viewStatus === 'OPEN' ? 'bg-[#F97316] text-white shadow-sm' : 'text-[#8C7A6B] dark:text-[#918982] hover:text-[#2C2724] dark:hover:text-[#F5F1EA]'}`}>Lost Items</button>
+                          <button onClick={() => { setActiveTab(ReportType.FOUND); setViewStatus('OPEN'); }} className={`flex-1 whitespace-nowrap px-3 sm:px-6 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all duration-300 ${activeTab === ReportType.FOUND && viewStatus === 'OPEN' ? 'bg-white dark:bg-[#373230] text-[#2C2724] dark:text-[#F5F1EA] shadow-sm' : 'text-[#8C7A6B] dark:text-[#918982] hover:text-[#2C2724] dark:hover:text-[#F5F1EA]'}`}>Found Items</button>
+                          <button onClick={() => setViewStatus('RESOLVED')} className={`flex-1 whitespace-nowrap px-3 sm:px-6 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-bold transition-all duration-300 ${viewStatus === 'RESOLVED' ? 'bg-[#16A34A] text-white shadow-sm' : 'text-[#8C7A6B] dark:text-[#918982] hover:text-[#2C2724] dark:hover:text-[#F5F1EA]'}`}>Resolved</button>
+                       </div>
                    </div>
 
-                   {/* My Reports Icon Button */}
-                   <button 
-                      onClick={() => setShowMyReports(!showMyReports)}
-                      title="My Reports"
-                      aria-label="My Reports"
-                      className={`p-2.5 rounded-xl border transition-colors font-semibold text-sm flex items-center justify-center ${
-                        showMyReports
-                          ? 'bg-[#F97316] text-white border-[#F97316]'
-                          : 'bg-white dark:bg-[#2A2625] border-[#E5E0D8] dark:border-[#49433F] text-[#2C2724] dark:text-[#F5F1EA] hover:bg-[#F5F2ED] dark:hover:bg-[#373230]'
-                      }`}
-                   >
-                      <UserIcon className="w-5 h-5" />
-                   </button>
+                   {/* Pinned Icon Buttons — never pushed off-screen */}
+                   <div className="flex items-center gap-2 shrink-0">
+                       {/* My Reports Icon Button */}
+                       <button 
+                          onClick={() => setShowMyReports(!showMyReports)}
+                          title="My Reports"
+                          aria-label="My Reports"
+                          className={`p-2.5 rounded-xl border transition-colors font-semibold text-sm flex items-center justify-center ${
+                            showMyReports
+                              ? 'bg-[#F97316] text-white border-[#F97316]'
+                              : 'bg-white dark:bg-[#2A2625] border-[#E5E0D8] dark:border-[#49433F] text-[#2C2724] dark:text-[#F5F1EA] hover:bg-[#F5F2ED] dark:hover:bg-[#373230]'
+                          }`}
+                       >
+                          <UserIcon className="w-5 h-5" />
+                       </button>
 
-                   {/* Filter Icon Button & Popup Panel */}
-                   <div className="relative ml-auto md:ml-0">
-                      <button 
-                         onClick={() => setShowFilterPanel(!showFilterPanel)}
-                         title="Filter Categories"
-                         aria-label="Filter Categories"
-                         className={`p-2.5 rounded-xl border transition-colors font-semibold text-sm flex items-center justify-center relative ${
-                           selectedCategory !== 'ALL'
-                             ? 'bg-[#F97316] text-white border-[#F97316]'
-                             : 'bg-white dark:bg-[#2A2625] border-[#E5E0D8] dark:border-[#49433F] text-[#2C2724] dark:text-[#F5F1EA] hover:bg-[#F5F2ED] dark:hover:bg-[#373230]'
-                         }`}
-                      >
-                         <Filter className="w-5 h-5" />
-                         {selectedCategory !== 'ALL' && (
-                           <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-white"></span>
-                         )}
-                      </button>
+                       {/* Filter Icon Button & Popup Panel */}
+                       <div className="relative">
+                          <button 
+                             onClick={() => setShowFilterPanel(!showFilterPanel)}
+                             title="Filter Categories"
+                             aria-label="Filter Categories"
+                             className={`p-2.5 rounded-xl border transition-colors font-semibold text-sm flex items-center justify-center relative ${
+                               selectedCategory !== 'ALL'
+                                 ? 'bg-[#F97316] text-white border-[#F97316]'
+                                 : 'bg-white dark:bg-[#2A2625] border-[#E5E0D8] dark:border-[#49433F] text-[#2C2724] dark:text-[#F5F1EA] hover:bg-[#F5F2ED] dark:hover:bg-[#373230]'
+                             }`}
+                          >
+                             <Filter className="w-5 h-5" />
+                             {selectedCategory !== 'ALL' && (
+                               <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-white"></span>
+                             )}
+                          </button>
 
-                      {showFilterPanel && (
-                         <div className="absolute right-0 mt-2 w-60 p-4 bg-white dark:bg-[#2A2625] border border-[#E5E0D8] dark:border-[#49433F] rounded-2xl shadow-xl z-30 space-y-3">
-                            <div className="flex items-center justify-between">
-                               <span className="text-xs font-bold uppercase tracking-wider text-[#8C7A6B] dark:text-[#918982]">
-                                  Filter by Category
-                               </span>
-                               {selectedCategory !== 'ALL' && (
-                                  <button 
-                                     onClick={() => setSelectedCategory('ALL')} 
-                                     className="text-xs text-[#F97316] hover:underline font-medium"
-                                  >
-                                     Reset
-                                  </button>
-                               )}
-                            </div>
-                            <select 
-                               value={selectedCategory} 
-                               onChange={(e) => setSelectedCategory(e.target.value)}
-                               className="w-full p-2.5 text-sm bg-[#FAF8F5] dark:bg-[#302C2A] border border-[#E5E0D8] dark:border-[#49433F] rounded-xl outline-none text-[#2C2724] dark:text-[#F5F1EA] font-medium"
-                            >
-                               <option value="ALL">All Categories</option>
-                               {categories.map((cat) => (
-                                  <option key={cat} value={cat}>
-                                     {cat}
-                                  </option>
-                               ))}
-                            </select>
-                         </div>
-                      )}
+                          {showFilterPanel && (
+                             <div className="absolute right-0 mt-2 w-60 p-4 bg-white dark:bg-[#2A2625] border border-[#E5E0D8] dark:border-[#49433F] rounded-2xl shadow-xl z-30 space-y-3">
+                                <div className="flex items-center justify-between">
+                                   <span className="text-xs font-bold uppercase tracking-wider text-[#8C7A6B] dark:text-[#918982]">
+                                      Filter by Category
+                                   </span>
+                                   {selectedCategory !== 'ALL' && (
+                                      <button 
+                                         onClick={() => setSelectedCategory('ALL')} 
+                                         className="text-xs text-[#F97316] hover:underline font-medium"
+                                      >
+                                         Reset
+                                      </button>
+                                   )}
+                                </div>
+                                <select 
+                                   value={selectedCategory} 
+                                   onChange={(e) => setSelectedCategory(e.target.value)}
+                                   className="w-full p-2.5 text-sm bg-[#FAF8F5] dark:bg-[#302C2A] border border-[#E5E0D8] dark:border-[#49433F] rounded-xl outline-none text-[#2C2724] dark:text-[#F5F1EA] font-medium"
+                                >
+                                   <option value="ALL">All Categories</option>
+                                   {categories.map((cat) => (
+                                      <option key={cat} value={cat}>
+                                         {cat}
+                                      </option>
+                                   ))}
+                                </select>
+                             </div>
+                          )}
+                       </div>
                    </div>
                </div>
 
-               {/* Search Input */}
-               <div className="relative flex-1 w-full">
-                   <div className="relative">
-                       <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${searchQuery ? 'text-[#2C2724] dark:text-[#F5F1EA]' : 'text-[#A3978E] dark:text-[#918982]'}`} />
-                       <input
-                         type="text"
-                         value={searchQuery}
-                         onChange={(e) => setSearchQuery(e.target.value)}
-                         onKeyDown={(e) => e.key === 'Enter' && handleSmartSearch()}
-                         placeholder="Search by item name, category, location..."
-                         className="w-full pl-12 pr-4 py-3 bg-[#FAF8F5] dark:bg-[#2A2625] border border-[#E5E0D8] dark:border-[#49433F] rounded-xl text-sm font-medium outline-none focus:border-[#B08D73] dark:focus:border-teal-600 focus:bg-white dark:focus:bg-[#302C2A] transition-colors placeholder:text-[#A3978E] dark:placeholder:text-[#918982] text-[#2C2724] dark:text-[#F5F1EA]"
-                        />
-                       {isProcessingSearch && <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-[#B08D73] dark:text-[#C8C0B8]" />}
-                   </div>
+               {/* Row 2: Search Input (full width) */}
+               <div className="relative w-full">
+                   <Search className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${searchQuery ? 'text-[#2C2724] dark:text-[#F5F1EA]' : 'text-[#A3978E] dark:text-[#918982]'}`} />
+                   <input
+                     type="text"
+                     value={searchQuery}
+                     onChange={(e) => setSearchQuery(e.target.value)}
+                     onKeyDown={(e) => e.key === 'Enter' && handleSmartSearch()}
+                     placeholder="Search by item name, category, location..."
+                     className="w-full pl-12 pr-4 py-3 bg-[#FAF8F5] dark:bg-[#2A2625] border border-[#E5E0D8] dark:border-[#49433F] rounded-xl text-sm font-medium outline-none focus:border-[#B08D73] dark:focus:border-teal-600 focus:bg-white dark:focus:bg-[#302C2A] transition-colors placeholder:text-[#A3978E] dark:placeholder:text-[#918982] text-[#2C2724] dark:text-[#F5F1EA]"
+                    />
+                   {isProcessingSearch && <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-[#B08D73] dark:text-[#C8C0B8]" />}
                </div>
             </div>
          </div>
